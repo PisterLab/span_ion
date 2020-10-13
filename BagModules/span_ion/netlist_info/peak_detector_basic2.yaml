@@ -1,0 +1,164 @@
+lib_name: span_ion
+cell_name: peak_detector_basic2
+pins: [ "VDD", "VSS", "VIN", "RST", "VOUT" ]
+instances:
+  XAMP<0>:
+    lib_name: bag2_analog
+    cell_name: amp_diff_mirr
+    instpins:
+      VGTAIL:
+        direction: input
+        net_name: "VN<0>"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUT:
+        direction: output
+        net_name: "vout0"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "vin1"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VIN"
+        num_bits: 1
+  XAMP<1>:
+    lib_name: bag2_analog
+    cell_name: amp_diff_mirr
+    instpins:
+      VGTAIL:
+        direction: input
+        net_name: "VN<1>"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUT:
+        direction: output
+        net_name: "VOUT"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "VOUT"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "vin1"
+        num_bits: 1
+  D0:
+    lib_name: PRIMLIB
+    cell_name: dn5
+    instpins:
+      MINUS:
+        direction: inputOutput
+        net_name: "vin1"
+        num_bits: 1
+      PLUS:
+        direction: inputOutput
+        net_name: "vout0"
+        num_bits: 1
+  XRST:
+    lib_name: BAG_prim
+    cell_name: nmos4_svt
+    instpins:
+      S:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "vin1"
+        num_bits: 1
+      B:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      G:
+        direction: inputOutput
+        net_name: "RST"
+        num_bits: 1
+  PIN3:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN2:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN4:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN1:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN0:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  XCONSTGM<1>:
+    lib_name: bag2_analog
+    cell_name: constant_gm
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VN:
+        direction: output
+        net_name: "VN<1>"
+        num_bits: 1
+      VP:
+        direction: output
+        net_name: "VP<1>"
+        num_bits: 1
+  XCONSTGM<0>:
+    lib_name: bag2_analog
+    cell_name: constant_gm
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VN:
+        direction: output
+        net_name: "VN<0>"
+        num_bits: 1
+      VP:
+        direction: output
+        net_name: "VP<0>"
+        num_bits: 1
+  XCAP:
+    lib_name: bag2_wrappers
+    cell_name: cap_ideal
+    instpins:
+      MINUS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      PLUS:
+        direction: inputOutput
+        net_name: "vin1"
+        num_bits: 1

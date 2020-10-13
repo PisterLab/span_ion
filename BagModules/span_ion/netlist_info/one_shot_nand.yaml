@@ -1,0 +1,88 @@
+lib_name: span_ion
+cell_name: one_shot_nand
+pins: [  ]
+instances:
+  XINV_OUT:
+    lib_name: bag2_digital
+    cell_name: inv
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "out"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "in"
+        num_bits: 1
+  XINV_IN:
+    lib_name: bag2_digital
+    cell_name: inv
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "net3"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "in"
+        num_bits: 1
+  XNAND:
+    lib_name: bag2_digital
+    cell_name: nand
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "net2"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "net3"
+        num_bits: 1
+  X0:
+    lib_name: BAG_prim
+    cell_name: cap_ideal
+    instpins:
+      MINUS:
+        direction: inputOutput
+        net_name: "net2"
+        num_bits: 1
+      PLUS:
+        direction: inputOutput
+        net_name: "in"
+        num_bits: 1
+  R0:
+    lib_name: BAG_prim
+    cell_name: res_standard
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "in"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "net4"
+        num_bits: 1
