@@ -37,32 +37,29 @@ class span_ion__peak_detector_basic1(Module):
             constgm_params_list = 'List of parameters for the constant gm',
             res_params_dict = 'Dictionary with keys of "rc" and "fb", values the resistor parameters.',
             cap_params = 'Capacitor parameters',
-            rst_params = 'Parameters for the reset switch'
+            rst_params_dict = 'Parameters for the reset switches'
         )
 
     def design(self, **params):
-        # BAG TODO: capacitors
-
         amp_params_list = params['amp_params_list']
         constgm_params_list = params['constgm_params_list']
         res_params_dict = params['res_params_dict']
         cap_params = params['cap_params']
-        rst_params = params['rst_params']
+        rst_params_dict = params['rst_params_dict']
 
         # Design instances
-        # self.instances['XCAP'].design(**cap_params)
+        self.instances['XRES_RC'].parameters = res_params_dict['rc']
+        self.instances['XRES_FB'].parameters = res_params_dict['fb']
+        self.instances['XCAP'].parameters = cap_params
+
+        print('*** WARNING *** Check resistor values in generated schematic.')
+
         self.instances['XAMP<0>'].design(**(amp_params_list[0]))
         self.instances['XAMP<1>'].design(**(amp_params_list[1]))
         self.instances['XCONSTGM<0>'].design(**(constgm_params_list[0]))
         self.instances['XCONSTGM<1>'].design(**(constgm_params_list[1]))
-        self.instances['XRST'].design(**rst_params)
-
-        self.instances['XRES_RC'].parameters = res_params_dict['rc']
-        self.instances['XRES_FB'].parameters = res_params_dict['fb']
-        self.instances['XCAP'].parameters = cap_params
-        # self.instances['XRES_RC'].parameters['res_val'] = res_params_dict['rc']['res_val']
-        # self.instances['XRES_FB'].parameters['res_val'] = res_params_dict['fb']['res_val']
-        # self.intsances['XCAP'].parameters['cap_val'] = cap_params['cap_val']
+        self.instances['XRST_IN1'].design(mos_type='n', **(rst_params_dict['in1']))
+        self.instances['XRST_OUT'].design(mos_type='n', **(rst_params_dict['out']))
 
         # Switching up tail connection to constant gm as necessary
         for i in range(2):

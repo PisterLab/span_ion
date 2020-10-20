@@ -138,27 +138,3 @@ instances:
         direction: inputOutput
         net_name: "VSS"
         num_bits: 1
-  XPK:
-    lib_name: AAA_PEAK_DETECTOR_BASIC2
-    cell_name: PEAK_DETECTOR_BASIC2
-    instpins:
-      RST:
-        direction: input
-        net_name: "RST"
-        num_bits: 1
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      VOUT:
-        direction: output
-        net_name: "VOUT"
-        num_bits: 1
-      VIN:
-        direction: input
-        net_name: "VIN"
-        num_bits: 1

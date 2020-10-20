@@ -2,34 +2,6 @@ lib_name: span_ion
 cell_name: zz_amp_diff_mirr
 pins: [  ]
 instances:
-  XAMP:
-    lib_name: AAA_AMP_DIFF_MIRR
-    cell_name: AMP_DIFF_MIRR
-    instpins:
-      VGTAIL:
-        direction: input
-        net_name: "VGTAIL"
-        num_bits: 1
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      VOUT:
-        direction: output
-        net_name: "VOUT"
-        num_bits: 1
-      VINN:
-        direction: input
-        net_name: "VINN"
-        num_bits: 1
-      VINP:
-        direction: input
-        net_name: "VINP"
-        num_bits: 1
   I1:
     lib_name: analogLib
     cell_name: gnd

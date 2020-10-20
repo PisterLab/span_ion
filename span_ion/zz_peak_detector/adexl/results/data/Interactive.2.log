@@ -1,0 +1,60 @@
+Starting Single Run, Sweeps and Corners...
+
+Current time: Fri Oct 16 11:19:29 2020 
+Best design point: 1
+Design specs: 
+	span_ion:zz_peak_detector:1	corner	HiT - 
+	dc_vp1		Error	No
+	dc_vp0		Error	No
+	dc_vn1		Error	No
+	dc_vn0		Error	No
+	tranVal_vinMax		229.6m
+	tranVal_voutHold		214.6m
+	tranVal_iddAvg		134.1u
+	tranVal_error		15.01m
+	tranVal_pctError		6.538
+	span_ion:zz_peak_detector:1	corner	LoT - 
+	dc_vp1		Error	No
+	dc_vp0		Error	No
+	dc_vn1		Error	No
+	dc_vn0		Error	No
+	tranVal_vinMax		229.6m
+	tranVal_voutHold		193.6m
+	tranVal_iddAvg		64.03u
+	tranVal_error		36.02m
+	tranVal_pctError		15.69
+	span_ion:zz_peak_detector:1	corner	LoLoT - 
+	dc_vp1		Error	No
+	dc_vp0		Error	No
+	dc_vn1		Error	No
+	dc_vn0		Error	No
+	tranVal_vinMax		229.6m
+	tranVal_voutHold		190.7m
+	tranVal_iddAvg		52.38u
+	tranVal_error		38.86m
+	tranVal_pctError		16.93
+	span_ion:zz_peak_detector:1	corner	Nominal - 
+	dc_vp1		Error	No
+	dc_vp0		Error	No
+	dc_vn1		Error	No
+	dc_vn0		Error	No
+	tranVal_vinMax		229.6m
+	tranVal_voutHold		202.5m
+	tranVal_iddAvg		96.17u
+	tranVal_error		27.08m
+	tranVal_pctError		11.79
+Design parameters: 
+	VDD		3.3
+	VIN_STEP		250m
+	Tper		100n
+	tstart		20n
+	tpulse		20n
+	td		10p
+	Cload		0
+	VIN_DC		0
+
+Interactive.2
+Number of points completed: 6
+Number of simulation errors: 96
+Interactive.2 completed. 
+Current time: Fri Oct 16 11:21:33 2020 

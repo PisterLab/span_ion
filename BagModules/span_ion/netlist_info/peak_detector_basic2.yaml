@@ -20,11 +20,11 @@ instances:
         num_bits: 1
       VOUT:
         direction: output
-        net_name: "vout0"
+        net_name: "VOUT0"
         num_bits: 1
       VINN:
         direction: input
-        net_name: "vin1"
+        net_name: "VIN1"
         num_bits: 1
       VINP:
         direction: input
@@ -56,7 +56,7 @@ instances:
         num_bits: 1
       VINP:
         direction: input
-        net_name: "vin1"
+        net_name: "VIN1"
         num_bits: 1
   D0:
     lib_name: PRIMLIB
@@ -64,11 +64,11 @@ instances:
     instpins:
       MINUS:
         direction: inputOutput
-        net_name: "vin1"
+        net_name: "VIN1"
         num_bits: 1
       PLUS:
         direction: inputOutput
-        net_name: "vout0"
+        net_name: "VOUT0"
         num_bits: 1
   XRST:
     lib_name: BAG_prim
@@ -80,7 +80,7 @@ instances:
         num_bits: 1
       D:
         direction: inputOutput
-        net_name: "vin1"
+        net_name: "VIN1"
         num_bits: 1
       B:
         direction: inputOutput
@@ -160,5 +160,5 @@ instances:
         num_bits: 1
       PLUS:
         direction: inputOutput
-        net_name: "vin1"
+        net_name: "VIN1"
         num_bits: 1

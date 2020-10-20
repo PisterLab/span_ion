@@ -34,23 +34,3 @@ instances:
         direction: inputOutput
         net_name: "VSS"
         num_bits: 1
-  XCONST:
-    lib_name: AAA_CONSTGM
-    cell_name: CONSTGM
-    instpins:
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      VN:
-        direction: output
-        net_name: "VN"
-        num_bits: 1
-      VP:
-        direction: output
-        net_name: "VP"
-        num_bits: 1

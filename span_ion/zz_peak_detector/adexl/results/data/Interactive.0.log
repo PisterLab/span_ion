@@ -1,0 +1,40 @@
+Starting Single Run, Sweeps and Corners...
+
+Current time: Fri Oct 16 10:53:24 2020 
+Best design point: 1
+Design specs: 
+	span_ion:zz_peak_detector:1	corner	HiT - 
+	dc_vp1		2.177
+	dc_vp0		2.177
+	dc_vn1		913.8m
+	dc_vn0		913.8m
+	span_ion:zz_peak_detector:1	corner	LoT - 
+	dc_vp1		2.193
+	dc_vp0		2.193
+	dc_vn1		940m
+	dc_vn0		940m
+	span_ion:zz_peak_detector:1	corner	LoLoT - 
+	dc_vp1		2.196
+	dc_vp0		2.196
+	dc_vn1		948.2m
+	dc_vn0		948.2m
+	span_ion:zz_peak_detector:1	corner	Nominal - 
+	dc_vp1		2.185
+	dc_vp0		2.185
+	dc_vn1		923.9m
+	dc_vn0		923.9m
+Design parameters: 
+	VDD		3.3
+	VIN_STEP		250m
+	Tper		100n
+	tstart		10n
+	tpulse		10n
+	td		10p
+	Cload		0
+	VIN_DC		0
+
+Interactive.0
+Number of points completed: 6
+Number of simulation errors: 0
+Interactive.0 completed. 
+Current time: Fri Oct 16 10:55:06 2020 

@@ -1,0 +1,60 @@
+lib_name: span_ion
+cell_name: inv_delay_line
+pins: [ "VP", "VN", "in", "out", "VDD", "VSS", "mid" ]
+instances:
+  XDELAY:
+    lib_name: span_ion
+    cell_name: inv_delay_line_unit
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "out"
+        num_bits: 1
+      VN:
+        direction: input
+        net_name: "VN"
+        num_bits: 1
+      VP:
+        direction: input
+        net_name: "VP"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "in"
+        num_bits: 1
+  PIN2:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN1:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN0:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN6:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN5:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN4:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
