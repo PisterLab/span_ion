@@ -23,7 +23,7 @@ class span_ion__delay_tt1_ord2(Module):
         Module.__init__(self, database, self.yaml_file, parent=parent, prj=prj, **kwargs)
 
     @classmethod
-    def get_params_info(cls):
+    def get_params_info(cls) -> Mapping[str, Any]:
         # type: () -> Dict[str, str]
         """Returns a dictionary from parameter names to descriptions.
 
@@ -33,9 +33,13 @@ class span_ion__delay_tt1_ord2(Module):
             dictionary from parameter names to descriptions.
         """
         return dict(
+            cap_params_list = 'List of cap parameters. Ordering can be seen by the index in the schematic.',
+            res_params_list = 'List of res parameters. Ordering can be seen by the index in the schematic.',
+            amp_params_list = 'List of amplifier parameters.',
+            constgm_params_list = 'List of constant gm parameters.'
         )
 
-    def design(self):
+    def design(self, **params):
         """To be overridden by subclasses to design this module.
 
         This method should fill in values for all parameters in
@@ -51,5 +55,26 @@ class span_ion__delay_tt1_ord2(Module):
         restore_instance()
         array_instance()
         """
-        pass
+        cap_params_list = params['cap_params_list']
+        res_params_list = params['res_params_list']
+        amp_params_list = params['amp_params_list']
+        constgm_params_list = params['constgm_params_list']
 
+        # Design instances
+        for i in range(8):
+            self.instances[f'XR<{i}>'].parameters = res_params_list[i]
+
+        for i in range(2):
+            self.instances[f'XC<{i}>'].parameters = cap_params_list[i]
+
+        print('*** WARNING *** (delay_tt1_ord2) Check passive component values in generated schematic.', flush=True)
+
+        for idx_constgm, constgm_params in enumerate(constgm_params_list):
+            self.instances[f'XCONSTGM<{idx_constgm}>'].design(**constgm_params)
+
+        for idx_amp, amp_params in enumerate(amp_params_list):
+            self.instances[f'XAMP<{idx_amp}>'].design(**amp_params)
+
+            # Switching up tail connection to constant gm as necessary
+            if amp_params_list[i]['in_type'] == 'n':
+                self.reconnect_instance_terminal(f'XAMP<{i}>', 'VGTAIL', f'VN<{i}>')

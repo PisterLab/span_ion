@@ -33,9 +33,8 @@ class span_ion__delay_tt2_ord2(Module):
             dictionary from parameter names to descriptions.
         """
         return dict(
-            cap_params = 'Parameters to apply to all the caps.',
-            rconst_params = 'Parameters to apply to all the resistors set as constant in the filter synthesis.',
-            res_params = 'Parameters to apply to the resistors which aren not defined as constant in filter synthesis.',
+            cap_params_list = 'List of cap parameters. Ordering can be seen by the index in the schematic.',
+            res_params_list = 'List of res parameters. Ordering can be seen by the index in the schematic.',
             amp_params_list = 'List of amplifier parameters.',
             constgm_params_list = 'List of constant gm parameters.'
         )
@@ -56,21 +55,17 @@ class span_ion__delay_tt2_ord2(Module):
         restore_instance()
         array_instance()
         """
-        cap_params = params['cap_params']
-        rconst_params = params['rconst_params']
-        res_params = params['res_params']
+        cap_params_list = params['cap_params_list']
+        res_params_list = params['res_params_list']
         amp_params_list = params['amp_params_list']
         constgm_params_list = params['constgm_params_list']
 
         # Design instances
-        for i in range(5):
-            self.instances[f'XRCONST<{i}>'].parameters = rconst_params
-
-        for i in range(2):
-            self.instances[f'XR<{i}>'].parameters = res_params
+        for i in range(7):
+            self.instances[f'XR<{i}>'].parameters = res_params_list[i]
 
         for i in range(3):
-            self.instances[f'XC<{i}>'].parameters = cap_params
+            self.instances[f'XC<{i}>'].parameters = cap_params_list[i]
 
         print('*** WARNING *** (delay_tt2_ord2) Check passive component values in generated schematic.', flush=True)
 

@@ -33,9 +33,8 @@ class span_ion__delay_sk_ord2(Module):
             dictionary from parameter names to descriptions.
         """
         return dict(
-            rconst_params = 'Resistor parameters for those whose value is predefined when synthesizing the filter.',
             res_params_list = 'List of resistor parameters. Ordering is indicated in the schematic by the index of the resistor.',
-            cap_params_list = 'Capacitor parameters. All caps are identical.',
+            cap_params_list = 'List of cap parameters. Ordering is indicated in schematic indices.',
             amp_params = 'Amplifier parameters',
             constgm_params = 'Constant gm parameters'
         )
@@ -58,22 +57,18 @@ class span_ion__delay_sk_ord2(Module):
         """
         amp_params = params['amp_params']
         constgm_params = params['constgm_params']
-        rconst_params = params['rconst_params']
         res_params_list = params['res_params_list']
-        cap_params = params['cap_params']
+        cap_params_list = params['cap_params_list']
 
         # Design instances
         self.instances['XAMP'].design(**amp_params)
         self.instances['XCONSTGM'].design(**constgm_params)
 
-        for i in range(3):
-            self.instances[f'XRCONST<{i}>'].parameters = rconst_params
-
-        for i in range(3):
+        for i in range(6):
             self.instances[f'XR<{i}>'].parameters = res_params_list[i]
 
         for i in range(2):
-            self.instances[f'XC<{i}>'].parameters = cap_params
+            self.instances[f'XC<{i}>'].parameters = cap_params_list[i]
         
         print('*** WARNING *** (delay_sk_ord2) Check passive component values in generated schematic.', flush=True)
 
