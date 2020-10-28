@@ -1,0 +1,164 @@
+lib_name: span_ion
+cell_name: delay_sk_ord2
+pins: [ "VDD", "VSS", "VOUT", "VIN" ]
+instances:
+  XAMP:
+    lib_name: bag2_analog
+    cell_name: amp_diff_mirr
+    instpins:
+      VGTAIL:
+        direction: input
+        net_name: "VP"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUT:
+        direction: output
+        net_name: "VOUT"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "net1"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "net03"
+        num_bits: 1
+  XR<3>:
+    lib_name: bag2_wrappers
+    cell_name: res_ideal
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "net1"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "VIN"
+        num_bits: 1
+  XR<4>:
+    lib_name: bag2_wrappers
+    cell_name: res_ideal
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "net1"
+        num_bits: 1
+  XR<0>:
+    lib_name: bag2_wrappers
+    cell_name: res_ideal
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "net02"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "VIN"
+        num_bits: 1
+  XR<1>:
+    lib_name: bag2_wrappers
+    cell_name: res_ideal
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "net03"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+  XR<2>:
+    lib_name: bag2_wrappers
+    cell_name: res_ideal
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "VOUT"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "net02"
+        num_bits: 1
+  XR<5>:
+    lib_name: bag2_wrappers
+    cell_name: res_ideal
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "net1"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "VOUT"
+        num_bits: 1
+  PIN1:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN0:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  XC<1>:
+    lib_name: bag2_wrappers
+    cell_name: cap_ideal
+    instpins:
+      MINUS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      PLUS:
+        direction: inputOutput
+        net_name: "net02"
+        num_bits: 1
+  XC<0>:
+    lib_name: bag2_wrappers
+    cell_name: cap_ideal
+    instpins:
+      MINUS:
+        direction: inputOutput
+        net_name: "net02"
+        num_bits: 1
+      PLUS:
+        direction: inputOutput
+        net_name: "net03"
+        num_bits: 1
+  PIN2:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  XCONSTGM:
+    lib_name: bag2_analog
+    cell_name: constant_gm
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VN:
+        direction: output
+        net_name: "VN"
+        num_bits: 1
+      VP:
+        direction: output
+        net_name: "VP"
+        num_bits: 1
