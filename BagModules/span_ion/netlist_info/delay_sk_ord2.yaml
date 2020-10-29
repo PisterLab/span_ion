@@ -42,6 +42,18 @@ instances:
         direction: inputOutput
         net_name: "net02"
         num_bits: 1
+  XR<2>:
+    lib_name: bag2_wrappers
+    cell_name: res_ideal
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "net03"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
   XR<4>:
     lib_name: bag2_wrappers
     cell_name: res_ideal
@@ -54,7 +66,7 @@ instances:
         direction: inputOutput
         net_name: "net04"
         num_bits: 1
-  XR<3>:
+  XR<0>:
     lib_name: bag2_wrappers
     cell_name: res_ideal
     instpins:
@@ -64,7 +76,7 @@ instances:
         num_bits: 1
       MINUS:
         direction: inputOutput
-        net_name: "VOUT"
+        net_name: "VIN"
         num_bits: 1
   XR<1>:
     lib_name: bag2_wrappers
@@ -78,19 +90,7 @@ instances:
         direction: inputOutput
         net_name: "VIN"
         num_bits: 1
-  XR<2>:
-    lib_name: bag2_wrappers
-    cell_name: res_ideal
-    instpins:
-      PLUS:
-        direction: inputOutput
-        net_name: "net03"
-        num_bits: 1
-      MINUS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-  XR<0>:
+  XR<3>:
     lib_name: bag2_wrappers
     cell_name: res_ideal
     instpins:
@@ -100,7 +100,7 @@ instances:
         num_bits: 1
       MINUS:
         direction: inputOutput
-        net_name: "VIN"
+        net_name: "VOUT"
         num_bits: 1
   PIN1:
     lib_name: basic

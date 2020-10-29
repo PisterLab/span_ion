@@ -126,91 +126,19 @@ instances:
         direction: inputOutput
         net_name: "net023"
         num_bits: 1
-  XRCONST<0>:
-    lib_name: bag2_wrappers
-    cell_name: res_ideal
-    instpins:
-      PLUS:
-        direction: inputOutput
-        net_name: "VIN"
-        num_bits: 1
-      MINUS:
-        direction: inputOutput
-        net_name: "net02"
-        num_bits: 1
   XR<0>:
     lib_name: bag2_wrappers
     cell_name: res_ideal
     instpins:
       PLUS:
         direction: inputOutput
-        net_name: "net018"
+        net_name: "VIN"
         num_bits: 1
       MINUS:
         direction: inputOutput
         net_name: "net02"
         num_bits: 1
-  XRCONST<1>:
-    lib_name: bag2_wrappers
-    cell_name: res_ideal
-    instpins:
-      PLUS:
-        direction: inputOutput
-        net_name: "net018"
-        num_bits: 1
-      MINUS:
-        direction: inputOutput
-        net_name: "net05"
-        num_bits: 1
-  XRCONST<4>:
-    lib_name: bag2_wrappers
-    cell_name: res_ideal
-    instpins:
-      PLUS:
-        direction: inputOutput
-        net_name: "VOUT"
-        num_bits: 1
-      MINUS:
-        direction: inputOutput
-        net_name: "net017"
-        num_bits: 1
-  XRCONST<2>:
-    lib_name: bag2_wrappers
-    cell_name: res_ideal
-    instpins:
-      PLUS:
-        direction: inputOutput
-        net_name: "VIN"
-        num_bits: 1
-      MINUS:
-        direction: inputOutput
-        net_name: "net05"
-        num_bits: 1
-  XRCONST<5>:
-    lib_name: bag2_wrappers
-    cell_name: res_ideal
-    instpins:
-      PLUS:
-        direction: inputOutput
-        net_name: "VIN"
-        num_bits: 1
-      MINUS:
-        direction: inputOutput
-        net_name: "net017"
-        num_bits: 1
-  XRCONST<3>:
-    lib_name: bag2_wrappers
-    cell_name: res_ideal
-    instpins:
-      PLUS:
-        direction: inputOutput
-        net_name: "net05"
-        num_bits: 1
-      MINUS:
-        direction: inputOutput
-        net_name: "VOUT"
-        num_bits: 1
-  XRCONST<6>:
+  XR<7>:
     lib_name: bag2_wrappers
     cell_name: res_ideal
     instpins:
@@ -221,6 +149,78 @@ instances:
       MINUS:
         direction: inputOutput
         net_name: "net023"
+        num_bits: 1
+  XR<6>:
+    lib_name: bag2_wrappers
+    cell_name: res_ideal
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "VIN"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "net017"
+        num_bits: 1
+  XR<2>:
+    lib_name: bag2_wrappers
+    cell_name: res_ideal
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "net018"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "net05"
+        num_bits: 1
+  XR<5>:
+    lib_name: bag2_wrappers
+    cell_name: res_ideal
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "VOUT"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "net017"
+        num_bits: 1
+  XR<1>:
+    lib_name: bag2_wrappers
+    cell_name: res_ideal
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "net02"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "net018"
+        num_bits: 1
+  XR<4>:
+    lib_name: bag2_wrappers
+    cell_name: res_ideal
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "net05"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "VOUT"
+        num_bits: 1
+  XR<3>:
+    lib_name: bag2_wrappers
+    cell_name: res_ideal
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "VIN"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "net05"
         num_bits: 1
   XCONSTGM<0>:
     lib_name: bag2_analog
