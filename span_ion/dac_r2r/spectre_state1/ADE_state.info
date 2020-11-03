@@ -1,0 +1,3 @@
+projectDir = '"~/simulation"
+designInfo = '("span_ion" "dac_r2r" "schematic" "spectre")
+descriptionText = "None"

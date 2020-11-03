@@ -1,0 +1,100 @@
+lib_name: span_ion
+cell_name: voter_3
+pins: [ "in<2:0>", "out", "VDD", "VSS" ]
+instances:
+  XIN<2>:
+    lib_name: bag2_digital
+    cell_name: nand
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "mid<2>"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "in<2>"
+        num_bits: 1
+  XIN<1>:
+    lib_name: bag2_digital
+    cell_name: nand
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "mid<1>"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "in<1>"
+        num_bits: 1
+  XIN<0>:
+    lib_name: bag2_digital
+    cell_name: nand
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "mid<0>"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "in<0>"
+        num_bits: 1
+  XOUT:
+    lib_name: bag2_digital
+    cell_name: nand
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "out"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "net6"
+        num_bits: 1
+  PIN0:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN1:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN2:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}

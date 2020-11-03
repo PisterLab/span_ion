@@ -1,27 +1,7 @@
 lib_name: span_ion
 cell_name: one_shot_nand
-pins: [  ]
+pins: [ "out", "outb", "VDD", "VSS", "in" ]
 instances:
-  XINV_OUT:
-    lib_name: bag2_digital
-    cell_name: inv
-    instpins:
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      out:
-        direction: output
-        net_name: "out"
-        num_bits: 1
-      in:
-        direction: input
-        net_name: "in"
-        num_bits: 1
   XINV_IN:
     lib_name: bag2_digital
     cell_name: inv
@@ -36,7 +16,7 @@ instances:
         num_bits: 1
       out:
         direction: output
-        net_name: "net3"
+        net_name: "inb"
         num_bits: 1
       in:
         direction: input
@@ -56,33 +36,125 @@ instances:
         num_bits: 1
       out:
         direction: output
-        net_name: "net2"
+        net_name: "in_gate"
         num_bits: 1
       in:
         direction: input
-        net_name: "net3"
+        net_name: "inb"
         num_bits: 1
-  X0:
-    lib_name: BAG_prim
+  XC:
+    lib_name: bag2_wrappers
     cell_name: cap_ideal
     instpins:
       MINUS:
         direction: inputOutput
-        net_name: "net2"
+        net_name: "in_gate"
         num_bits: 1
       PLUS:
         direction: inputOutput
-        net_name: "in"
+        net_name: "in_filt"
         num_bits: 1
-  R0:
-    lib_name: BAG_prim
-    cell_name: res_standard
+  XINV_OUT:
+    lib_name: bag2_digital
+    cell_name: inv_chain
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "out"
+        num_bits: 1
+      outb:
+        direction: output
+        net_name: "outb"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "in_filt"
+        num_bits: 1
+  XR:
+    lib_name: bag2_wrappers
+    cell_name: res_ideal
     instpins:
       PLUS:
         direction: inputOutput
-        net_name: "in"
+        net_name: "in_filt"
         num_bits: 1
       MINUS:
         direction: inputOutput
-        net_name: "net4"
+        net_name: "VSS"
+        num_bits: 1
+  PIN1:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN0:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN2:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN4:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  XRST:
+    lib_name: bag2_analog
+    cell_name: switch
+    instpins:
+      BN:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "rstb_RC"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "rst_RC"
+        num_bits: 1
+      BP:
+        direction: input
+        net_name: "VDD"
+        num_bits: 1
+      S:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "in_filt"
+        num_bits: 1
+  XNOR:
+    lib_name: bag2_digital
+    cell_name: nor
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "rst_RC"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "in"
         num_bits: 1

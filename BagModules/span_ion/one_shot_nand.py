@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import Dict
+from typing import Mapping
 
 import os
 import pkg_resources
@@ -23,7 +23,7 @@ class span_ion__one_shot_nand(Module):
         Module.__init__(self, database, self.yaml_file, parent=parent, prj=prj, **kwargs)
 
     @classmethod
-    def get_params_info(cls):
+    def get_params_info(cls) -> Mapping[str,str]:
         # type: () -> Dict[str, str]
         """Returns a dictionary from parameter names to descriptions.
 
@@ -33,9 +33,16 @@ class span_ion__one_shot_nand(Module):
             dictionary from parameter names to descriptions.
         """
         return dict(
+            inv_in_params = 'Input inverter parameters',
+            nand_params = 'NAND parameters',
+            nor_params = 'reset NOR parameters',
+            rst_params = 'reset switch parameters',
+            inv_chain_params = 'Inverter chain parameters',
+            res_params = 'RC resistor parameters',
+            cap_params = 'RC cap parameters'
         )
 
-    def design(self):
+    def design(self, **params):
         """To be overridden by subclasses to design this module.
 
         This method should fill in values for all parameters in
@@ -51,5 +58,29 @@ class span_ion__one_shot_nand(Module):
         restore_instance()
         array_instance()
         """
-        pass
+        inv_in_params = params['inv_in_params']
+        nand_params = params['nand_params']
+        inv_chain_params = params['inv_chain_params']
+        res_params = params['res_params']
+        cap_params = params['cap_params']
+        nor_params = params['nor_params']
+        rst_params = params['rst_params']
 
+        inv_chain_length = len(inv_chain_params['inv_param_list'])
+
+        assert inv_chain_length >= 2, f'Length of inverter chain {inv_chain_length} must be >= 2'
+
+        # Design instances
+        self.instances['XINV_IN'].design(**inv_in_params)
+        self.instances['XNAND'].design(num_in=2, **nand_params)
+        self.instances['XINV_OUT'].design(dual_output=True, **inv_chain_params)
+        self.instances['XNOR'].design(num_in=3, **nor_params)
+        self.instances['XRST'].design(mos_type='n', **rst_params)
+
+        print("*** WARNING *** (one_shot_nand) Ensure that passive values are correct in the generated schematic")
+
+        self.instances['XR'].parameters = res_params
+        self.instances['XC'].parameters = cap_params
+
+        self.reconnect_instance_terminal('XNAND', 'in<1:0>', 'inb,outb')
+        self.reconnect_instance_terminal('XNOR', 'in<2:0>', 'in,in_gate,out')
