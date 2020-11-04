@@ -52,7 +52,7 @@ analysis(noise fields dec) "10"
 analysis(noise fields designVar) ""
 analysis(noise fields dev) ""
 analysis(noise fields deviceParam) ""
-analysis(noise fields enable) (nil)
+analysis(noise fields enable) (t)
 analysis(noise fields freq) ""
 analysis(noise fields inIsrc) ""
 analysis(noise fields inPort) ""
