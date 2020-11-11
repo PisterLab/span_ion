@@ -7,19 +7,19 @@ instances:
     cell_name: nmos4_5
     instpins:
       S:
-        direction: inputOutput
+        direction: 
         net_name: "VSS"
         num_bits: 1
       D:
-        direction: inputOutput
+        direction: 
         net_name: "VOUT"
         num_bits: 1
       B:
-        direction: inputOutput
+        direction: 
         net_name: "VSS"
         num_bits: 1
       G:
-        direction: inputOutput
+        direction: 
         net_name: "VIN"
         num_bits: 1
   X1:
@@ -27,19 +27,19 @@ instances:
     cell_name: pmos4_5
     instpins:
       S:
-        direction: inputOutput
+        direction: 
         net_name: "VDD"
         num_bits: 1
       D:
-        direction: inputOutput
+        direction: 
         net_name: "VOUT"
         num_bits: 1
       B:
-        direction: inputOutput
+        direction: 
         net_name: "VDD"
         num_bits: 1
       G:
-        direction: inputOutput
+        direction: 
         net_name: "VIN"
         num_bits: 1
   PIN0:
