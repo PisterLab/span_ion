@@ -1,0 +1,37 @@
+Starting Monte Carlo Sampling...
+
+Current time: Mon Nov  9 10:51:21 2020 
+MonteCarlo.4
+Number of points completed: 200
+Number of simulation errors: 0
+MonteCarlo.4 completed. 
+Current time: Mon Nov  9 10:56:01 2020 
+Monte Carlo Sampling yield summary:
+Number of spec values are in this yield data: 7
+span_ion:zz_dac_rladder:1	Nominal - 
+	dc_ibias:	Yield	100%
+		Min 1.2736e-05	Max 1.66372e-05	Mean 1.4967e-05	Number of errors 0
+span_ion:zz_dac_rladder:1	Nominal - 
+	dc_vout:	Yield	100%
+		Min 1.64853	Max 1.65134	Mean 1.64986	Number of errors 0
+span_ion:zz_dac_rladder:1	Nominal - 
+	noise_voutStd:	Yield	100%
+		Min 0.000440673	Max 0.000456163	Mean 0.00044873	Number of errors 0
+span_ion:zz_dac_rladder:1	Nominal - 
+	noise_voutVar:	Yield	100%
+		Min 1.94193e-07	Max 2.08085e-07	Mean 2.01369e-07	Number of errors 0
+span_ion:zz_dac_rladder:1	Nominal - 
+	val_code:	Yield	100%
+		Min 256	Max 256	Mean 256	Number of errors 0
+span_ion:zz_dac_rladder:1	Nominal - 
+	val_codeMax:	Yield	100%
+		Min 511	Max 511	Mean 511	Number of errors 0
+span_ion:zz_dac_rladder:1	Nominal - 
+	val_voutIdeal:	Yield	100%
+		Min 1.65	Max 1.65	Mean 1.65	Number of errors 0
+
+span_ion:zz_dac_rladder:1
+	Overall Yield	100%	Number of points passed	200	Total number of points	200
+
+Estimated yield = 100% (200/200), 0 errors
+Estimated yield (No opregions) = 100% (200/200)
