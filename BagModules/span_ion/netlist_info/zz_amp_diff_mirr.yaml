@@ -16,7 +16,7 @@ instances:
     instpins:
       PLUS:
         direction: inputOutput
-        net_name: "VGTAIL"
+        net_name: "net1"
         num_bits: 1
       MINUS:
         direction: inputOutput
@@ -81,4 +81,12 @@ instances:
       PLUS:
         direction: inputOutput
         net_name: "VOUT"
+        num_bits: 1
+  I4:
+    lib_name: basic
+    cell_name: noConn
+    instpins:
+      noConn:
+        direction: inputOutput
+        net_name: "VP"
         num_bits: 1

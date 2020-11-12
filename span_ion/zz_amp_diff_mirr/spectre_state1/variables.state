@@ -16,7 +16,7 @@ tmp2 = make_sevVariableStruct()
 tmp2 = (ncons nil)
 )
 tmp2->name = "Cload"
-tmp2->expression = "100f"
+tmp2->expression = "1p"
 tmp2->index = 2
 (unless tmp3
 tmp3 = make_sevVariableStruct()
@@ -43,7 +43,7 @@ tmp5 = make_sevVariableStruct()
 tmp5 = (ncons nil)
 )
 tmp5->name = "VGTAIL"
-tmp5->expression = "2.3"
+tmp5->expression = "871.1m"
 tmp5->index = 5
 (unless tmp6
 tmp6 = make_sevVariableStruct()
@@ -61,7 +61,7 @@ tmp7 = make_sevVariableStruct()
 tmp7 = (ncons nil)
 )
 tmp7->name = "VIN_DC"
-tmp7->expression = "0"
+tmp7->expression = "1.16"
 tmp7->index = 7
 list(tmp1 tmp2 tmp3 tmp4 tmp5 tmp6 tmp7)
 )

@@ -33,6 +33,7 @@ class span_ion__delay_tt2_ord2(Module):
             dictionary from parameter names to descriptions.
         """
         return dict(
+            bulk_conn = 'Node to connect the resistor bulks to',
             cap_params_list = 'List of cap parameters. Ordering can be seen by the index in the schematic.',
             res_params_list = 'List of res parameters. Ordering can be seen by the index in the schematic.',
             amp_params_list = 'List of amplifier parameters.',
@@ -58,14 +59,18 @@ class span_ion__delay_tt2_ord2(Module):
         cap_params_list = params['cap_params_list']
         res_params_list = params['res_params_list']
         amp_params_list = params['amp_params_list']
-        constgm_params_list = params['constgm_params_list']
+        # constgm_params_list = params['constgm_params_list']
+        bulk_conn = params['bulk_conn']
+
+        assert bulk_conn in ('VDD', 'VSS'), f'Bulk connection should be to VDD or VSS, not {bulk_conn}'
 
         # Design instances
-        for i in range(7):
-            self.instances[f'XR<{i}>'].parameters = res_params_list[i]
+        for i, res_params in enumerate(res_params_list):
+            # self.instances[f'XR<{i}>'].parameters = res_params_list[i]
+            self.instances[f'XR<{i}>'].design(**res_params)
 
-        for i in range(3):
-            self.instances[f'XC<{i}>'].parameters = cap_params_list[i]
+        for i, cap_params in enumerate(cap_params_list):
+            self.instances[f'XC<{i}>'].parameters = cap_params
 
         print('*** WARNING *** (delay_tt2_ord2) Check passive component values in generated schematic.', flush=True)
 
@@ -78,3 +83,7 @@ class span_ion__delay_tt2_ord2(Module):
             # Switching up tail connection to constant gm as necessary
             if amp_params_list[i]['in_type'] == 'n':
                 self.reconnect_instance_terminal(f'XAMP<{i}>', 'VGTAIL', f'VN<{i}>')
+
+        Connecting the resistor bulk
+        for i in range(len(res_params_list)):
+            self.reconnect_instance_terminal(f'XR<{i}>', 'BULK', bulk_conn)
