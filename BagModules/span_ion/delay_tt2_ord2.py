@@ -59,7 +59,7 @@ class span_ion__delay_tt2_ord2(Module):
         cap_params_list = params['cap_params_list']
         res_params_list = params['res_params_list']
         amp_params_list = params['amp_params_list']
-        # constgm_params_list = params['constgm_params_list']
+        constgm_params_list = params['constgm_params_list']
         bulk_conn = params['bulk_conn']
 
         assert bulk_conn in ('VDD', 'VSS'), f'Bulk connection should be to VDD or VSS, not {bulk_conn}'
@@ -84,6 +84,6 @@ class span_ion__delay_tt2_ord2(Module):
             if amp_params_list[i]['in_type'] == 'n':
                 self.reconnect_instance_terminal(f'XAMP<{i}>', 'VGTAIL', f'VN<{i}>')
 
-        Connecting the resistor bulk
+        # Connecting the resistor bulk
         for i in range(len(res_params_list)):
             self.reconnect_instance_terminal(f'XR<{i}>', 'BULK', bulk_conn)

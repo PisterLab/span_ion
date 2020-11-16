@@ -66,12 +66,14 @@ class span_ion__delay_tt2(Module):
 
                 vin_conn = 'VIN' if i == 0 else f'm<{i-1}>'
                 vout_conn = 'VOUT' if i == num_units-1 else f'm<{i}>'
-                conn_list.append(dict(VDD='VDD',
-                                      VSS='VSS',
-                                      VIN=vin_conn,
-                                      VOUT=vout_conn))
+                conn_list.append({'VDD' : 'VDD',
+                                  'VSS' : 'VSS',
+                                  'VIN' : vin_conn,
+                                  'VOUT' : vout_conn,
+                                  'VREF' : f'VREF<{i}>'})
 
             self.array_instance('XDELAY', inst_list, conn_list)
+            self.rename_pin('VREF', f'VREF<{num_units-1}:0>')
 
             for i in range(num_units):
                 self.instances['XDELAY'][i].design(**(unit_params_list[i]))

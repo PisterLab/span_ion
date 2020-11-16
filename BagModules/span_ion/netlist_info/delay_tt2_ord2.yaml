@@ -24,13 +24,13 @@ instances:
         num_bits: 1
       VINN:
         direction: input
-        net_name: "net07"
+        net_name: "net2"
         num_bits: 1
       VINP:
         direction: input
         net_name: "VREF"
         num_bits: 1
-  XAMPM<1>:
+  XAMP<1>:
     lib_name: bag2_analog
     cell_name: amp_diff_mirr
     instpins:
@@ -48,11 +48,11 @@ instances:
         num_bits: 1
       VOUT:
         direction: output
-        net_name: "net05"
+        net_name: "net6"
         num_bits: 1
       VINN:
         direction: input
-        net_name: "net04"
+        net_name: "net5"
         num_bits: 1
       VINP:
         direction: input
@@ -76,11 +76,11 @@ instances:
         num_bits: 1
       VOUT:
         direction: output
-        net_name: "net010"
+        net_name: "net8"
         num_bits: 1
       VINN:
         direction: input
-        net_name: "net02"
+        net_name: "net7"
         num_bits: 1
       VINP:
         direction: input
@@ -112,11 +112,11 @@ instances:
     instpins:
       MINUS:
         direction: inputOutput
-        net_name: "net04"
+        net_name: "net5"
         num_bits: 1
       PLUS:
         direction: inputOutput
-        net_name: "net05"
+        net_name: "net6"
         num_bits: 1
   XC<0>:
     lib_name: bag2_wrappers
@@ -128,7 +128,7 @@ instances:
         num_bits: 1
       PLUS:
         direction: inputOutput
-        net_name: "net07"
+        net_name: "net2"
         num_bits: 1
   XC<1>:
     lib_name: bag2_wrappers
@@ -136,7 +136,7 @@ instances:
     instpins:
       MINUS:
         direction: inputOutput
-        net_name: "net07"
+        net_name: "net2"
         num_bits: 1
       PLUS:
         direction: inputOutput
@@ -212,7 +212,7 @@ instances:
         num_bits: 1
       PLUS:
         direction: inputOutput
-        net_name: "net04"
+        net_name: "net5"
         num_bits: 1
       MINUS:
         direction: inputOutput
@@ -228,11 +228,11 @@ instances:
         num_bits: 1
       PLUS:
         direction: inputOutput
-        net_name: "net05"
+        net_name: "net6"
         num_bits: 1
       MINUS:
         direction: inputOutput
-        net_name: "net02"
+        net_name: "net7"
         num_bits: 1
   XR<4>:
     lib_name: bag2_analog
@@ -248,7 +248,7 @@ instances:
         num_bits: 1
       MINUS:
         direction: inputOutput
-        net_name: "net02"
+        net_name: "net7"
         num_bits: 1
   XR<1>:
     lib_name: bag2_analog
@@ -260,7 +260,7 @@ instances:
         num_bits: 1
       PLUS:
         direction: inputOutput
-        net_name: "net04"
+        net_name: "net5"
         num_bits: 1
       MINUS:
         direction: inputOutput
@@ -276,11 +276,11 @@ instances:
         num_bits: 1
       PLUS:
         direction: inputOutput
-        net_name: "net010"
+        net_name: "net8"
         num_bits: 1
       MINUS:
         direction: inputOutput
-        net_name: "net02"
+        net_name: "net7"
         num_bits: 1
   XR<0>:
     lib_name: bag2_analog
@@ -296,7 +296,7 @@ instances:
         num_bits: 1
       MINUS:
         direction: inputOutput
-        net_name: "net07"
+        net_name: "net2"
         num_bits: 1
   XR<6>:
     lib_name: bag2_analog
@@ -308,9 +308,9 @@ instances:
         num_bits: 1
       PLUS:
         direction: inputOutput
-        net_name: "net07"
+        net_name: "net2"
         num_bits: 1
       MINUS:
         direction: inputOutput
-        net_name: "net010"
+        net_name: "net8"
         num_bits: 1
