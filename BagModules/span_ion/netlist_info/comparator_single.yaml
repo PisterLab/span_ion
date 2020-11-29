@@ -1,11 +1,19 @@
 lib_name: span_ion
 cell_name: comparator_single
-pins: [ "VDD", "VSS", "VINP", "VINN", "out", "outb" ]
+pins: [ "VDD", "VSS", "VINP", "VINN", "out", "outb", "bn", "bpb" ]
 instances:
-  XBUF:
-    lib_name: bag2_digital
-    cell_name: inv_chain
+  XINV:
+    lib_name: bag2_analog
+    cell_name: inv_starved
     instpins:
+      bpb:
+        direction: input
+        net_name: "bpb"
+        num_bits: 1
+      bn:
+        direction: input
+        net_name: "bn"
+        num_bits: 1
       VSS:
         direction: inputOutput
         net_name: "VSS"
@@ -16,11 +24,7 @@ instances:
         num_bits: 1
       out:
         direction: output
-        net_name: "out"
-        num_bits: 1
-      outb:
-        direction: output
-        net_name: "outb"
+        net_name: "voutb"
         num_bits: 1
       in:
         direction: input
@@ -32,7 +36,7 @@ instances:
     instpins:
       VGTAIL:
         direction: input
-        net_name: "VN"
+        net_name: "VGN"
         num_bits: 1
       VSS:
         direction: inputOutput
@@ -61,6 +65,14 @@ instances:
   PIN0:
     lib_name: basic
     cell_name: iopin
+    instpins: {}
+  PIN7:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN6:
+    lib_name: basic
+    cell_name: ipin
     instpins: {}
   PIN3:
     lib_name: basic
@@ -92,9 +104,33 @@ instances:
         num_bits: 1
       VN:
         direction: output
-        net_name: "VN"
+        net_name: "VGN"
         num_bits: 1
       VP:
         direction: output
-        net_name: "VP"
+        net_name: "VGP"
+        num_bits: 1
+  XBUF:
+    lib_name: bag2_digital
+    cell_name: inv_chain
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "outb"
+        num_bits: 1
+      outb:
+        direction: output
+        net_name: "out"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "voutb"
         num_bits: 1

@@ -37,10 +37,13 @@ class span_ion__comparator_single(Module):
             dictionary from parameter names to descriptions.
         """
         return dict(
+            bits_inv_p = 'Number of PMOS control bits for the starved inverter',
+            bits_inv_n = 'Number of NMOS control bits for the starved inverter',
             in_type = '"n" or "p" for the input pair type of the amplifier',
             amp_params = 'Parameters for the analog amplifier',
             constgm_params = 'Constant gm parameters',
-            buf_params = 'Parameters for the inverter chain'
+            inv_params = 'Tunable resistor parameters',
+            buf_params = 'Parameters for the tristate inverter chain'
         )
 
     def design(self, **params):
@@ -62,11 +65,16 @@ class span_ion__comparator_single(Module):
         in_type = params['in_type']
         amp_params = params['amp_params']
         constgm_params = params['constgm_params']
+        inv_params = params['inv_params']
         buf_params = params['buf_params']
+        bits_inv_p = params['bits_inv_p']
+        bits_inv_n = params['bits_inv_n']
 
         diff_out = buf_params['dual_output']
         num_inv = len(buf_params['inv_param_list'])
 
+        assert bits_inv_p > 0, f'Number of PMOS bits {bits_inv_p} should be > 0'
+        assert bits_inv_n > 0, f'Number of NMOS bits {bits_inv_n} should be > 0'
         assert in_type.lower() in ['p', 'n'], f'in_type must be p or n, not {in_type}'
 
         # Design components
@@ -74,10 +82,27 @@ class span_ion__comparator_single(Module):
         self.instances['XCONSTGM'].design(**constgm_params)
         self.instances['XBUF'].design(**buf_params)
 
+        ctrl_groups_p = [1] + [1<<i for i in range(bits_inv_p)]
+        ctrl_groups_n = [1] + [1<<i for i in range(bits_inv_n)]
+        self.instances['XINV'].design(ctrl_groups_p=ctrl_groups_p,
+                                      ctrl_groups_n=ctrl_groups_n,
+                                      **inv_params)
+
         # Adjust wiring
         if in_type.lower() == 'p':
-            self.reconnect_instance_terminal('XAMP', 'VGTAIL', 'VP')
+            self.reconnect_instance_terminal('XAMP', 'VGTAIL', 'VGP')
+
+        inv_bpb = f'bpb<{bits_inv_p}:0>'
+        inv_bn = f'bn<{bits_inv_n}:0>'
+        pin_bpb = f'bpb<{bits_inv_p-1}:0>'
+        pin_bn = f'bn<{bits_inv_n-1}:0>'
+        net_bpb = f'{pin_bpb},VSS'
+        net_bn = f'{pin_bn},VDD'
+        self.reconnect_instance_terminal('XINV', inv_bpb, net_bpb),
+        self.reconnect_instance_terminal('XINV', inv_bn, net_bn)
+        self.rename_pin('bpb', pin_bpb)
+        self.rename_pin('bn', pin_bn)
 
         if not diff_out:
-            pin_unused = 'out' if num_inv%2==1 else 'outb'
+            pin_unused = 'out' if num_inv%2==0 else 'outb'
             self.remove_pin(pin_unused)
