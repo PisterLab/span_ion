@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import Dict
+from typing import Dict, Mapping
 
 import os
 import pkg_resources
@@ -23,7 +23,7 @@ class span_ion__comparator_fd_main(Module):
         Module.__init__(self, database, self.yaml_file, parent=parent, prj=prj, **kwargs)
 
     @classmethod
-    def get_params_info(cls):
+    def get_params_info(cls) -> Mapping[str,str]:
         # type: () -> Dict[str, str]
         """Returns a dictionary from parameter names to descriptions.
 
@@ -33,9 +33,12 @@ class span_ion__comparator_fd_main(Module):
             dictionary from parameter names to descriptions.
         """
         return dict(
+            diffpair_params = 'Differential pair parameters',
+            res_params = 'Resistor strip parameters',
+            bulk_conn = 'Bulk connection for resistors'
         )
 
-    def design(self):
+    def design(self, **params):
         """To be overridden by subclasses to design this module.
 
         This method should fill in values for all parameters in
@@ -51,5 +54,15 @@ class span_ion__comparator_fd_main(Module):
         restore_instance()
         array_instance()
         """
-        pass
+        diffpair_params = params['diffpair_params']
+        res_params = params['res_params']
+        bulk_conn = params['bulk_conn']
 
+        assert bulk_conn in ('VDD', 'VSS'), f'Bulk must be connected to VDD or VSS, not {bulk_conn}'
+
+        self.instances['RN'].design(**res_params)
+        self.instances['RP'].design(**res_params)
+        self.instances['XDIFFPAIR'].design(**diffpair_params)
+
+        self.reconnect_instance_terminal('RN', 'BULK', bulk_conn)
+        self.reconnect_instance_terminal('RP', 'BULK', bulk_conn)
