@@ -127,7 +127,7 @@ class span_ion__comparator_fd_main_dsn(DesignModule):
                         tail_success, nf_tail = verify_ratio(in_op['ibias']*2,
                                                             tail_op['ibias'],
                                                             nf_in,
-                                                            0.1)
+                                                            0.05)
                         if not tail_success:
                             continue
                         
@@ -156,12 +156,12 @@ class span_ion__comparator_fd_main_dsn(DesignModule):
         # Arranging schematic parameters
         diffpair_params = dict(lch_dict=l_dict,
                                w_dict={k:db.width_list[0] for k,db in db_dict.items()},
-                               seg_dict={'in' : nf_in,
-                                            'tail' : nf_tail},
+                               seg_dict={'in' : best_op['nf_in'],
+                                            'tail' : best_op['nf_tail']},
                                th_dict=th_dict,)
         # TODO: real resistors
         res_params = dict(num_unit=1,
-                          l=res_val/600,
+                          l=best_op['res_val']/600,
                           w=1,
                           intent='ideal')
         bulk_conn = 'VSS'

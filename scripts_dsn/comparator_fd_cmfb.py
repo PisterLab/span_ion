@@ -77,8 +77,6 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
         vth_tail = estimate_vth(is_nch=False, vgs=-vdd/2, vbs=0, db=db_dict['tail'])
         vth_out = estimate_vth(is_nch=True, vgs=vdd/2, vbs=0, db=db_dict['out'])
 
-        # raise ValueError("Merp")
-
         ibias_min = np.inf
         # Keeping track of operating points which work for future comparison
         viable_op_list = []
@@ -93,7 +91,7 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
             out_op = db_dict['out'].query(vgs=voutcm,
                                           vds=voutcm,
                                           vbs=0)
-            ibias_min = 2*abs(in_op['ibias'])
+            ibias_min = 4*abs(in_op['ibias'])
             # Step input device size (integer steps)
             nf_in_max = int(round(ibias_max/ibias_min))
             nf_in_vec = np.arange(1, nf_in_max, 1)
@@ -105,10 +103,10 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
                     break
 
                 # Match load device size
-                out_match, nf_out = verify_ratio(abs(in_op['ibias'])*2,
+                out_match, nf_out = verify_ratio(abs(in_op['ibias']*2),
                                                 abs(out_op['ibias']),
                                                 nf_in,
-                                                0.1)
+                                                0.05)
 
                 if not out_match:
                     # print("(FAIL) out match")
@@ -129,21 +127,21 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
 
                 if ugf < ugf_min:
                     # print(f"(FAIL) ugf {ugf}")
-                    continue
+                    break
 
                 # Design matching tail
-                vgtail_min = vtail - vth_tail
-                vgtail_max = vdd - vth_tail - vstar_min
+                vgtail_min = vtail + vth_tail
+                vgtail_max = vdd + vth_tail - vstar_min
                 vgtail_vec = np.arange(vgtail_min, vgtail_max, 10e-3)
                 # print(f"Tail gate from {vgtail_min} to {vgtail_max}")
                 for vgtail in vgtail_vec:
-                    tail_op = db_dict['tail'].query(vgs=vdd-vgtail,
-                                                    vds=vdd-vtail,
+                    tail_op = db_dict['tail'].query(vgs=vgtail-vdd,
+                                                    vds=vtail-vdd,
                                                     vbs=0)
-                    tail_match, nf_tail = verify_ratio(abs(in_op['ibias'])*4,
+                    tail_match, nf_tail = verify_ratio(abs(in_op['ibias']*4),
                                                        abs(tail_op['ibias']),
                                                        nf_in,
-                                                       0.1)
+                                                       0.05)
 
                     if not tail_match:
                         # print("(FAIL) tail match")
@@ -157,7 +155,7 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
                                      fbw=fbw,
                                      ugf=ugf,
                                      vtail=vtail,
-                                     ibias=tail_op['ibias']*nf_tail)
+                                     ibias=abs(tail_op['ibias'])*nf_tail)
                     print(viable_op)
                     viable_op_list.append(viable_op)
 
@@ -174,9 +172,9 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
         sch_params = dict(lch_dict=l_dict,
                           wch_dict={k:db.width_list[0] for k, db in db_dict.items()},
                           th_dict=th_dict,
-                          seg_dict={'in': nf_in,
-                                      'out': nf_out,
-                                      'tail': nf_tail})
+                          seg_dict={'in': best_op['nf_in'],
+                                      'out': best_op['nf_out'],
+                                      'tail': best_op['nf_tail']})
 
         print(f"(RESULT) {sch_params}\n{best_op}")
 
