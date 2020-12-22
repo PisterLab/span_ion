@@ -7,7 +7,7 @@ import pkg_resources
 import numpy as np
 
 from bag.design.module import Module
-from . import DesignModule, get_mos_db, estimate_vth, parallel
+from . import DesignModule, get_mos_db, estimate_vth, parallel, verify_ratio
 from bag.data.lti import LTICircuit, get_w_3db, get_stability_margins
 
 # noinspection PyPep8Naming
@@ -50,6 +50,7 @@ class span_ion__comparator_fd_main_dsn(DesignModule):
         """
         ### Get DBs for each device
         specfile_dict = params['specfile_dict']
+        l_dict = params['l_dict']
         th_dict = params['th_dict']
         sim_env = params['sim_env']
         
@@ -81,9 +82,10 @@ class span_ion__comparator_fd_main_dsn(DesignModule):
         vtail_vec = np.arange(vstar_min, vincm-vth_in, 10e-3)
         print(f'Sweeping tail from {vstar_min} to {vincm-vth_in}')
         for vtail in vtail_vec:
-            voutcm_min = vincm - vth_in
-            voutcm_vec = np.arange(voutcm_min, vdd, 10e-3)
-            print(f'Sweeping output common mode from {voutcm_min} to {vdd}')
+            # voutcm_min = vincm - vth_in
+            # voutcm_vec = np.arange(voutcm_min, vdd, 10e-3)
+            # print(f'Sweeping output common mode from {voutcm_min} to {vdd}')
+            voutcm_vec = [vincm]
             # Sweep output common mode
             for voutcm in voutcm_vec:
                 in_op = db_dict['in'].query(vgs=vincm-vtail,
@@ -97,18 +99,21 @@ class span_ion__comparator_fd_main_dsn(DesignModule):
                     # Check against best current
                     ibias = ibias_min * nf_in
                     if ibias > ibias_max:
+                        # print(f"(FAIL) ibias {ibias}")
                         break
 
                     res_val = (vdd-voutcm)/(ibias/2)
                     # Check approximate gain, bandwidth
-                    Rout = parallel(res_val, (1/in_op['gds'])*nf_in)
+                    Rout = parallel(res_val, 1/(in_op['gds']*nf_in))
                     gain = in_op['gm']*nf_in * Rout
                     if gain < gain_min or gain > gain_max:
+                        # print(f"(FAIL) gain {gain}")
                         break
 
                     Cout = cload + nf_in*in_op['cgg']#(in_op['cds'] + in_op['cgd']*gain)*nf_in
                     fbw = 1/(2*np.pi*Rout*Cout)
                     if fbw < fbw_min:
+                        # print(f"(FAIL) fbw {fbw}")
                         continue
 
                     # Design tail to current match
@@ -119,13 +124,13 @@ class span_ion__comparator_fd_main_dsn(DesignModule):
                         tail_op = db_dict['tail'].query(vgs=vgtail,
                                                         vds=vtail,
                                                         vbs=0)
-                        nf_tail = ibias/tail_op['ibias']
-                        # Likely want a device with > 1 finger for matching
-                        # and don't want to deal with large rounding error
-                        if nf_tail < 2 or nf_tail%1 > nf_tail*.1:
+                        tail_success, nf_tail = verify_ratio(in_op['ibias']*2,
+                                                            tail_op['ibias'],
+                                                            nf_in,
+                                                            0.1)
+                        if not tail_success:
                             continue
-
-                        nf_tail = round(nf_tail)
+                        
                         viable_op = dict(nf_in=nf_in,
                                          nf_tail=nf_tail,
                                          res_val=res_val,
@@ -133,10 +138,13 @@ class span_ion__comparator_fd_main_dsn(DesignModule):
                                          vgtail=vgtail,
                                          gain=gain,
                                          fbw=fbw,
-                                         ibias=ibias)
+                                         vtail=vtail,
+                                         ibias=tail_op['ibias']*nf_tail)
                         viable_op_list.append(viable_op)
+                        print("\n(SUCCESS)")
+                        print(viable_op)
 
-        if len(viable_ops) < 1:
+        if len(viable_op_list) < 1:
             raise ValueError("No solution")
 
         # Find the best operating point among those which do
@@ -144,9 +152,10 @@ class span_ion__comparator_fd_main_dsn(DesignModule):
         for op in viable_op_list:
             best_op = self.op_compare(best_op, op)
 
+
         # Arranging schematic parameters
         diffpair_params = dict(lch_dict=l_dict,
-                               w_dict={k:(db.width_dict)[0] for k,db in db_dict.items()},
+                               w_dict={k:db.width_list[0] for k,db in db_dict.items()},
                                seg_dict={'in' : nf_in,
                                             'tail' : nf_tail},
                                th_dict=th_dict,)
@@ -160,6 +169,8 @@ class span_ion__comparator_fd_main_dsn(DesignModule):
         sch_params = dict(diffpair_params=diffpair_params,
                           res_params=res_params,
                           bulk_conn=bulk_conn)
+
+        print(f"(RESULT) {sch_params}\n{best_op}")
 
         return sch_params, best_op
 

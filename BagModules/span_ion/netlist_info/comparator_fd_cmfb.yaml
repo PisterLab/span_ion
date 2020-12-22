@@ -1,4 +1,180 @@
 lib_name: span_ion
 cell_name: comparator_fd_cmfb
-pins: [  ]
-instances: {}
+pins: [ "VOUTP", "VOUTN", "VINPA", "VINPB", "VINNA", "VINNB", "VDD", "VSS", "VGTAIL" ]
+instances:
+  XTAIL:
+    lib_name: BAG_prim
+    cell_name: pmos4_svt
+    instpins:
+      S:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VTAIL"
+        num_bits: 1
+      B:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      G:
+        direction: inputOutput
+        net_name: "VGTAIL"
+        num_bits: 1
+  XINNA:
+    lib_name: BAG_prim
+    cell_name: pmos4_svt
+    instpins:
+      S:
+        direction: inputOutput
+        net_name: "VTAIL"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VOUTP"
+        num_bits: 1
+      B:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      G:
+        direction: inputOutput
+        net_name: "VINNA"
+        num_bits: 1
+  XINNB:
+    lib_name: BAG_prim
+    cell_name: pmos4_svt
+    instpins:
+      S:
+        direction: inputOutput
+        net_name: "VTAIL"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VOUTP"
+        num_bits: 1
+      B:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      G:
+        direction: inputOutput
+        net_name: "VINNB"
+        num_bits: 1
+  XINPB:
+    lib_name: BAG_prim
+    cell_name: pmos4_svt
+    instpins:
+      S:
+        direction: inputOutput
+        net_name: "VTAIL"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VOUTN"
+        num_bits: 1
+      B:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      G:
+        direction: inputOutput
+        net_name: "VINPB"
+        num_bits: 1
+  XINPA:
+    lib_name: BAG_prim
+    cell_name: pmos4_svt
+    instpins:
+      S:
+        direction: inputOutput
+        net_name: "VTAIL"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VOUTN"
+        num_bits: 1
+      B:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      G:
+        direction: inputOutput
+        net_name: "VINPA"
+        num_bits: 1
+  XOUTP:
+    lib_name: BAG_prim
+    cell_name: nmos4_svt
+    instpins:
+      S:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VOUTP"
+        num_bits: 1
+      B:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      G:
+        direction: inputOutput
+        net_name: "VOUTP"
+        num_bits: 1
+  XOUTN:
+    lib_name: BAG_prim
+    cell_name: nmos4_svt
+    instpins:
+      S:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VOUTN"
+        num_bits: 1
+      B:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      G:
+        direction: inputOutput
+        net_name: "VOUTN"
+        num_bits: 1
+  PIN8:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN5:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN4:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN0:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN2:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN1:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN7:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN6:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}

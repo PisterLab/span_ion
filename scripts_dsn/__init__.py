@@ -26,7 +26,44 @@ def estimate_vth(db:MOSDBDiscrete, vgs:float, vbs:float, is_nch:bool) -> float:
             can be negative.
     """
     op = db.query(vgs=vgs, vds=vgs, vbs=vbs)
-    return vgs - op['vstar']
+    if is_nch:
+        return vgs - op['vstar']
+    else:
+        return vgs + op['vstar']
+
+def verify_ratio(ibase_A:float, ibase_B:float,
+        nf_A:int, error_tol:float) -> Tuple[bool,int]:
+    """
+    Inputs:
+        ibase_A/B: Float. the drain current of a single A- or B-device.
+        nf_A: Integer. Number of fingers for device A.
+        error_tol: float. Fractional tolerance for ibias error
+            when computing the device sizing ratio.
+    Outputs:
+        meets_tol: True if the ratio is possible and meets
+            the error tolerance.
+        nf_B: Integer indicating the number of fingers for
+            device B.
+    """
+    B_to_A = ibase_A/ibase_B
+
+    # Check if ratio is possible with physical device sizes
+    nf_B = int(round(nf_A * B_to_A))
+
+    # Is anything smaller than min?
+    if nf_B < 1:
+        return False, 0
+
+    # Check current mismatch given quantization
+    id_A = nf_A * ibase_A
+    id_B = nf_B * ibase_B
+
+    error = (abs(id_A) - abs(id_B))/abs(id_A)
+
+    if abs(error) > error_tol:
+        return False, 0
+
+    return True, nf_B
 
 def parallel(*args):
     if 0 in args:

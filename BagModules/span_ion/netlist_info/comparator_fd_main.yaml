@@ -56,7 +56,7 @@ instances:
         num_bits: 1
       MINUS:
         direction: inputOutput
-        net_name: "VOUTP"
+        net_name: "VOUTN"
         num_bits: 1
       BULK:
         direction: inputOutput

@@ -9,14 +9,14 @@ from bag.design.module import Module
 
 
 # noinspection PyPep8Naming
-class span_ion__comparator_fd_cmfb(Module):
-    """Module for library span_ion cell comparator_fd_cmfb.
+class span_ion__comparator_fd(Module):
+    """Module for library span_ion cell comparator_fd.
 
     Fill in high level description here.
     """
     yaml_file = pkg_resources.resource_filename(__name__,
                                                 os.path.join('netlist_info',
-                                                             'comparator_fd_cmfb.yaml'))
+                                                             'comparator_fd.yaml'))
 
 
     def __init__(self, database, parent=None, prj=None, **kwargs):
@@ -33,10 +33,9 @@ class span_ion__comparator_fd_cmfb(Module):
             dictionary from parameter names to descriptions.
         """
         return dict(
-            lch_dict = 'Dictionary of channel lengths',
-            wch_dict = 'Dictionary of channel widths',
-            th_dict = 'Dictionary of device flavors',
-            seg_dict = 'Dictionary of device segments',
+            main_params = 'Main amplifier parameters',
+            cmfb_params = 'Common mode feedback parameters',
+            constgm_params = 'CMFB constant gm parameters'
         )
 
     def design(self, **params):
@@ -55,22 +54,11 @@ class span_ion__comparator_fd_cmfb(Module):
         restore_instance()
         array_instance()
         """
-        lch_dict = params['lch_dict']
-        wch_dict = params['wch_dict']
-        th_dict = params['th_dict']
-        seg_dict = params['seg_dict']
+        main_params = params['main_params']
+        cmfb_params = params['cmfb_params']
+        constgm_params = params['constgm_params']
 
-        key_map = dict(XTAIL='tail',
-                       XINPA='in',
-                       XINPB='in',
-                       XINNA='in',
-                       XINNB='in',
-                       XOUTN='out',
-                       XOUTP='out')
-
-        for name,dict_key in key_map.items():
-            inst_params = dict(l=lch_dict[dict_key],
-                               w=wch_dict[dict_key],
-                               nf=seg_dict[dict_key],
-                               intent=th_dict[dict_key])
-            self.instances[name].design(**inst_params)
+        self.instances['XMAIN'].design(**main_params)
+        self.instances['XCMFB'].design(**cmfb_params)
+        self.instances['XCONSTGM'].design(res_side='p',
+                                          **constgm_params)
