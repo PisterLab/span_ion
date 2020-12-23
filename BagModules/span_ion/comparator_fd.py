@@ -33,9 +33,8 @@ class span_ion__comparator_fd(Module):
             dictionary from parameter names to descriptions.
         """
         return dict(
-            main_params = 'Main amplifier parameters',
-            cmfb_params = 'Common mode feedback parameters',
-            constgm_params = 'CMFB constant gm parameters'
+            stage_params_list = 'List of comparator_fd_stage parameters, in order',
+            buf_params = 'Inverter chain parameters'
         )
 
     def design(self, **params):
@@ -54,11 +53,46 @@ class span_ion__comparator_fd(Module):
         restore_instance()
         array_instance()
         """
-        main_params = params['main_params']
-        cmfb_params = params['cmfb_params']
-        constgm_params = params['constgm_params']
+        stage_params_list = params['stage_params_list']
+        buf_params = params['buf_params']
 
-        self.instances['XMAIN'].design(**main_params)
-        self.instances['XCMFB'].design(**cmfb_params)
-        self.instances['XCONSTGM'].design(res_side='p',
-                                          **constgm_params)
+        num_astages = len(stage_params_list)
+        assert num_astages > 0, f'Number of analog stages {num_astages} should be > 0'
+
+        num_dstages = len(buf_params['inv_param_list'])
+        inv_dstages = num_dstages%2 == 1
+
+        # Array stages and rewire as necessary
+        if num_astages > 1:
+            conn_dict_list = []
+            for i in range(num_astages):
+                conn_dict = dict(VINP='VINP' if i==0 else f'VOUTP<{i-1}>',
+                                 VINN='VINN' if i==0 else f'VOUTN<{i-1}>',
+                                 VOUTCM=f'VOUTCM<{i}>',
+                                 VOUTN=f'VOUTN<{i}>',
+                                 VOUTP=f'VOUTP<{i}>',
+                                 VDD='VDD',
+                                 VSS='VSS')
+                conn_dict_list.append(conn_dict)
+
+            self.array_instance('XSTAGE',
+                                [f'XSTAGE<{i}>' for i in range(num_astages)],
+                                conn_dict_list)
+
+            self.reconnect_instance_terminal('XBUF<1:0>',
+                                             'in',
+                                             f'VOUTP<{num_astages-1}>,VOUTN<{num_astages-1}>')
+            self.rename_pin('VOUTCM', f'VOUTCM<{num_astages-1}:0>')
+
+            for i in range(num_astages):
+                self.instances['XSTAGE'][i].design(**stage_params_list[i])
+        else:
+            self.instances['XSTAGE'].design(**stage_params_list[0])
+
+        # Rewire subsequent buffers as required
+        self.instances['XBUF<1:0>'].design(dual_output=False, **buf_params)
+        out_pin = 'outb' if inv_dstages else 'out'
+        out_conn = 'OUTN,OUTP' if inv_dstages else 'OUTP,OUTN'
+        self.reconnect_instance_terminal('XBUF<1:0>',
+                                         out_pin,
+                                         out_conn)

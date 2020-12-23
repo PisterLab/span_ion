@@ -1,10 +1,10 @@
 lib_name: span_ion
 cell_name: comparator_fd
-pins: [ "VINP", "VINN", "VOUTCM", "VOUTP", "VOUTN", "VDD", "VSS" ]
+pins: [ "VINP", "VINN", "VOUTCM", "OUTP", "OUTN", "VDD", "VSS" ]
 instances:
-  XMAIN:
+  XSTAGE:
     lib_name: span_ion
-    cell_name: comparator_fd_main
+    cell_name: comparator_fd_stage
     instpins:
       VSS:
         direction: inputOutput
@@ -21,10 +21,6 @@ instances:
       VOUTP:
         direction: output
         net_name: "VOUTP"
-        num_bits: 1
-      VGTAIL:
-        direction: input
-        net_name: "VCMFB"
         num_bits: 1
       VINN:
         direction: input
@@ -34,45 +30,9 @@ instances:
         direction: input
         net_name: "VINP"
         num_bits: 1
-  XCMFB:
-    lib_name: span_ion
-    cell_name: comparator_fd_cmfb
-    instpins:
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      VOUTN:
-        direction: output
-        net_name: "net7"
-        num_bits: 1
-      VOUTP:
-        direction: output
-        net_name: "VCMFB"
-        num_bits: 1
-      VGTAIL:
-        direction: input
-        net_name: "VGTAIL_CMFB"
-        num_bits: 1
-      VINNA:
+      VOUTCM:
         direction: input
         net_name: "VOUTCM"
-        num_bits: 1
-      VINNB:
-        direction: input
-        net_name: "VOUTCM"
-        num_bits: 1
-      VINPA:
-        direction: input
-        net_name: "VOUTN"
-        num_bits: 1
-      VINPB:
-        direction: input
-        net_name: "VOUTP"
         num_bits: 1
   PIN2:
     lib_name: basic
@@ -102,39 +62,27 @@ instances:
     lib_name: basic
     cell_name: iopin
     instpins: {}
-  XCONSTGM:
-    lib_name: bag2_analog
-    cell_name: constant_gm
+  XBUF<1:0>:
+    lib_name: bag2_digital
+    cell_name: inv_chain
     instpins:
       VSS:
         direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
+        net_name: "<*2>VSS"
+        num_bits: 2
       VDD:
         direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      VN:
+        net_name: "<*2>VDD"
+        num_bits: 2
+      out:
         direction: output
-        net_name: "net01"
-        num_bits: 1
-      VP:
+        net_name: "out<1:0>"
+        num_bits: 2
+      outb:
         direction: output
-        net_name: "VGTAIL_CMFB"
-        num_bits: 1
-  I4:
-    lib_name: basic
-    cell_name: noConn
-    instpins:
-      noConn:
-        direction: inputOutput
-        net_name: "net7"
-        num_bits: 1
-  I3:
-    lib_name: basic
-    cell_name: noConn
-    instpins:
-      noConn:
-        direction: inputOutput
-        net_name: "net01"
-        num_bits: 1
+        net_name: "outb<1:0>"
+        num_bits: 2
+      in:
+        direction: input
+        net_name: "VOUTP,VOUTN"
+        num_bits: 2
