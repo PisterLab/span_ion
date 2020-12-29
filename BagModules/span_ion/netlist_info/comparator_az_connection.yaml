@@ -1,0 +1,248 @@
+lib_name: span_ion
+cell_name: comparator_az_connection
+pins: [ "VINA", "VINB", "PHI", "PHIb", "PHI_EARLY", "PHI_EARLYb", "VOUTA", "VOUTB", "VDD", "VSS", "VINCM", "VAMPINA", "VAMPINB" ]
+instances:
+  XFBB:
+    lib_name: bag2_analog
+    cell_name: switch
+    instpins:
+      BN:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "PHI_EARLYb"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "PHI_EARLY"
+        num_bits: 1
+      BP:
+        direction: input
+        net_name: "VDD"
+        num_bits: 1
+      S:
+        direction: inputOutput
+        net_name: "VOUTA"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VAMPINB"
+        num_bits: 1
+  XFBA:
+    lib_name: bag2_analog
+    cell_name: switch
+    instpins:
+      BN:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "PHI_EARLYb"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "PHI_EARLY"
+        num_bits: 1
+      BP:
+        direction: input
+        net_name: "VDD"
+        num_bits: 1
+      S:
+        direction: inputOutput
+        net_name: "VOUTB"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VAMPINA"
+        num_bits: 1
+  XSAMPLEB:
+    lib_name: bag2_analog
+    cell_name: switch
+    instpins:
+      BN:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "PHIb"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "PHI"
+        num_bits: 1
+      BP:
+        direction: input
+        net_name: "VDD"
+        num_bits: 1
+      S:
+        direction: inputOutput
+        net_name: "net1"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VINCM"
+        num_bits: 1
+  XSAMPLEA:
+    lib_name: bag2_analog
+    cell_name: switch
+    instpins:
+      BN:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "PHIb"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "PHI"
+        num_bits: 1
+      BP:
+        direction: input
+        net_name: "VDD"
+        num_bits: 1
+      S:
+        direction: inputOutput
+        net_name: "net06"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VINCM"
+        num_bits: 1
+  XINB:
+    lib_name: bag2_analog
+    cell_name: switch
+    instpins:
+      BN:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "PHI"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "PHIb"
+        num_bits: 1
+      BP:
+        direction: input
+        net_name: "VDD"
+        num_bits: 1
+      S:
+        direction: inputOutput
+        net_name: "net1"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VINB"
+        num_bits: 1
+  XINA:
+    lib_name: bag2_analog
+    cell_name: switch
+    instpins:
+      BN:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "PHI"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "PHIb"
+        num_bits: 1
+      BP:
+        direction: input
+        net_name: "VDD"
+        num_bits: 1
+      S:
+        direction: inputOutput
+        net_name: "net06"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VINA"
+        num_bits: 1
+  XCAPB:
+    lib_name: bag2_wrappers
+    cell_name: cap_ideal
+    instpins:
+      MINUS:
+        direction: inputOutput
+        net_name: "net1"
+        num_bits: 1
+      PLUS:
+        direction: inputOutput
+        net_name: "VAMPINB"
+        num_bits: 1
+  XCAPA:
+    lib_name: bag2_wrappers
+    cell_name: cap_ideal
+    instpins:
+      MINUS:
+        direction: inputOutput
+        net_name: "net06"
+        num_bits: 1
+      PLUS:
+        direction: inputOutput
+        net_name: "VAMPINA"
+        num_bits: 1
+  PIN10:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN5:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN4:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN2:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN1:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN0:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN12:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN11:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN9:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN8:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN7:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN6:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}

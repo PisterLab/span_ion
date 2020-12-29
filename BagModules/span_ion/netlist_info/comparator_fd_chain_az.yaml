@@ -1,0 +1,140 @@
+lib_name: span_ion
+cell_name: comparator_fd_chain_az
+pins: [ "VINP", "VINN", "VINCM", "VOUTCM", "VDD", "VSS", "VOUTP", "VOUTN", "PHI", "PHIb", "PHI_EARLY", "PHI_EARLYb" ]
+instances:
+  XAMP:
+    lib_name: span_ion
+    cell_name: comparator_fd_chain
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUTN:
+        direction: output
+        net_name: "VOUTN"
+        num_bits: 1
+      VOUTP:
+        direction: output
+        net_name: "VOUTP"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "VAMPINN"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VAMPINP"
+        num_bits: 1
+      VOUTCM:
+        direction: input
+        net_name: "VOUTCM"
+        num_bits: 1
+  XAZ:
+    lib_name: span_ion
+    cell_name: comparator_az_connection
+    instpins:
+      VAMPINB:
+        direction: inputOutput
+        net_name: "VAMPINN"
+        num_bits: 1
+      VAMPINA:
+        direction: inputOutput
+        net_name: "VAMPINP"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUTA:
+        direction: inputOutput
+        net_name: "VOUTP"
+        num_bits: 1
+      VOUTB:
+        direction: inputOutput
+        net_name: "VOUTN"
+        num_bits: 1
+      PHI:
+        direction: input
+        net_name: "PHI"
+        num_bits: 1
+      PHI_EARLY:
+        direction: input
+        net_name: "PHI_EARLY"
+        num_bits: 1
+      PHI_EARLYb:
+        direction: input
+        net_name: "PHI_EARLYb"
+        num_bits: 1
+      PHIb:
+        direction: input
+        net_name: "PHIb"
+        num_bits: 1
+      VINA:
+        direction: input
+        net_name: "VINP"
+        num_bits: 1
+      VINB:
+        direction: input
+        net_name: "VINN"
+        num_bits: 1
+      VINCM:
+        direction: input
+        net_name: "VINCM"
+        num_bits: 1
+  PIN5:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN4:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN11:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN10:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN9:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN8:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN2:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN1:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN0:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN7:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN6:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
