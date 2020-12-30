@@ -3,6 +3,7 @@ import yaml
 from bag.design.module import Module
 from verification.mos.query import MOSDBDiscrete
 from typing import Tuple, Mapping, Any, List
+import numpy as np
 
 def get_mos_db(spec_file, intent, interp_method='spline', sim_env='tt') -> MOSDBDiscrete:
     # Initialize transistor database from simulation data
@@ -69,6 +70,18 @@ def parallel(*args):
     if 0 in args:
         return 0
     return 1/sum([1/a for a in args])
+
+def num_den_add(num1, num2, den1, den2):
+    den_new = np.convolve(den1, den2)
+    num1_new = np.convolve(num1, den2)
+    num2_new = np.convolve(num2, den1)
+    # if num1_new.size > num2_new.size:
+    #     num2_new = np.pad(num2_new, ((num1_new.size-num2_new.size,0)), 'constant')
+    # elif num2_new.size > num1_new.size:
+    #     num2_new = np.pad(num1_new, ((num2_new.size-num1_new.size,0)), 'constant')
+    num_new = np.add(num1_new, num2_new)
+
+    return num_new, den_new
 
 class DesignModule(object):
     """The base class of all design toward a spec.
