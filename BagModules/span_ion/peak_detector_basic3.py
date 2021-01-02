@@ -48,12 +48,23 @@ class span_ion__peak_detector_basic3(Module):
         rst_params = params['rst_params']
 
         # Design instances
-        self.instances['XRESRC'].parameters = res_params_dict['rc']
-        self.instances['XRESFB<0>'].parameters = res_params_dict['fb0']
-        self.instances['XRESFB<1>'].parameters = res_params_dict['fb1']
+        res_map = {'XRESRC' : 'rc',
+                   'XRESFB<0>' : 'fb0',
+                   'XRESFB<1>' : 'fb1'}
+
+        for inst_name,k in res_map.items():
+            res_params = dict(l=res_params_dict['l_dict'][k],
+                              w=res_params_dict['w_dict'][k],
+                              intent=res_params_dict['th_dict'][k],
+                              num_units=res_params_dict['num_dict'][k])
+            self.instances[inst_name].design(**res_params)
+        
+        # self.instances['XRESRC'].parameters = res_params_dict['rc']
+        # self.instances['XRESFB<0>'].parameters = res_params_dict['fb0']
+        # self.instances['XRESFB<1>'].parameters = res_params_dict['fb1']
         self.instances['XCAP'].parameters = cap_params
 
-        print('*** WARNING *** Check resistor values in generated schematic.')
+        print('*** WARNING *** Check passive values in generated schematic.')
 
         self.instances['XAMP<0>'].design(**(amp_params_list[0]))
         self.instances['XAMP<1>'].design(**(amp_params_list[1]))

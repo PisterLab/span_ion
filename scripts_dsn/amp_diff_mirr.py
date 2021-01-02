@@ -35,6 +35,7 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
             th_dict = 'Transistor flavor dictionary.',
             l_dict = 'Transistor channel length dictionary',
             sim_env = 'Simulation environment',
+            vswing_lim = 'Tuple of lower and upper swing from the bias',
             gain = '(Min, max) small signal gain target in V/V',
             fbw = 'Minimum bandwidth in Hz',
             vdd = 'Supply voltage in volts.',
@@ -64,6 +65,7 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
         in_type = params['in_type']
         vdd = params['vdd']
         vincm = params['vincm']
+        vswing_low, vswing_high = params['vswing_lim']
         cload = params['cload']
         gain_min = params['gain']
         fbw_min = params['fbw']
@@ -98,8 +100,8 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
         print(f'Sweeping tail from {vtail_min} to {vtail_max}')
         for vtail in vtail_vec:
             # Sweep output common mode
-            voutcm_min = vincm-vth_in if n_in else vstar_min+vth_load
-            voutcm_max = vdd+vth_load-vstar_min if n_in else vincm-vth_in
+            voutcm_min = vincm-vth_in+vswing_low if n_in else vstar_min+vth_load+vswing_low
+            voutcm_max = vdd+vth_load-vstar_min-vswing_high if n_in else vincm-vth_in-vswing_high
             voutcm_vec = np.arange(voutcm_min, voutcm_max, 10e-3)
             # print(f'Sweeping output common mode from {voutcm_min} to {voutcm_max}')
             for voutcm in voutcm_vec:
