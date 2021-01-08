@@ -96,23 +96,39 @@ class span_ion__comparator_fd_main_dsn(DesignModule):
                 nf_in_max = int(round(ibias_max/ibias_min))
                 nf_in_vec = np.arange(2, nf_in_max, 2)
                 for nf_in in nf_in_vec:
-                    # Check against best current
+                    # Check against max allowable current
                     ibias = ibias_min * nf_in
                     if ibias > ibias_max:
                         # print(f"(FAIL) ibias {ibias}")
                         break
 
                     res_val = (vdd-voutcm)/(ibias/2)
-                    # Check approximate gain, bandwidth
-                    Rout = parallel(res_val, 1/(in_op['gds']*nf_in))
-                    gain = in_op['gm']*nf_in * Rout
-                    if gain < gain_min or gain > gain_max:
-                        # print(f"(FAIL) gain {gain}")
-                        break
+                    # Check gain, bandwidth
+                    ckt_half = LTICircuit()
+                    ckt_half.add_transistor(in_op, 'out', 'in', 'gnd', fg=nf_in, neg_cap=False)
+                    ckt_half.add_res(res_val, 'out', 'gnd')
+                    ckt_half.add_cap(cload, 'out', 'gnd')
 
-                    Cout = cload + nf_in*in_op['cgg']#(in_op['cds'] + in_op['cgd']*gain)*nf_in
-                    fbw = 1/(2*np.pi*Rout*Cout)
+                    num, den = ckt_half.get_num_den(in_name='in', out_name='out', in_type='v')
+                    gain = -(num[-1]/den[-1])
+                    wbw = get_w_3db(num, den)
+                    if wbw == None:
+                        wbw = 0
+                    fbw = wbw/(2*np.pi)
+
+                    if gain < gain_min or gain > gain_max:
+                        print(f'GAIN: {gain}')
+                        break
+                    # Rout = parallel(res_val, 1/(in_op['gds']*nf_in))
+                    # gain = in_op['gm']*nf_in * Rout
+                    # if gain < gain_min or gain > gain_max:
+                    #     # print(f"(FAIL) gain {gain}")
+                    #     break
+
+                    # Cout = cload + nf_in*in_op['cgg']#(in_op['cds'] + in_op['cgd']*gain)*nf_in
+                    # fbw = 1/(2*np.pi*Rout*Cout)
                     if fbw < fbw_min:
+                        # print('BW')
                         # print(f"(FAIL) fbw {fbw}")
                         continue
 

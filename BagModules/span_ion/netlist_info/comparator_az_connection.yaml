@@ -1,6 +1,6 @@
 lib_name: span_ion
 cell_name: comparator_az_connection
-pins: [ "VINA", "VINB", "PHI", "PHIb", "PHI_EARLY", "PHI_EARLYb", "VOUTA", "VOUTB", "VDD", "VSS", "VINCM", "VAMPINA", "VAMPINB" ]
+pins: [ "VINA", "VINB", "PHI", "PHIb", "PHI_EARLY", "PHI_EARLYb", "VOUTA", "VOUTB", "VDD", "VSS", "VREFB", "VAMPINA", "VAMPINB", "VREFA" ]
 instances:
   XFBB:
     lib_name: bag2_analog
@@ -84,7 +84,7 @@ instances:
         num_bits: 1
       D:
         direction: inputOutput
-        net_name: "VINCM"
+        net_name: "VREFB"
         num_bits: 1
   XSAMPLEA:
     lib_name: bag2_analog
@@ -112,7 +112,7 @@ instances:
         num_bits: 1
       D:
         direction: inputOutput
-        net_name: "VINCM"
+        net_name: "VREFA"
         num_bits: 1
   XINB:
     lib_name: bag2_analog
@@ -194,6 +194,10 @@ instances:
         direction: inputOutput
         net_name: "VAMPINA"
         num_bits: 1
+  PIN13:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
   PIN10:
     lib_name: basic
     cell_name: ipin

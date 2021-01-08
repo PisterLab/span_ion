@@ -41,7 +41,8 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
             vdd = 'Supply voltage in volts.',
             vincm = 'Input common mode voltage.',
             ibias = 'Maximum bias current, in amperes.',
-            cload = 'Output load capacitance in farads.'
+            cload = 'Output load capacitance in farads.',
+            optional_params = 'Optional parameters. voutcm=output bias voltage.'
         ))
         return ans
 
@@ -50,6 +51,8 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
 
         Raises a ValueError if there is no solution.
         """
+        optional_params = params['optional_params']
+
         ### Get DBs for each device
         specfile_dict = params['specfile_dict']
         l_dict = params['l_dict']
@@ -72,7 +75,7 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
         ibias_max = params['ibias']
 
         # Somewhat arbitrary vstar_min in this case
-        vstar_min = 0.25
+        vstar_min = 0.2
 
         # Estimate threshold of each device TODO can this be more generalized?
         n_in = in_type=='n'
@@ -99,10 +102,18 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
         vtail_vec = np.arange(vtail_min, vtail_max, 10e-3)
         print(f'Sweeping tail from {vtail_min} to {vtail_max}')
         for vtail in vtail_vec:
-            # Sweep output common mode
+            # Sweep output common mode or use taken-in optional parameter
             voutcm_min = vincm-vth_in+vswing_low if n_in else vstar_min+vth_load+vswing_low
             voutcm_max = vdd+vth_load-vstar_min-vswing_high if n_in else vincm-vth_in-vswing_high
-            voutcm_vec = np.arange(voutcm_min, voutcm_max, 10e-3)
+            
+            voutcm_opt = optional_params.get('voutcm', default=None)
+            if voutcm_opt == None:
+                voutcm_vec = np.arange(voutcm_min, voutcm_max, 10e-3)                
+            elif voutcm_opt < voutcm_min or voutcm_opt > voutcm_max:
+                raise ValueError(f"Given target vout bias point ({voutcm_opt}) doesn't fall within valid range {voutcm_min}-{voutcm_max}")
+            else:
+                voutcm_vec = [voutcm_opt]
+
             # print(f'Sweeping output common mode from {voutcm_min} to {voutcm_max}')
             for voutcm in voutcm_vec:
                 in_op = db_dict['in'].query(vgs=vincm-vtail,
@@ -115,6 +126,7 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
                 # Step input device size (integer steps)
                 nf_in_max = int(round(ibias_max/ibias_min))
                 nf_in_vec = np.arange(1, nf_in_max, 1)
+                # print(nf_in_max)
                 for nf_in in nf_in_vec:
                     # Check against current
                     ibias = ibias_min * nf_in
@@ -126,6 +138,7 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
                                                       nf_in,
                                                       0.1)
                     if not match_load:
+                        # print("Load match")
                         continue
 
                     # Check approximate gain, bandwidth (makes meh assumption about virtual ground)
@@ -145,7 +158,6 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
                     ckt_n.add_transistor(load_op, 'out', 'outx', 'gnd', fg=nf_load, neg_cap=False)
                     ckt_n.add_cap(cload, 'out', 'gnd')
                     n_num, n_den = ckt_n.get_num_den(in_name='inn', out_name='out', in_type='v')
-                    
 
                     num, den = num_den_add(p_num, np.convolve(n_num, [-1]),
                                            p_den, n_den)
@@ -160,8 +172,10 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
                     fbw = wbw/(2*np.pi)
                     
                     if fbw < fbw_min:
+                        # print(f"BW: {fbw}")
                         continue
                     if gain < gain_min:
+                        # print(f'Gain: {gain}')
                         break
 
                     # Design tail to current match
@@ -177,6 +191,7 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
                                                              nf_in,
                                                              0.1)
                         if not tail_success:
+                            # print('Tail match')
                             continue
 
                         # Check against spec again, now with full circuit

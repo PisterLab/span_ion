@@ -58,42 +58,6 @@ instances:
         direction: input
         net_name: "VIN"
         num_bits: 1
-  D2:
-    lib_name: PRIMLIB
-    cell_name: dn5
-    instpins:
-      MINUS:
-        direction: inputOutput
-        net_name: "net03"
-        num_bits: 1
-      PLUS:
-        direction: inputOutput
-        net_name: "VOUT0"
-        num_bits: 1
-  D0:
-    lib_name: PRIMLIB
-    cell_name: dn5
-    instpins:
-      MINUS:
-        direction: inputOutput
-        net_name: "net36"
-        num_bits: 1
-      PLUS:
-        direction: inputOutput
-        net_name: "net03"
-        num_bits: 1
-  D1:
-    lib_name: PRIMLIB
-    cell_name: dn5
-    instpins:
-      MINUS:
-        direction: inputOutput
-        net_name: "VOUT0"
-        num_bits: 1
-      PLUS:
-        direction: inputOutput
-        net_name: "net29"
-        num_bits: 1
   XCAP:
     lib_name: bag2_wrappers
     cell_name: cap_ideal
@@ -194,10 +158,50 @@ instances:
         direction: output
         net_name: "VP<0>"
         num_bits: 1
-  XRESFB<0>:
-    lib_name: bag2_wrappers
-    cell_name: res_ideal
+  D4:
+    lib_name: PRIMLIB
+    cell_name: dn
     instpins:
+      MINUS:
+        direction: inputOutput
+        net_name: "net03"
+        num_bits: 1
+      PLUS:
+        direction: inputOutput
+        net_name: "VOUT0"
+        num_bits: 1
+  D3:
+    lib_name: PRIMLIB
+    cell_name: dn
+    instpins:
+      MINUS:
+        direction: inputOutput
+        net_name: "VOUT0"
+        num_bits: 1
+      PLUS:
+        direction: inputOutput
+        net_name: "net29"
+        num_bits: 1
+  D5:
+    lib_name: PRIMLIB
+    cell_name: dn
+    instpins:
+      MINUS:
+        direction: inputOutput
+        net_name: "net36"
+        num_bits: 1
+      PLUS:
+        direction: inputOutput
+        net_name: "net03"
+        num_bits: 1
+  XRESFB<0>:
+    lib_name: bag2_analog
+    cell_name: res_multistrip
+    instpins:
+      BULK:
+        direction: inputOutput
+        net_name: "BULK"
+        num_bits: 1
       PLUS:
         direction: inputOutput
         net_name: "net29"
@@ -207,9 +211,13 @@ instances:
         net_name: "VOUT"
         num_bits: 1
   XRESRC:
-    lib_name: bag2_wrappers
-    cell_name: res_ideal
+    lib_name: bag2_analog
+    cell_name: res_multistrip
     instpins:
+      BULK:
+        direction: inputOutput
+        net_name: "BULK"
+        num_bits: 1
       PLUS:
         direction: inputOutput
         net_name: "net36"
@@ -219,9 +227,13 @@ instances:
         net_name: "VIN1"
         num_bits: 1
   XRESFB<1>:
-    lib_name: bag2_wrappers
-    cell_name: res_ideal
+    lib_name: bag2_analog
+    cell_name: res_multistrip
     instpins:
+      BULK:
+        direction: inputOutput
+        net_name: "BULK"
+        num_bits: 1
       PLUS:
         direction: inputOutput
         net_name: "net03"

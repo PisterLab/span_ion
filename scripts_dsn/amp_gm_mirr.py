@@ -72,7 +72,7 @@ class bag2_analog__amp_gm_mirr_dsn(DesignModule):
         ibias_max = params['ibias']
 
         # Somewhat arbitrary vstar_min in this case
-        vstar_min = 0.25
+        vstar_min = 0.2
 
         # Estimate threshold of each device TODO can this be more generalized?
         n_in = in_type=='n'

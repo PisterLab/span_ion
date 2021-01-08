@@ -211,9 +211,13 @@ instances:
         net_name: "VP<1>"
         num_bits: 1
   XRES_FB:
-    lib_name: bag2_wrappers
-    cell_name: res_ideal
+    lib_name: bag2_analog
+    cell_name: res_multistrip
     instpins:
+      BULK:
+        direction: inputOutput
+        net_name: "BULK"
+        num_bits: 1
       PLUS:
         direction: inputOutput
         net_name: "net2"
@@ -223,9 +227,13 @@ instances:
         net_name: "VOUT"
         num_bits: 1
   XRES_RC:
-    lib_name: bag2_wrappers
-    cell_name: res_ideal
+    lib_name: bag2_analog
+    cell_name: res_multistrip
     instpins:
+      BULK:
+        direction: inputOutput
+        net_name: "BULK"
+        num_bits: 1
       PLUS:
         direction: inputOutput
         net_name: "net8"

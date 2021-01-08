@@ -78,18 +78,6 @@ instances:
         direction: input
         net_name: "in_filt"
         num_bits: 1
-  XR:
-    lib_name: bag2_wrappers
-    cell_name: res_ideal
-    instpins:
-      PLUS:
-        direction: inputOutput
-        net_name: "in_filt"
-        num_bits: 1
-      MINUS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
   PIN1:
     lib_name: basic
     cell_name: opin
@@ -157,4 +145,20 @@ instances:
       in:
         direction: input
         net_name: "in"
+        num_bits: 1
+  XR:
+    lib_name: bag2_analog
+    cell_name: res_multistrip
+    instpins:
+      BULK:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      PLUS:
+        direction: inputOutput
+        net_name: "in_filt"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "VSS"
         num_bits: 1

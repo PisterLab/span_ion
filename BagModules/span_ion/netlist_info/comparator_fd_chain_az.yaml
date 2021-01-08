@@ -1,6 +1,6 @@
 lib_name: span_ion
 cell_name: comparator_fd_chain_az
-pins: [ "VINP", "VINN", "VINCM", "VOUTCM", "VDD", "VSS", "VOUTP", "VOUTN", "PHI", "PHIb", "PHI_EARLY", "PHI_EARLYb" ]
+pins: [ "VINP", "VINN", "VREFP", "VOUTCM", "VDD", "VSS", "VOUTP", "VOUTN", "PHI", "PHIb", "PHI_EARLY", "PHI_EARLYb", "VREFN" ]
 instances:
   XAMP:
     lib_name: span_ion
@@ -38,6 +38,14 @@ instances:
     lib_name: span_ion
     cell_name: comparator_az_connection
     instpins:
+      VREFA:
+        direction: input
+        net_name: "VREFP"
+        num_bits: 1
+      VREFB:
+        direction: input
+        net_name: "VREFN"
+        num_bits: 1
       VAMPINB:
         direction: inputOutput
         net_name: "VAMPINN"
@@ -86,10 +94,6 @@ instances:
         direction: input
         net_name: "VINN"
         num_bits: 1
-      VINCM:
-        direction: input
-        net_name: "VINCM"
-        num_bits: 1
   PIN5:
     lib_name: basic
     cell_name: iopin
@@ -97,6 +101,10 @@ instances:
   PIN4:
     lib_name: basic
     cell_name: iopin
+    instpins: {}
+  PIN12:
+    lib_name: basic
+    cell_name: ipin
     instpins: {}
   PIN11:
     lib_name: basic

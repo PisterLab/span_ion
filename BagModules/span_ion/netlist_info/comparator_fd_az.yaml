@@ -1,11 +1,23 @@
 lib_name: span_ion
 cell_name: comparator_fd_az
-pins: [ "PHI_EARLYb", "PHI_EARLY", "PHIb", "PHI", "VOUTCM", "VINCM", "VSS", "VINN", "VOUTN", "VDD", "VINP", "VOUTP" ]
+pins: [ "PHI_EARLYb", "PHI_EARLY", "PHIb", "PHI", "VOUTCM", "VREFP", "VSS", "VINN", "VOUTN", "VDD", "VINP", "VOUTP", "VREFN" ]
 instances:
   XCHAIN_AZ:
     lib_name: span_ion
     cell_name: comparator_fd_chain_az
     instpins:
+      VINP:
+        direction: input
+        net_name: "VINP"
+        num_bits: 1
+      VREFP:
+        direction: input
+        net_name: "VREFP"
+        num_bits: 1
+      VREFN:
+        direction: input
+        net_name: "VREFN"
+        num_bits: 1
       VSS:
         direction: inputOutput
         net_name: "VSS"
@@ -38,22 +50,18 @@ instances:
         direction: input
         net_name: "PHIb"
         num_bits: 1
-      VINCM:
-        direction: input
-        net_name: "VINCM"
-        num_bits: 1
       VINN:
         direction: input
         net_name: "VINN"
-        num_bits: 1
-      VINP:
-        direction: input
-        net_name: "VINP"
         num_bits: 1
       VOUTCM:
         direction: input
         net_name: "VOUTCM"
         num_bits: 1
+  PIN12:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
   PIN0:
     lib_name: basic
     cell_name: ipin

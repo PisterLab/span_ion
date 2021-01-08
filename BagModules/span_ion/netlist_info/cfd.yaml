@@ -1,4 +1,376 @@
 lib_name: span_ion
 cell_name: cfd
-pins: [  ]
-instances: {}
+pins: [ "OUT", "VDD", "VSS", "IIN", "SEL_DAC" ]
+instances:
+  XDELAY:
+    lib_name: span_ion
+    cell_name: delay_tt2
+    instpins:
+      VREF:
+        direction: input
+        net_name: "VREF_DELAY"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUT:
+        direction: output
+        net_name: "VOUT_DELAY"
+        num_bits: 1
+      VIN:
+        direction: input
+        net_name: "VOUT_PREAMP"
+        num_bits: 1
+  XPEAK:
+    lib_name: span_ion
+    cell_name: peak_detector_basic3
+    instpins:
+      RST:
+        direction: input
+        net_name: "RST_PEAK"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUT:
+        direction: output
+        net_name: "VOUT_PEAK"
+        num_bits: 1
+      VIN:
+        direction: input
+        net_name: "VOUT_PREAMP"
+        num_bits: 1
+  XCOMP_LED:
+    lib_name: span_ion
+    cell_name: comparator_fd_az
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUTN:
+        direction: output
+        net_name: "VOUTN_LED"
+        num_bits: 1
+      VOUTP:
+        direction: output
+        net_name: "VOUTP_LED"
+        num_bits: 1
+      PHI:
+        direction: input
+        net_name: "PHI_LED"
+        num_bits: 1
+      PHI_EARLY:
+        direction: input
+        net_name: "PHI_EARLY_LED"
+        num_bits: 1
+      PHI_EARLYb:
+        direction: input
+        net_name: "PHI_EARLYb_LED"
+        num_bits: 1
+      PHIb:
+        direction: input
+        net_name: "PHIb_LED"
+        num_bits: 1
+      VINCM:
+        direction: 
+        net_name: "VINCM_LED"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "VOUT_DAC"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VOUT_PREAMP"
+        num_bits: 1
+      VOUTCM:
+        direction: input
+        net_name: "VOUTCM_LED"
+        num_bits: 1
+  XCOMP_ZCD:
+    lib_name: span_ion
+    cell_name: comparator_fd_az
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUTN:
+        direction: output
+        net_name: "VOUTN_ZCD"
+        num_bits: 1
+      VOUTP:
+        direction: output
+        net_name: "VOUTP_ZCD"
+        num_bits: 1
+      PHI:
+        direction: input
+        net_name: "PHI_ZCD"
+        num_bits: 1
+      PHI_EARLY:
+        direction: input
+        net_name: "PHI_EARLY_ZCD"
+        num_bits: 1
+      PHI_EARLYb:
+        direction: input
+        net_name: "PHI_EARLYb_ZCD"
+        num_bits: 1
+      PHIb:
+        direction: input
+        net_name: "PHIb_ZCD"
+        num_bits: 1
+      VINCM:
+        direction: 
+        net_name: "VINCM_ZCD"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "VOUT_ATTEN"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VOUT_DELAY"
+        num_bits: 1
+      VOUTCM:
+        direction: input
+        net_name: "VOUTCM_ZCD"
+        num_bits: 1
+  XMEGANOR:
+    lib_name: bag2_digital
+    cell_name: nor
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "OUT_LOGIC"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "net1"
+        num_bits: 1
+  XONESHOT:
+    lib_name: span_ion
+    cell_name: one_shot_nand
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "OUT"
+        num_bits: 1
+      outb:
+        direction: output
+        net_name: "OUTb"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "OUT_LOGIC"
+        num_bits: 1
+  XBUF_LEDN:
+    lib_name: bag2_digital
+    cell_name: inv_chain
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "OUTb_LED"
+        num_bits: 1
+      outb:
+        direction: output
+        net_name: "OUTb_LEDb"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "VOUTN_LED"
+        num_bits: 1
+  XBUF_LEDP:
+    lib_name: bag2_digital
+    cell_name: inv_chain
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "OUT_LED"
+        num_bits: 1
+      outb:
+        direction: output
+        net_name: "OUT_LEDb"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "VOUTP_LED"
+        num_bits: 1
+  XBUF_ZCDN:
+    lib_name: bag2_digital
+    cell_name: inv_chain
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "OUTb_ZCD"
+        num_bits: 1
+      outb:
+        direction: output
+        net_name: "OUTb_ZCDb"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "VOUTN_ZCD"
+        num_bits: 1
+  XBUF_ZCDP:
+    lib_name: bag2_digital
+    cell_name: inv_chain
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "OUT_ZCD"
+        num_bits: 1
+      outb:
+        direction: output
+        net_name: "OUT_ZCDb"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "VOUTP_ZCD"
+        num_bits: 1
+  I16:
+    lib_name: basic
+    cell_name: noConn
+    instpins:
+      noConn:
+        direction: inputOutput
+        net_name: "OUTb"
+        num_bits: 1
+  I15:
+    lib_name: basic
+    cell_name: noConn
+    instpins:
+      noConn:
+        direction: inputOutput
+        net_name: "OUTb_LEDb"
+        num_bits: 1
+  I14:
+    lib_name: basic
+    cell_name: noConn
+    instpins:
+      noConn:
+        direction: inputOutput
+        net_name: "OUT_LED"
+        num_bits: 1
+  I13:
+    lib_name: basic
+    cell_name: noConn
+    instpins:
+      noConn:
+        direction: inputOutput
+        net_name: "OUTb_ZCDb"
+        num_bits: 1
+  I12:
+    lib_name: basic
+    cell_name: noConn
+    instpins:
+      noConn:
+        direction: inputOutput
+        net_name: "OUT_ZCD"
+        num_bits: 1
+  PIN0:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN2:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN1:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN4:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  XRDAC:
+    lib_name: bag2_analog
+    cell_name: dac_rladder
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUT:
+        direction: output
+        net_name: "VOUT_DAC"
+        num_bits: 1
+      S:
+        direction: input
+        net_name: "SEL_DAC"
+        num_bits: 1

@@ -97,8 +97,8 @@ class bag2_analog__constant_gm_dsn(DesignModule):
                 vs_p_vec = [vdd] if res_side=='n' else np.arange(max(vg_p-vth_p+vstar_min, vg_n+vstar_min), vg_p-vth_p+vstar_min, 10e-3)
                 vs_n_vec = [0] if res_side=='p' else np.arange(vg_n-vth_n-vstar_min, min(vg_n-vth_p-vstar_min, vg_p-vstar_min), 10e-3)
                 
-                print(f'VSP: {min(vs_p_vec)}/{max(vs_p_vec)}')
-                print(f'VSN: {min(vs_n_vec)}/{max(vs_n_vec)}')
+                # print(f'VSP: {min(vs_p_vec)}/{max(vs_p_vec)}')
+                # print(f'VSN: {min(vs_n_vec)}/{max(vs_n_vec)}')
 
                 for vs_p in vs_p_vec:
                     p_nondiode_op = db_dict['p'].query(vgs=vg_p-vs_p, vds=vg_n-vs_p, vbs=vdd-vs_p)

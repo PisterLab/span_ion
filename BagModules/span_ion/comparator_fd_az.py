@@ -77,7 +77,8 @@ class span_ion__comparator_fd_az(Module):
                              'VINN' : 'VINN' if i==0 else f'VMID<{i-1}>',
                              'VOUTP' : 'VOUTP' if i==num_az_chunks-1 else f'VMID<{i}>',
                              'VOUTN' : 'VOUTN' if i==num_az_chunks-1 else f'VMID<{i}>',
-                             'VINCM' : f'VINCM<{i}>',
+                             'VREFP' : f'VREFP<{i}>',
+                             'VREFN' : f'VREFN<{i}>',
                              'VOUTCM' : f'VOUTCM<{suffix_voutcm}>',
                              'PHI' : f'PHI<{i}>',
                              'PHIb' : f'PHIb<{i}>',
@@ -93,7 +94,7 @@ class span_ion__comparator_fd_az(Module):
             suffix_voutcm = f'<{voutcm_start-1}:0>'
             suffix_chunks = f'<{num_az_chunks-1}:0>'
             self.rename_pin('VOUTCM', f'VOUTCM{suffix_voutcm}')
-            for p in ['PHI', 'PHIb', 'PHI_EARLY', 'PHI_EARLYb', 'VINCM']:
+            for p in ['PHI', 'PHIb', 'PHI_EARLY', 'PHI_EARLYb', 'VREFP', 'VREFN']:
                 self.rename_pin(p, f'{p}{suffix_chunks}')
 
         else:

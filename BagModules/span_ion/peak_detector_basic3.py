@@ -56,7 +56,7 @@ class span_ion__peak_detector_basic3(Module):
             res_params = dict(l=res_params_dict['l_dict'][k],
                               w=res_params_dict['w_dict'][k],
                               intent=res_params_dict['th_dict'][k],
-                              num_units=res_params_dict['num_dict'][k])
+                              num_unit=res_params_dict['num_dict'][k])
             self.instances[inst_name].design(**res_params)
         
         # self.instances['XRESRC'].parameters = res_params_dict['rc']

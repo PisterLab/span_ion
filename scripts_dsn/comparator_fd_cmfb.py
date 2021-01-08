@@ -8,7 +8,7 @@ import numpy as np
 
 from bag.design.module import Module
 from . import DesignModule, get_mos_db, estimate_vth, parallel, verify_ratio
-from bag.data.lti import LTICircuit, get_w_3db, get_stability_margins
+from bag.data.lti import LTICircuit, get_w_3db, get_stability_margins, get_w_crossings
 
 # noinspection PyPep8Naming
 class span_ion__comparator_fd_cmfb_dsn(DesignModule):
@@ -82,8 +82,10 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
         viable_op_list = []
 
         # Sweep tail voltage
-        vtail_vec = np.arange(vincm-vth_in, vdd-vstar_min, 10e-3)
-        # print(f'Sweeping tail from {vincm-vth_in} to {vdd-vstar_min}')
+        vtail_min = vincm
+        vtail_max = vdd-vstar_min
+        vtail_vec = np.arange(vtail_min, vtail_max, 10e-3)
+        print(f'Sweeping tail from {vtail_min} to {vtail_max}')
         for vtail in vtail_vec:
             in_op = db_dict['in'].query(vgs=vincm-vtail,
                                         vds=voutcm-vtail,
@@ -103,24 +105,44 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
                     break
 
                 # Match load device size
-                out_match, nf_out = verify_ratio(abs(in_op['ibias']*2),
-                                                abs(out_op['ibias']),
-                                                nf_in,
-                                                0.05)
+                out_match, nf_out = verify_ratio(in_op['ibias']*2,
+                                                 out_op['ibias'],
+                                                 nf_in,
+                                                 0.05)
 
                 if not out_match:
                     # print("(FAIL) out match")
                     continue
 
                 # Check target specs
-                Rout = parallel(1/(nf_in*2*in_op['gds']), 
-                                1/(nf_out*out_op['gm']),
-                                1/(nf_out*out_op['gds']))
-                Gm = abs(in_op['gm'])*nf_in*2
-                gain = Gm * Rout
-                Cout = cload + (nf_in*2*in_op['cgs']) + (1+gain)*(nf_in*2*in_op['cds'])
-                fbw = 1/(2*np.pi*Rout*Cout)
-                ugf = Gm / Cout * (1/2*np.pi)
+                ckt_half = LTICircuit()
+                ckt_half.add_transistor(in_op, 'out', 'in', 'gnd', fg=nf_in*2, neg_cap=False)
+                ckt_half.add_transistor(out_op, 'out', 'out', 'gnd', fg=nf_out, neg_cap=False)
+                ckt_half.add_cap(cload, 'out', 'gnd')
+
+                num, den = ckt_half.get_num_den(in_name='in', out_name='out', in_type='v')
+                # num = np.convolve(num, [-1]) # To get positive gain
+
+                wbw = get_w_3db(num, den)
+                if wbw == None:
+                    wbw = 0
+                fbw = wbw/(2*np.pi)
+
+                # wu, _ = get_w_crossings(num, den)
+                # if wu == None:
+                #     wu = 0
+                # ugf = wu/(2*np.pi)
+
+                # Rout = parallel(1/(nf_in*2*in_op['gds']), 
+                #                 1/(nf_out*out_op['gm']),
+                #                 1/(nf_out*out_op['gds']))
+                # Gm = in_op['gm']*nf_in*2
+                # gain = Gm * Rout
+                # Cout = cload + (nf_in*2*in_op['cgs']) + (1+gain)*(nf_in*2*in_op['cds'])
+                # fbw = 1/(2*np.pi*Rout*Cout)
+                # ugf = Gm / Cout * (1/2*np.pi)
+                gain = num[-1]/den[-1]
+                ugf = fbw * gain
                 if fbw < fbw_min:
                     # print(f"(FAIL) fbw {fbw}")
                     continue
@@ -138,8 +160,8 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
                     tail_op = db_dict['tail'].query(vgs=vgtail-vdd,
                                                     vds=vtail-vdd,
                                                     vbs=0)
-                    tail_match, nf_tail = verify_ratio(abs(in_op['ibias']*4),
-                                                       abs(tail_op['ibias']),
+                    tail_match, nf_tail = verify_ratio(in_op['ibias']*4,
+                                                       tail_op['ibias'],
                                                        nf_in,
                                                        0.05)
 
