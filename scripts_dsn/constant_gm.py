@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import Mapping, Tuple, Any
+from typing import Mapping, Tuple, Any, List
 
 import os
 import pkg_resources
@@ -76,7 +76,7 @@ class bag2_analog__constant_gm_dsn(DesignModule):
 
         assert vn != None or vp != None, f'At least one of vp or vn have to be assigned'
 
-        vstar_min = 0.25
+        vstar_min = 0.2
         vth_n = estimate_vth(is_nch=True, vgs=vdd/2, vbs=0, db=db_dict['n'], lch=l_dict['n'])
         vth_p = estimate_vth(is_nch=False, vgs=-vdd/2, vbs=0, db=db_dict['p'], lch=l_dict['p'])
 
@@ -91,8 +91,8 @@ class bag2_analog__constant_gm_dsn(DesignModule):
             for vg_n in vg_n_vec:
                 n_diode_op = db_dict['n'].query(vgs=vg_n, vds=vg_n, vbs=0)
 
-                vs_p_vec = [vdd] if res_side=='n' else np.arange(max(vg_p-vth_p+vstar_min, vg_n+vstar_min), vg_p-vth_p+vstar_min, 10e-3)
-                vs_n_vec = [0] if res_side=='p' else np.arange(vg_n-vth_n-vstar_min, min(vg_n-vth_p-vstar_min, vg_p-vstar_min), 10e-3)
+                vs_p_vec = [vdd] if res_side=='n' else np.arange(max(vg_p-vth_p+vstar_min, vg_n+vstar_min), vdd, 10e-3)
+                vs_n_vec = [0] if res_side=='p' else np.arange(0, min(vg_n-vth_n-vstar_min, vg_p-vstar_min), 10e-3)
 
                 for vs_p in vs_p_vec:
                     p_nondiode_op = db_dict['p'].query(vgs=vg_p-vs_p, vds=vg_n-vs_p, vbs=vdd-vs_p)
@@ -126,7 +126,10 @@ class bag2_analog__constant_gm_dsn(DesignModule):
                                                                         0.1)
                             if not match_side:
                                 # raise ValueError("pause")
-                                # print("Side match fail")
+                                print("Side match fail")
+                                continue
+
+                            if nf_side_nondiode == nf_main_diode:
                                 continue
 
                             iside_unit = side_diode_op['ibias']
@@ -134,11 +137,11 @@ class bag2_analog__constant_gm_dsn(DesignModule):
                             res_val = vs_n/iside if res_side=='n' else vs_p/iside
 
                             if res_val > res_max or res_val < res_min:
-                                # print("Res fail")
+                                print("Res fail")
                                 break
 
                             if imain + iside > ibias_max:
-                                # print("Ibias fail")
+                                print("Ibias fail")
                                 break
 
                             viable_op = dict(nf_diode_p=nf_main_diode if res_side=='p' else nf_side_diode,
@@ -182,6 +185,6 @@ class bag2_analog__constant_gm_dsn(DesignModule):
                     l_dict=self.other_params['l_dict'].update(dict(res=op['res_val']*1e-6/600)), # TODO real resistor
                     w_dict=self.other_params['w_dict'],
                     th_dict=self.other_params['th_dict'],
-                    seg_dict=dict(n=self.best_op['nf_diode_n'], p=op['nf_diode_p'], res=1e-6), # TODO real resistor
+                    seg_dict=dict(n=op['nf_diode_n'], p=op['nf_diode_p'], res=1e-6), # TODO real resistor
                     device_mult=op['nf_nondiode_n']/op['nf_diode_n'] if res_side=='n' else \
                                 op['nf_nondiode_p']/op['nf_diode_p'])

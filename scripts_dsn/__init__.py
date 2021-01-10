@@ -109,7 +109,7 @@ class DesignModule(object):
         param_info : Optional[Dict[str, str]]
             dictionary from parameter names to descriptions.
         """
-        pass
+        return dict()
 
     def meet_spec(self, **kwargs) -> List[Mapping[str,Any]]:
         """To be overridden by subclasses to design this module.
@@ -118,7 +118,7 @@ class DesignModule(object):
             kwargs: Keys match the elements of the result of get_params_info
         Returns:
         """
-        pass
+        return []
 
     def choose_op(self, viable_op_list:List[Mapping[str,Any]]):
         if len(viable_op_list) == 0:
@@ -132,10 +132,10 @@ class DesignModule(object):
         return best_op
     
     def op_compare(self, op1:Mapping[str,Any], op2:Mapping[str,Any]):
-        pass
+        raise NotImplementedError()
 
     def get_sch_params(self, op):
-        pass
+        raise NotImplementedError()
 
     def design(self, **kwargs) -> Tuple[Mapping[str,Any], Mapping[str,Any]]:
         """Takes the spec parameters and designs for the spec.
