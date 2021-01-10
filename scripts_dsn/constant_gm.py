@@ -49,7 +49,7 @@ class bag2_analog__constant_gm_dsn(DesignModule):
         ))
         return ans
 
-    def meet_spec(self, **params) -> Tuple[Mapping[str,Any],Mapping[str,Any]]:
+    def meet_spec(self, **params) -> List[Mapping[str,Any]]:
         """To be overridden by subclasses to design this module.
 
         Raises a ValueError if there is no solution.
@@ -77,18 +77,15 @@ class bag2_analog__constant_gm_dsn(DesignModule):
         assert vn != None or vp != None, f'At least one of vp or vn have to be assigned'
 
         vstar_min = 0.25
-        vth_n = estimate_vth(is_nch=True, vgs=vdd/2, vbs=0, db=db_dict['n'])
-        vth_p = estimate_vth(is_nch=False, vgs=-vdd/2, vbs=0, db=db_dict['p'])
+        vth_n = estimate_vth(is_nch=True, vgs=vdd/2, vbs=0, db=db_dict['n'], lch=l_dict['n'])
+        vth_p = estimate_vth(is_nch=False, vgs=-vdd/2, vbs=0, db=db_dict['p'], lch=l_dict['p'])
 
-        vg_p_vec = [vp] if vp != None else np.arange(min(vn-vth_n, vn+vth_p), vdd+vth_p-vstar_min, 10e-3)
-        vg_n_vec = [vn] if vn != None else np.arange(vth_n+vstar_min, max(vp+vth_n, vp-vth_p), 10e-3)
+        vg_p_vec = [vp] if vp != None else np.arange(max(0, min(vn-vth_n, vn+vth_p)), min(vdd+vth_p-vstar_min, vdd), 10e-3)
+        vg_n_vec = [vn] if vn != None else np.arange(max(0, vth_n+vstar_min), min(vdd, max(vp+vth_n, vp-vth_p)), 10e-3)
 
         viable_op_list = []
 
         # Sweep possibilities: vgp, vgn, vsp, vsn
-        print(f'VGP: {min(vg_p_vec)}/{max(vg_p_vec)}')
-        print(f'VGN: {min(vg_n_vec)}/{max(vg_n_vec)}')
-
         for vg_p in vg_p_vec:
             p_diode_op = db_dict['p'].query(vgs=vg_p-vdd, vds=vg_p-vdd, vbs=0)
             for vg_n in vg_n_vec:
@@ -96,9 +93,6 @@ class bag2_analog__constant_gm_dsn(DesignModule):
 
                 vs_p_vec = [vdd] if res_side=='n' else np.arange(max(vg_p-vth_p+vstar_min, vg_n+vstar_min), vg_p-vth_p+vstar_min, 10e-3)
                 vs_n_vec = [0] if res_side=='p' else np.arange(vg_n-vth_n-vstar_min, min(vg_n-vth_p-vstar_min, vg_p-vstar_min), 10e-3)
-                
-                # print(f'VSP: {min(vs_p_vec)}/{max(vs_p_vec)}')
-                # print(f'VSN: {min(vs_n_vec)}/{max(vs_n_vec)}')
 
                 for vs_p in vs_p_vec:
                     p_nondiode_op = db_dict['p'].query(vgs=vg_p-vs_p, vds=vg_n-vs_p, vbs=vdd-vs_p)
@@ -167,39 +161,27 @@ class bag2_analog__constant_gm_dsn(DesignModule):
         if len(viable_op_list) < 1:
             raise ValueError("No solution")
 
-        # Find the best operating point among those which do
-        best_op = viable_op_list[0]
-        for op in viable_op_list:
-            best_op = self.op_compare(best_op, op)
+        self.other_params = dict(res_side=res_side,
+                                 l_dict=l_dict,
+                                 w_dict={k:db.width_list[0] for k,db in db_dict.items()}.update(dict(res=1e-6)), # TODO real resistor
+                                 th_dict=th_dict)
 
-
-        # Arranging schematic parameters
-        mirr_n_params = dict(device_params=dict(l=l_dict['n'], 
-                                                w=db_dict['n'].width_list[0],
-                                                intent=th_dict['n']),
-                             seg_in=best_op['nf_diode_n'],
-                             seg_out_list=[best_op['nf_nondiode_n']])
-        mirr_p_params = dict(device_params=dict(l=l_dict['p'], 
-                                                w=db_dict['p'].width_list[0],
-                                                intent=th_dict['p']),
-                             seg_in=best_op['nf_diode_p'],
-                             seg_out_list=[best_op['nf_nondiode_p']])
-
-        # TODO real resistor
-        res_params = dict(w=1e-6, l=1e-6*best_op['res_val']/600, intent='ideal', num_unit=1)
-
-        sch_params = dict(res_side=res_side,
-                          res_params=res_params,
-                          mirr_n_params=mirr_n_params,
-                          mirr_p_params=mirr_p_params,
-                          bulk_conn='VSS')
-
-        print(f"(RESULT) {sch_params}\n{best_op}")
-
-        return sch_params, best_op
+        return viable_op_list
 
     def op_compare(self, op1:Mapping[str,Any], op2:Mapping[str,Any]):
         """Returns the best operating condition based on 
         minimizing bias current.
         """
         return op2 if op1['nf_side_nondiode'] > op2['nf_side_nondiode'] else op1
+
+    def get_sch_params(self, op):
+        res_side = self.other_params['res_side']
+
+        return dict(bulk_conn='VDD',
+                    res_side=res_side,
+                    l_dict=self.other_params['l_dict'].update(dict(res=op['res_val']*1e-6/600)), # TODO real resistor
+                    w_dict=self.other_params['w_dict'],
+                    th_dict=self.other_params['th_dict'],
+                    seg_dict=dict(n=self.best_op['nf_diode_n'], p=op['nf_diode_p'], res=1e-6), # TODO real resistor
+                    device_mult=op['nf_nondiode_n']/op['nf_diode_n'] if res_side=='n' else \
+                                op['nf_nondiode_p']/op['nf_diode_p'])

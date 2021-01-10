@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import Mapping, Tuple, Any
+from typing import Mapping, Tuple, Any, List
 
 import os
 import pkg_resources
@@ -46,9 +46,9 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
         ))
         return ans
 
-    def meet_spec(self, **params) -> Tuple[Mapping[str,Any],Mapping[str,Any]]:
+    def meet_spec(self, **params) -> List[Mapping[str,Any]]:
         """To be overridden by subclasses to design this module.
-
+        Returns collection of all possible solutions.
         Raises a ValueError if there is no solution.
         """
         optional_params = params['optional_params']
@@ -75,7 +75,7 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
         ibias_max = params['ibias']
 
         # Somewhat arbitrary vstar_min in this case
-        vstar_min = 0.2
+        vstar_min = 0.25
 
         # Estimate threshold of each device TODO can this be more generalized?
         n_in = in_type=='n'
@@ -88,9 +88,9 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
         vb_tail = 0 if n_in else vdd
         vb_load = vdd if n_in else 0
 
-        vth_in = estimate_vth(is_nch=n_in, vgs=vtest_in, vbs=0, db=db_dict['in'])
-        vth_load = estimate_vth(is_nch=(not n_in), vgs=vtest_load, vbs=0, db=db_dict['load'])
-        vth_tail = estimate_vth(is_nch=n_in, vgs=vtest_tail, vbs=0, db=db_dict['tail'])
+        vth_in = estimate_vth(is_nch=n_in, vgs=vtest_in, vbs=0, db=db_dict['in'], lch=l_dict['in'])
+        vth_load = estimate_vth(is_nch=(not n_in), vgs=vtest_load, vbs=0, db=db_dict['load'], lch=l_dict['load'])
+        vth_tail = estimate_vth(is_nch=n_in, vgs=vtest_tail, vbs=0, db=db_dict['tail'], lch=l_dict['tail'])
 
         ibias_min = np.inf
         # Keeping track of operating points which work for future comparison
@@ -100,17 +100,17 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
         vtail_min = vstar_min if n_in else vincm-vth_in
         vtail_max = vincm-vth_in if n_in else vdd-vstar_min
         vtail_vec = np.arange(vtail_min, vtail_max, 10e-3)
-        print(f'Sweeping tail from {vtail_min} to {vtail_max}')
+        # print(f'Sweeping tail from {vtail_min} to {vtail_max}')
         for vtail in vtail_vec:
             # Sweep output common mode or use taken-in optional parameter
             voutcm_min = vincm-vth_in+vswing_low if n_in else vstar_min+vth_load+vswing_low
             voutcm_max = vdd+vth_load-vstar_min-vswing_high if n_in else vincm-vth_in-vswing_high
             
-            voutcm_opt = optional_params.get('voutcm', default=None)
+            voutcm_opt = optional_params.get('voutcm', None)
             if voutcm_opt == None:
                 voutcm_vec = np.arange(voutcm_min, voutcm_max, 10e-3)                
             elif voutcm_opt < voutcm_min or voutcm_opt > voutcm_max:
-                raise ValueError(f"Given target vout bias point ({voutcm_opt}) doesn't fall within valid range {voutcm_min}-{voutcm_max}")
+                break
             else:
                 voutcm_vec = [voutcm_opt]
 
@@ -241,38 +241,24 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
                         print("\n(SUCCESS)")
                         print(viable_op)
 
-        if len(viable_op_list) < 1:
-            raise ValueError("No solution")
+        self.other_params = dict(in_type=in_type,
+                                 w_dict={k:db.width_list[0] for k,db in db_dict.items()},
+                                 l_dict=l_dict,
+                                 th_dict=th_dict)
 
-        # Find the best operating point among those which do
-        best_op = dict(ibias=np.inf)
-        for op in viable_op_list:
-            best_op = self.op_compare(best_op, op)
-
-
-        # Arranging schematic parameters
-        diffpair_params = dict(lch_dict=l_dict,
-                               w_dict={k:db.width_list[0] for k,db in db_dict.items()},
-                               seg_dict={'in' : best_op['nf_in'],
-                                         'tail' : best_op['nf_tail']},
-                               th_dict=th_dict,)
-
-        mirr_params = dict(device_params=dict(w=db_dict['load'].width_list[0],
-                                              l=l_dict['load'],
-                                              intent=th_dict['load']),
-                           seg_in=best_op['nf_load'],
-                           seg_out_list=[best_op['nf_load']])
-
-        sch_params = dict(diffpair_params=diffpair_params,
-                          mirr_params=mirr_params,
-                          in_type=in_type)
-
-        print(f"(RESULT) {sch_params}\n{best_op}")
-
-        return sch_params, best_op
+        return viable_op_list
 
     def op_compare(self, op1:Mapping[str,Any], op2:Mapping[str,Any]):
         """Returns the best operating condition based on 
         minimizing bias current.
         """
         return op2 if op1['ibias'] > op2['ibias'] else op1
+
+    def get_sch_params(self, op):
+        return dict(in_type=self.other_params['in_type'],
+                    l_dict=self.other_params['l_dict'],
+                    w_dict=self.other_params['w_dict'],
+                    th_dict=self.other_params['th_dict'],
+                    seg_dict={'in' : op['nf_in'],
+                              'tail' : op['nf_tail'],
+                              'load' : op['nf_load']})

@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
+import sys, os
 import yaml
 from bag.design.module import Module
 from verification.mos.query import MOSDBDiscrete
 from typing import Tuple, Mapping, Any, List
 import numpy as np
+
+def disable_print():
+    sys.stdout = open(os.devnull, 'w')
+
+def enable_print():
+    sys.stdout = sys.__stdout__
 
 def get_mos_db(spec_file, intent, interp_method='spline', sim_env='tt') -> MOSDBDiscrete:
     # Initialize transistor database from simulation data
@@ -14,23 +21,27 @@ def get_mos_db(spec_file, intent, interp_method='spline', sim_env='tt') -> MOSDB
     mos_db.set_dsn_params(intent=intent)
     return mos_db
 
-def estimate_vth(db:MOSDBDiscrete, vgs:float, vbs:float, is_nch:bool) -> float:
+def estimate_vth(db:MOSDBDiscrete, vgs:float, vbs:float, is_nch:bool, lch:float) -> float:
     """Estimates the threshold voltage of a device.
-    TODO: Currently assumes a quadratic model.
+    TODO: Currently assumes a quadratic model for vgs/lch < 1V/um, otherwise
+        assumes a linear model.
     Inputs:
         db: MOSDBDiscrete associated with the device.
         is_nch: Boolean. True for NMOS, false otherwise.
         vgs: Gate-source voltage of the device.
         vbs: Bulk/body-source voltage of the device.
+        lch: Channel length.
     Returns:
         vth: Threshold voltage in volts. Note that this
             can be negative.
     """
     op = db.query(vgs=vgs, vds=vgs, vbs=vbs)
+    vds_ref = vgs if is_nch else -vgs
+    vov = op['vstar'] if vds_ref/lch < 1e6 else op['vstar']/2
     if is_nch:
-        return vgs - op['vstar']
+        return vgs - vov
     else:
-        return vgs + op['vstar']
+        return vgs + vov
 
 def verify_ratio(ibase_A:float, ibase_B:float,
         nf_A:int, error_tol:float) -> Tuple[bool,int]:
@@ -75,10 +86,7 @@ def num_den_add(num1, num2, den1, den2):
     den_new = np.convolve(den1, den2)
     num1_new = np.convolve(num1, den2)
     num2_new = np.convolve(num2, den1)
-    # if num1_new.size > num2_new.size:
-    #     num2_new = np.pad(num2_new, ((num1_new.size-num2_new.size,0)), 'constant')
-    # elif num2_new.size > num1_new.size:
-    #     num2_new = np.pad(num1_new, ((num2_new.size-num1_new.size,0)), 'constant')
+
     num_new = np.add(num1_new, num2_new)
 
     return num_new, den_new
@@ -88,8 +96,8 @@ class DesignModule(object):
     """
 
     def __init__(self):
-        self.sch_params = None
-        self.best_op = None
+        self.viable_ops = []
+        self.other_params = dict() # Information necessary for schematic parameters
 
     @classmethod
     def get_params_info(cls):
@@ -101,25 +109,48 @@ class DesignModule(object):
         param_info : Optional[Dict[str, str]]
             dictionary from parameter names to descriptions.
         """
-        return None
+        pass
 
-    def meet_spec(self, **kwargs) -> Tuple[Mapping[str,Any],Mapping[str,Any]]:
+    def meet_spec(self, **kwargs) -> List[Mapping[str,Any]]:
         """To be overridden by subclasses to design this module.
+        Assigns other_params
         Inputs:
             kwargs: Keys match the elements of the result of get_params_info
         Returns:
-            sch_params: Schematic parameters for use with a schematic generator.
-            best_op: Expected parameters (calculated, not simulated)
-        Raises a ValueError if there is no solution.
         """
-        return None, None
+        pass
 
-    def design(self, **kwargs):
+    def choose_op(self, viable_op_list:List[Mapping[str,Any]]):
+        if len(viable_op_list) == 0:
+            raise ValueError("No solution")
+
+        else:
+            best_op = viable_op_list[0]
+            for op in viable_op_list:
+                best_op = self.op_compare(best_op, op)
+        
+        return best_op
+    
+    def op_compare(self, op1:Mapping[str,Any], op2:Mapping[str,Any]):
+        pass
+
+    def get_sch_params(self, op):
+        pass
+
+    def design(self, **kwargs) -> Tuple[Mapping[str,Any], Mapping[str,Any]]:
         """Takes the spec parameters and designs for the spec.
         """
-        self.sch_params, self.best_op = self.meet_spec(**kwargs)
+        print('Searching for viable operating points')
+        self.viable_op_list = self.meet_spec(**kwargs)
+        print(f'{len(self.viable_op_list)} viable operating points.\nChoosing best operating point')
+        best_op = self.choose_op(self.viable_op_list)
+        sch_params = self.get_sch_params(best_op)
 
-        yaml_info = dict(params = self.sch_params.copy(),
-                         op_info = self.best_op.copy())
+        print(f"OP: \n{best_op}\n\nSCH:\n{sch_params}")
 
-        return yaml_info
+        return sch_params, best_op
+
+        # yaml_info = dict(sch_params=sch_params.copy(),
+        #                  op_info=best_op.copy())
+
+        # return yaml_info
