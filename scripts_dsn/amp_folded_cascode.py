@@ -162,7 +162,7 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
                         vg_same_inner_vec = np.arange(max(0, vg_same_inner_min), vg_same_inner_max, 10e-3)
                         print(f'*** vg_same_inner {vg_same_inner_min} to {vg_same_inner_max}')
                         for vg_same_inner in vg_same_inner_vec:
-                            op_same_inner = db_same.query(vgs=vg_same_inner_min-vout1, vds=voutcm-vout1, vbs=vb_same-vout1)
+                            op_same_inner = db_same.query(vgs=vg_same_inner-vout1, vds=voutcm-vout1, vbs=vb_same-vout1)
                             # Sweep the gate voltage of the outer "opposite"-side device
                             vg_opp_outer_min = vth_n+vstar_min if n_in else voutcm+vth_p-vstar_min
                             vg_opp_outer_max = voutcm-vth_n-vstar_min if n_in else vdd+vth_p-vstar_min
@@ -207,12 +207,6 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
                                             continue
 
                                         # Sweep potential tail gate voltage and match tail sizing
-                                        # vgtail_min = vth_n+vstar_min if n_in else vtail+vth_p
-                                        # vgtail_max = vtail+vth_n if n_in else vdd+vth_p-vstar_min
-                                        # vgtail_vec = np.arange(vgtail_min, vgtail_max, 10e-3)
-                                        # if vgtail_min == vgtail_max:
-                                        #     vgtail_vec = [vgtail_min]
-                                        # print(f'******* vgtail {vgtail_min} to {vgtail_max}')
                                         for vgtail in vgtail_vec:
                                             op_tail = db_dict['tail'].query(vgs=vgtail-vb_tail, vds=vtail-vb_tail, vbs=0)
                                             match_tail, nf_tail = verify_ratio(ibranch_in*2,
@@ -254,7 +248,7 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
 
                                             num, den = num_den_add(p_num, np.convolve(n_num, [-1]),
                                                                    p_den, n_den)
-                                            num = np.convolve(num, [0.1])
+                                            num = np.convolve(num, [0.5])
 
                                             gain = num[-1]/den[-1]
                                             wbw = get_w_3db(num, den)
@@ -264,12 +258,12 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
                                                 wbw = 0
                                             fbw = wbw/(2*np.pi)
 
+                                            print(f"bw: {fbw}")
                                             if fbw < fbw_min:
-                                                print(f"bw: {fbw}")
                                                 continue
 
+                                            print(f"pm: {pm}")
                                             if isnan(pm) or pm < pm_min:
-                                                print(f"pm: {pm}")
                                                 continue
                                             
                                             if gain < gain_min:
