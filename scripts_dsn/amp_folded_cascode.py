@@ -6,6 +6,7 @@ import os
 import pkg_resources
 import numpy as np
 from math import isnan
+from pprint import pprint
 
 from bag.design.module import Module
 from . import DesignModule, get_mos_db, estimate_vth, parallel, verify_ratio, num_den_add
@@ -77,6 +78,7 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
         fbw_min = params['fbw']
         pm_min = params['pm']
         ibias_max = params['ibias']
+        cload = params['cload']
 
         assert not diff_out, f'Currently only supports single-ended output with self-biasing'
 
@@ -121,24 +123,34 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
             raise ValueError(f'No solution. voutcm value {voutcm_opt} falls outside ({voutcm_min}, {voutcm_max})')
         else:
             voutcm_vec = [voutcm_opt]
+        print(f"voutcm {min(voutcm_vec)} to {max(voutcm_vec)}")
         for voutcm in voutcm_vec:
             # Sweep tail voltage
             vtail_min = vstar_min if n_in else vincm-vth_in
             vtail_max = vincm-vth_in if n_in else vdd-vstar_min
             vtail_vec = np.arange(vtail_min, vtail_max, 10e-3)
-            # print(f'Sweeping tail from {vtail_min} to {vtail_max}')
+            print(f'vtail {vtail_min} to {vtail_max}')
             for vtail in vtail_vec:
+                vgtail_min = vth_n+vstar_min if n_in else vtail+vth_p
+                vgtail_max = vtail+vth_n if n_in else vdd+vth_p-vstar_min
+                vgtail_vec = np.arange(vgtail_min, vgtail_max, 10e-3)
+                if vgtail_min == vgtail_max:
+                    vgtail_vec = [vgtail_min]
+                print(f'******* vgtail {vgtail_min} to {vgtail_max}')
+
                 # Sweep vout1 bias point
                 vout1_min = max(vincm-vth_in, voutcm+vstar_min) if n_in else vstar_min
                 vout1_max = vdd-vstar_min if n_in else min(vincm-vth_in, voutcm-vstar_min)
                 vout1_vec = np.arange(vout1_min, vout1_max, 10e-3)
+                print(f'* vout1 {vout1_min} to {vout1_max}')
                 for vout1 in vout1_vec:
                     op_in = db_dict['in'].query(vgs=vincm-vtail, vds=vout1-vtail, vbs=vb_in-vtail)
 
                     # Sweep gate voltage of outer device in cascode connected to diffpair
                     vg_same_outer_min = vout1+vth_p if n_in else vth_n+vstar_min
                     vg_same_outer_max = vdd+vth_p-vstar_min if n_in else vout1+vth_n
-                    vg_same_outer_vec = np.arange(vg_same_outer_min, vg_same_outer_max, 10e-3)
+                    vg_same_outer_vec = np.arange(max(vg_same_outer_min, 0), vg_same_outer_max, 10e-3)
+                    print(f'** vg_same_outer {vg_same_outer_min} to {vg_same_outer_max}')
                     for vg_same_outer in vg_same_outer_vec:
                         op_same_outer = db_same.query(vgs=vg_same_outer-vb_same,
                                                       vds=vout1-vb_same,
@@ -147,55 +159,67 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
                         # Sweep the gate voltage of the inner "same"-side device
                         vg_same_inner_min = voutcm+vth_p if n_in else vout1+vth_n+vstar_min
                         vg_same_inner_max = vout1+vth_p-vstar_min if n_in else voutcm+vth_n
-                        vg_same_inner_vec = np.arange(vg_same_inner_min, vg_same_inner_max, 10e-3)
+                        vg_same_inner_vec = np.arange(max(0, vg_same_inner_min), vg_same_inner_max, 10e-3)
+                        print(f'*** vg_same_inner {vg_same_inner_min} to {vg_same_inner_max}')
                         for vg_same_inner in vg_same_inner_vec:
                             op_same_inner = db_same.query(vgs=vg_same_inner_min-vout1, vds=voutcm-vout1, vbs=vb_same-vout1)
                             # Sweep the gate voltage of the outer "opposite"-side device
                             vg_opp_outer_min = vth_n+vstar_min if n_in else voutcm+vth_p-vstar_min
                             vg_opp_outer_max = voutcm-vth_n-vstar_min if n_in else vdd+vth_p-vstar_min
-                            vg_opp_outer_vec = np.arange(vg_opp_outer_min, vg_opp_outer_max, 10e-3)
+                            vg_opp_outer_vec = np.arange(max(vg_opp_outer_min, 0), vg_opp_outer_max, 10e-3)
+                            print(f'**** vg_opp_outer {vg_opp_outer_min} to {vg_opp_outer_max}')
                             for vg_opp_outer in vg_opp_outer_vec:
-                                op_opp_outer = db_opp.query(vgs=vg_opp_outer-vb_opp, vds=vout1-vb_opp, vbs=0)
+                                op_opp_outer = db_opp.query(vgs=vg_opp_outer-vb_opp, vds=vg_opp_outer-vb_opp, vbs=0)
                                 op_opp_inner = db_opp.query(vgs=voutcm-vg_opp_outer, vds=voutcm-vg_opp_outer, vbs=vb_opp-vg_opp_outer)
                                 # Sweep device sizes to meet current
                                 nf_same_outer_vec = np.arange(2, nf_same_outer_max, 2)
+                                print(f'***** nf_same_outer {2} to {nf_same_outer_max}')
                                 for nf_same_outer in nf_same_outer_vec:
                                     # Sweep the proportion of the current split between the input devices vs. rest of the cascode
                                     # Match device sizing for desired current (since prior loops already give bias voltages)
                                     ibranch_big = op_same_outer['ibias']*nf_same_outer
                                     nf_in_max = int(round(ibranch_big/op_in['ibias']))
                                     nf_in_vec = np.arange(2, nf_in_max, 1)
+                                    print(f'****** nf_in {2} to {nf_in_max}')
                                     for nf_in in nf_in_vec:
                                         ibranch_in = op_in['ibias']*nf_in
+                                        ibranch_small = ibranch_big - ibranch_in
                                         match_small, nf_opp_outer = verify_ratio(ibranch_small,
                                                                                  op_opp_outer['ibias'],
-                                                                                 1, 0.1)
+                                                                                 1, 0.01)
                                         if not match_small:
+                                            # print("x opp outer match", flush=True)
                                             continue
 
                                         match_small, nf_opp_inner = verify_ratio(ibranch_small,
                                                                                  op_opp_inner['ibias'],
-                                                                                 1, 0.1)
+                                                                                 1, 0.01)
 
                                         if not match_small:
+                                            # print("x opp inner match", flush=True)
                                             continue
 
                                         match_small, nf_same_inner = verify_ratio(ibranch_small,
                                                                                   op_same_inner['ibias'],
-                                                                                  1, 0.1)
+                                                                                  1, 0.01)
                                         if not match_small:
+                                            # print("x same inner match", flush=True)
                                             continue
 
                                         # Sweep potential tail gate voltage and match tail sizing
-                                        vgtail_min = vth_n+vstar_min if n_in else vtail-vth_p
-                                        vgtail_max = vtail+vth_n if n_in else vdd+vth_p-vstar_min
-                                        vgtail_vec = np.arange(vgtail_min, vgtail_max, 10e-3)
-                                        for vgtail in vgtail:
-                                            op_tail = db_dict['tail'].query(vgs=vgtail-vb_tail, vds=vtail-vb_btail, vbs=0)
-                                            match_tail, nf_tail = verify_ratio(op_in['ibias']*2,
+                                        # vgtail_min = vth_n+vstar_min if n_in else vtail+vth_p
+                                        # vgtail_max = vtail+vth_n if n_in else vdd+vth_p-vstar_min
+                                        # vgtail_vec = np.arange(vgtail_min, vgtail_max, 10e-3)
+                                        # if vgtail_min == vgtail_max:
+                                        #     vgtail_vec = [vgtail_min]
+                                        # print(f'******* vgtail {vgtail_min} to {vgtail_max}')
+                                        for vgtail in vgtail_vec:
+                                            op_tail = db_dict['tail'].query(vgs=vgtail-vb_tail, vds=vtail-vb_tail, vbs=0)
+                                            match_tail, nf_tail = verify_ratio(ibranch_in*2,
                                                                                op_tail['ibias'],
-                                                                               nf_in, 0.1)
+                                                                               1, 0.01)
                                             if not match_tail:
+                                                # print(f"tail match {nf_tail}")
                                                 continue
 
                                             # Construct LTICircuit to check small signal against spec
@@ -211,11 +235,21 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
                                                        'same_inner' : nf_same_inner,
                                                        'opp_inner' : nf_opp_inner,
                                                        'opp_outer' : nf_opp_outer}
+                                            bias_dict = {'vgtail': vgtail,
+                                                         'voutcm': voutcm,
+                                                         'vout1' : vout1,
+                                                         'vg_opp_outer' : vg_opp_outer,
+                                                         'vg_same_inner' : vg_same_inner,
+                                                         'vg_same_outer' : vg_same_outer,
+                                                         'vtail' : vtail,
+                                                         'ibranch_in' : ibranch_in,
+                                                         'ibranch_big' : ibranch_big,
+                                                         'ibranch_small' : ibranch_small}
                                             
-                                            ckt_p = self.make_ltickt(op_dict=op_dict, nf_dict=nf_dict, meas_side='p')
+                                            ckt_p = self.make_ltickt(op_dict=op_dict, nf_dict=nf_dict, meas_side='p', cload=cload)
                                             p_num, p_den = ckt_p.get_num_den(in_name='inp', out_name='out', in_type='v')
 
-                                            ckt_n = self.make_ltickt(op_dict=op_dict, nf_dict=nf_dict, meas_side='n')
+                                            ckt_n = self.make_ltickt(op_dict=op_dict, nf_dict=nf_dict, meas_side='n', cload=cload)
                                             n_num, n_den = ckt_n.get_num_den(in_name='inn', out_name='out', in_type='v')
 
                                             num, den = num_den_add(p_num, np.convolve(n_num, [-1]),
@@ -231,12 +265,18 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
                                             fbw = wbw/(2*np.pi)
 
                                             if fbw < fbw_min:
+                                                print(f"bw: {fbw}")
                                                 continue
 
                                             if isnan(pm) or pm < pm_min:
+                                                print(f"pm: {pm}")
                                                 continue
                                             
                                             if gain < gain_min:
+                                                pprint(nf_dict)
+                                                pprint(bias_dict)
+                                                print(f"gain: {gain}")
+                                                raise ValueError("Pause")
                                                 break
 
                                             viable_op = dict(nf_dict=nf_dict,
@@ -262,7 +302,7 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
 
         return viable_op_list
 
-    def make_ltickt(op_dict:Mapping[str,Any], nf_dict:Mapping[str,int], meas_side:str) -> LTICircuit:
+    def make_ltickt(self, op_dict:Mapping[str,Any], nf_dict:Mapping[str,int], cload:float, meas_side:str) -> LTICircuit:
         ckt = LTICircuit()
         inp_conn = 'gnd' if meas_side=='n' else 'inp'
         inn_conn = 'gnd' if meas_side=='p' else 'inn'
