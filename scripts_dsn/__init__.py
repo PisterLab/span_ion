@@ -2,6 +2,7 @@
 import sys, os
 import yaml
 from bag.design.module import Module
+from bag.util.search import FloatBinaryIterator
 from verification.mos.query import MOSDBDiscrete
 from typing import Tuple, Mapping, Any, List
 import numpy as np
@@ -42,6 +43,38 @@ def estimate_vth(db:MOSDBDiscrete, vgs:float, vbs:float, is_nch:bool, lch:float)
         return vgs - vov
     else:
         return vgs + vov
+
+def match_vgs(db, is_nch:bool, itarget:float, nf:int, vds:float, vbs:float, vdd:float):
+    '''
+    Binary search to find the vgs associated with a particular
+    bias current, all other bias voltages constant. Assumes
+    monotonic relationship between vgs and ibias.
+    '''
+    vgs_min = -vdd if not is_nch else 0
+    vgs_max = vdd if is_nch else 0
+    vgs_iter = FloatBinaryIterator(vgs_min, vgs_max, vdd/1000)
+    while vgs_iter.has_next():
+        vgs = vgs_iter.get_next()
+        op = db.query(vgs=vgs, vds=vds, vbs=vbs)
+        ibias = op['ibias']*nf
+
+        if ibias > itarget:
+            if is_nch:
+                vgs_iter.down()
+            else:
+                vgs_iter.up()
+        if ibias < itarget:
+            if is_nch:
+                vgs_iter.up()
+            else:
+                vgs_iter.down()
+    if is_nch and vgs > vdd:
+        return False, vgs
+    elif not is_nch and vgs < -vdd:
+        return False, vgs
+
+    return True, vgs
+
 
 def verify_ratio(ibase_A:float, ibase_B:float,
         nf_A:int, error_tol:float) -> Tuple[bool,int]:
