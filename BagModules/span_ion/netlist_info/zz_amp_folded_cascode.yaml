@@ -1,0 +1,224 @@
+lib_name: span_ion
+cell_name: zz_amp_folded_cascode
+pins: [  ]
+instances:
+  V_VGP<0>:
+    lib_name: analogLib
+    cell_name: vdc
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "VGP<0>"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+  V_VINDC:
+    lib_name: analogLib
+    cell_name: vdc
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "VINN"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+  V_VGTAIL:
+    lib_name: analogLib
+    cell_name: vdc
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "VGTAIL"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+  V_VGN<1>:
+    lib_name: analogLib
+    cell_name: vdc
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "VGN<1>"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+  V_VGN<0>:
+    lib_name: analogLib
+    cell_name: vdc
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "VGN<0>"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+  V_VGP<1>:
+    lib_name: analogLib
+    cell_name: vdc
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "VGP<1>"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+  V_VDD:
+    lib_name: analogLib
+    cell_name: vdc
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+  V_VSS:
+    lib_name: analogLib
+    cell_name: vdc
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "gnd!"
+        num_bits: 1
+  I1:
+    lib_name: analogLib
+    cell_name: gnd
+    instpins:
+      gnd!:
+        direction: inputOutput
+        net_name: "gnd!"
+        num_bits: 1
+  I6:
+    lib_name: basic
+    cell_name: noConn
+    instpins:
+      noConn:
+        direction: inputOutput
+        net_name: "VNMIDA"
+        num_bits: 1
+  I5:
+    lib_name: basic
+    cell_name: noConn
+    instpins:
+      noConn:
+        direction: inputOutput
+        net_name: "VNMIDB"
+        num_bits: 1
+  I7:
+    lib_name: basic
+    cell_name: noConn
+    instpins:
+      noConn:
+        direction: inputOutput
+        net_name: "VPMIDA"
+        num_bits: 1
+  I3:
+    lib_name: basic
+    cell_name: noConn
+    instpins:
+      noConn:
+        direction: inputOutput
+        net_name: "VPMIDB"
+        num_bits: 1
+  V_VINAC:
+    lib_name: analogLib
+    cell_name: vsin
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "VINP"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "VINN"
+        num_bits: 1
+  C_CLOAD:
+    lib_name: analogLib
+    cell_name: cap
+    instpins:
+      MINUS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      PLUS:
+        direction: inputOutput
+        net_name: "VOUT"
+        num_bits: 1
+  XAMP:
+    lib_name: bag2_analog
+    cell_name: amp_folded_cascode
+    instpins:
+      VNMIDA:
+        direction: output
+        net_name: "VNMIDA"
+        num_bits: 1
+      VOUTN:
+        direction: output
+        net_name: "VOUTN"
+        num_bits: 1
+      VOUTP:
+        direction: output
+        net_name: "VOUTP"
+        num_bits: 1
+      VPMIDA:
+        direction: output
+        net_name: "VPMIDA"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VPMIDB:
+        direction: output
+        net_name: "VPMIDB"
+        num_bits: 1
+      VNMIDB:
+        direction: output
+        net_name: "VNMIDB"
+        num_bits: 1
+      VOUT:
+        direction: output
+        net_name: "VOUT"
+        num_bits: 1
+      VGTAIL:
+        direction: input
+        net_name: "VGTAIL"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "VINN"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VINP"
+        num_bits: 1
+      VGP<1:0>:
+        direction: inputOutput
+        net_name: "VGP<1:0>"
+        num_bits: 2
+      VGN<1:0>:
+        direction: inputOutput
+        net_name: "VGN<1:0>"
+        num_bits: 2

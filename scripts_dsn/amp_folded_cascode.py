@@ -2,12 +2,13 @@
 
 from typing import Mapping, Tuple, Any, List
 
-import os
+import os, sys
 import pkg_resources
 import numpy as np
 from math import isnan
 from pprint import pprint
 
+from bag.core import BagProject
 from bag.design.module import Module
 from . import DesignModule, get_mos_db, estimate_vth, parallel, verify_ratio, num_den_add
 from bag.data.lti import LTICircuit, get_w_3db, get_stability_margins
@@ -44,7 +45,8 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
             vincm = 'Input common mode voltage.',
             ibias = 'Maximum bias current, in amperes.',
             cload = 'Output load capacitance in farads.',
-            optional_params = 'Optional parameters. voutcm=output bias voltage.'
+            optional_params = 'Optional parameters. voutcm=output bias voltage.',
+            tb_params = 'Parameters applicable to the testbench, e.g. tb_lib, tb_cell, impl_lib, etc.'
         ))
         return ans
 
@@ -79,8 +81,14 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
         pm_min = params['pm']
         ibias_max = params['ibias']
         cload = params['cload']
+        tb_params = params['tb_params']
 
         assert not diff_out, f'Currently only supports single-ended output with self-biasing'
+        self.other_params = dict(in_type=in_type,
+                                 diff_out=diff_out,
+                                 w_dict={k:db.width_list[0] for k,db in db_dict.items()},
+                                 l_dict=l_dict,
+                                 th_dict=th_dict)
 
         # Somewhat arbitrary vstar_min in this case
         vstar_min = 0.2
@@ -188,7 +196,6 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
                                                                                  op_opp_outer['ibias'],
                                                                                  1, 0.01)
                                         if not match_small:
-                                            # print("x opp outer match", flush=True)
                                             continue
 
                                         match_small, nf_opp_inner = verify_ratio(ibranch_small,
@@ -196,107 +203,141 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
                                                                                  1, 0.01)
 
                                         if not match_small:
-                                            # print("x opp inner match", flush=True)
                                             continue
 
                                         match_small, nf_same_inner = verify_ratio(ibranch_small,
                                                                                   op_same_inner['ibias'],
                                                                                   1, 0.01)
                                         if not match_small:
-                                            # print("x same inner match", flush=True)
                                             continue
 
                                         # Sweep potential tail gate voltage and match tail sizing
                                         for vgtail in vgtail_vec:
                                             op_tail = db_dict['tail'].query(vgs=vgtail-vb_tail, vds=vtail-vb_tail, vbs=0)
-                                            match_tail, nf_tail = verify_ratio(ibranch_in*2,
+                                            match_tail, nf_tail = verify_ratio(op_in['ibias']*2,
                                                                                op_tail['ibias'],
-                                                                               1, 0.01)
+                                                                               nf_in, 0.05)
                                             if not match_tail:
-                                                # print(f"tail match {nf_tail}")
                                                 continue
 
-                                            # Construct LTICircuit to check small signal against spec
-                                            op_dict = {'in' : op_in,
-                                                       'tail' : op_tail,
-                                                       'same_outer' : op_same_outer,
-                                                       'same_inner' : op_same_inner,
-                                                       'opp_inner' : op_opp_inner,
-                                                       'opp_outer' : op_opp_outer}
                                             nf_dict = {'in' : nf_in,
                                                        'tail' : nf_tail,
-                                                       'same_outer' : nf_same_outer,
-                                                       'same_inner' : nf_same_inner,
-                                                       'opp_inner' : nf_opp_inner,
-                                                       'opp_outer' : nf_opp_outer}
-                                            bias_dict = {'vgtail': vgtail,
-                                                         'voutcm': voutcm,
-                                                         'vout1' : vout1,
-                                                         'vg_opp_outer' : vg_opp_outer,
-                                                         'vg_same_inner' : vg_same_inner,
-                                                         'vg_same_outer' : vg_same_outer,
-                                                         'vtail' : vtail,
-                                                         'ibranch_in' : ibranch_in,
-                                                         'ibranch_big' : ibranch_big,
-                                                         'ibranch_small' : ibranch_small}
-                                            
-                                            ckt_p = self.make_ltickt(op_dict=op_dict, nf_dict=nf_dict, meas_side='p', cload=cload)
-                                            p_num, p_den = ckt_p.get_num_den(in_name='inp', out_name='out', in_type='v')
+                                                       'p_outer' : nf_same_outer if n_in else nf_opp_outer,
+                                                       'p_inner' : nf_same_inner if n_in else nf_opp_inner,
+                                                       'n_inner' : nf_opp_inner if n_in else nf_same_inner,
+                                                       'n_outer' : nf_opp_outer if n_in else nf_same_outer}
 
-                                            ckt_n = self.make_ltickt(op_dict=op_dict, nf_dict=nf_dict, meas_side='n', cload=cload)
-                                            n_num, n_den = ckt_n.get_num_den(in_name='inn', out_name='out', in_type='v')
+                                            op = dict(nf_dict=nf_dict,
+                                                      voutcm=voutcm,
+                                                      vgtail=vgtail,
+                                                      vtail=vtail,
+                                                      vout1=vout1,
+                                                      vg_same_outer=vg_same_outer,
+                                                      vg_same_inner=vg_same_inner,
+                                                      vg_opp_outer=vg_opp_outer,
+                                                      ibias=ibranch_big*2)
 
-                                            num, den = num_den_add(p_num, np.convolve(n_num, [-1]),
-                                                                   p_den, n_den)
-                                            num = np.convolve(num, [0.5])
+                                            tb_sch_params = self.get_sch_params(op)
+                                            tb_vars = dict(CLOAD=cload,
+                                                           VDD=vdd,
+                                                           VGN0=vg_opp_outer if n_in else vg_same_outer,
+                                                           VGN1=voutcm if n_in else vg_same_inner,
+                                                           VGP0=vg_same_outer if n_in else vg_opp_outer,
+                                                           VGP1=vg_same_inner if n_in else voutcm,
+                                                           VGTAIL=vgtail,
+                                                           VIN_AC=1,
+                                                           VIN_DC=vincm)
+                                            tb_params = dict(tb_params)
+                                            tb_params.update(dict(params=tb_sch_params,
+                                                                  tb_vars=tb_vars))
+                                            # Get small signal figures of merit
+                                            gain, fbw, pm = self._get_ss_sim(**tb_params)
+                                            print(f'gain/fbw/pm: {gain}/{fbw*1e-6}e6/{pm}')
 
-                                            gain = num[-1]/den[-1]
-                                            wbw = get_w_3db(num, den)
-                                            pm, _ = get_stability_margins(num, den)
-
-                                            if wbw == None:
-                                                wbw = 0
-                                            fbw = wbw/(2*np.pi)
-
-                                            print(f"bw: {fbw}")
+                                            # Check small signal FoM against spec
+                                            if gain < gain_min:
+                                                break
                                             if fbw < fbw_min:
                                                 continue
-
-                                            print(f"pm: {pm}")
-                                            if isnan(pm) or pm < pm_min:
+                                            if pm < pm_min:
                                                 continue
                                             
-                                            if gain < gain_min:
-                                                pprint(nf_dict)
-                                                pprint(bias_dict)
-                                                print(f"gain: {gain}")
-                                                raise ValueError("Pause")
-                                                break
-
-                                            viable_op = dict(nf_dict=nf_dict,
-                                                             voutcm=voutcm,
-                                                             gain=gain,
-                                                             fbw=fbw,
-                                                             pm=pm,
-                                                             vgtail=vgtail,
-                                                             vtail=vtail,
-                                                             vout1=vout1,
-                                                             vg_same_outer=vg_same_outer,
-                                                             vg_same_inner=vg_same_inner,
-                                                             vg_opp_outer=vg_opp_outer,
-                                                             ibias=op_same_outer['ibias']*nf_same_outer*2)
-                                            viable_op_list.append(viable_op)
+                                            op = op.update(gain=gain, fbw=fbw, pm=pm)
+                                            
+                                            viable_op_list.append(op)
                                             print("(SUCCESS)")
                                             print(viable_op)
 
-        self.other_params = dict(in_type=in_type,
-                                 w_dict={k:db.width_list[0] for k,db in db_dict.items()},
-                                 l_dict=l_dict,
-                                 th_dict=th_dict)
-
         return viable_op_list
 
+    def _get_ss_sim(self, **spec):
+        '''
+        Inputs:
+            tb_vars: Testbench variables to set in ADE testbench
+            tb_lib: The template testbench library.
+            tb_cell: The template testbench cell.
+            impl_lib: The implemented testbench library.
+            tb_gen_name: The generated testbench name.
+        Outputs:
+            gain: Simulated DC gain in V/V
+            fbw: Simulated 3dB frequency in Hz
+            pm: Unity gain phase margin in degrees (not calculated in feedback,
+                calculated using the simulated open loop gain and phase)
+        '''
+        tb_vars = spec['tb_vars']
+        tb_lib = spec['tb_lib']
+        tb_cell = spec['tb_cell']
+        impl_lib = spec['impl_lib']
+        impl_cell = spec['impl_cell']
+        tb_gen_name = spec['tb_gen_name']
+
+        # Generate testbench schematic
+        prj = BagProject()
+        tb_dsn = prj.create_design_module(tb_lib, tb_cell)
+        tb_dsn.design(**(spec['params']))
+        tb_sch.implement_design(impl_lib, tb_gen_name)
+        tb_obj = prj.configure_testbench(impl_lib, tb_gen_name)
+
+        # Assign testbench design variables (the ones that show in ADE)
+        for param_name, param_val in tb_vars.items():
+            tb_obj.set_parameter(param_name, param_val)
+
+        # Update testbench changes and run simulation
+        tb_obj.update_testbench()
+        print(f'Simulating testbench {tb_gen_name}')
+        save_dir = tb_obj.run_simulation()
+
+        # Load simulation results into Python
+        print("Simulation done, loading results")
+        results = load_sim_results(save_dir)
+
+        gain = results['acVal_gain']
+        fbw = results['acVal_f3dB']
+        pm = results['acVal_pmUnity']
+
+        return gain, fbw, pm
+
+
     def make_ltickt(self, op_dict:Mapping[str,Any], nf_dict:Mapping[str,int], cload:float, meas_side:str) -> LTICircuit:
+        '''
+        Constructs and LTICircuit for the amplifier.
+        Input dictionary keys must include:
+            in
+            tail
+            same_outer
+            same_inner
+            opp_inner
+            opp_outer
+        Inputs:
+            op_dict: Dictionary of queried database operating points.
+            nf_dict: Dictionary of number of fingers for devices.
+            cload: Load capacitance in farads.
+            meas_side: p = only p-input connected (n-input is held at AC ground); n = only n-input
+                connected (p-input is held at AC ground); anything else = both inputs are
+                connected to AC inputs
+        Output:
+            LTICircuit object of this amplifier with inputs as inp and/or inn, output as out.
+        '''
         ckt = LTICircuit()
         inp_conn = 'gnd' if meas_side=='n' else 'inp'
         inn_conn = 'gnd' if meas_side=='p' else 'inn'
@@ -315,6 +356,38 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
         ckt.add_cap(cload, 'out', 'gnd')
         return ckt
 
+    def _get_ss_lti(self, op_dict:Mapping[str,Any], nf_dict:Mapping[str,int], cload:float) -> Tuple[float,float,float]:
+        '''
+        Inputs:
+            op_dict: Dictionary of queried database operating points.
+            nf_dict: Dictionary of number of fingers for devices.
+            cload: Load capacitance in farads.
+        Outputs:
+            gain: Calculated DC gain in V/V
+            fbw: Calculated 3dB frequency in Hz
+            pm: Simulated unity gain phase margin in degrees. Can also be NaN.
+        '''
+        ckt_p = self.make_ltickt(op_dict=op_dict, nf_dict=nf_dict, meas_side='p', cload=cload)
+        p_num, p_den = ckt_p.get_num_den(in_name='inp', out_name='out', in_type='v')
+
+        ckt_n = self.make_ltickt(op_dict=op_dict, nf_dict=nf_dict, meas_side='n', cload=cload)
+        n_num, n_den = ckt_n.get_num_den(in_name='inn', out_name='out', in_type='v')
+
+        # Superposition for inverting and noninverting inputs
+        num, den = num_den_add(p_num, np.convolve(n_num, [-1]),
+                               p_den, n_den)
+        num = np.convolve(num, [0.5])
+
+        # Calculate figures of merit using the LTICircuit transfer function
+        gain = num[-1]/den[-1]
+        wbw = get_w_3db(num, den)
+        pm, _ = get_stability_margins(num, den)
+
+        if wbw == None:
+            wbw = 0
+        fbw = wbw/(2*np.pi)
+
+        return gain, fbw, pm
 
     def op_compare(self, op1:Mapping[str,Any], op2:Mapping[str,Any]):
         """Returns the best operating condition based on 
@@ -323,4 +396,31 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
         return op2 if op1['ibias'] > op2['ibias'] else op1
 
     def get_sch_params(self, op):
-        return dict()
+        n_in = self.other_params['in_type']=='n'
+        diffpair_params = dict(lch_dict=self.other_params['l_dict'],
+                               w_dict=self.other_params['w_dict'],
+                               th_dict=self.other_params['th_dict'],
+                               seg_dict=op['nf_dict'])
+        n_params = dict(stack=2, # TODO different channel lengths, etc. within cascode
+                        lch_list=[self.other_params['l_dict']['n']]*2,
+                        w_list=[self.other_params['w_dict']['n']]*2,
+                        intent_list=[self.other_params['th_dict']['n']]*2,
+                        seg_list=[op['nf_dict']['n_outer'], op['nf_dict']['n_inner']])
+        p_params = dict(stack=2, # TODO different channel lengths, etc. within cascode
+                        lch_list=[self.other_params['l_dict']['p']]*2,
+                        w_list=[self.other_params['w_dict']['p']]*2,
+                        intent_list=[self.other_params['th_dict']['p']]*2,
+                        seg_list=[op['nf_dict']['p_outer'], op['nf_dict']['p_inner']])
+        # TODO currently assumes 2 diode connections
+        n_drain_conn = ['GN<0>','GN<1>'] if n_in else ['', 'GP<1>'] 
+        p_drain_conn = ['', 'GN<1>'] if n_in else ['GP<0>','GP<1>']
+        cascode_params = dict(n_params=n_params,
+                              p_params=p_params,
+                              n_drain_conn=n_drain_conn,
+                              p_drain_conn=p_drain_conn,
+                              res_params=dict(),
+                              res_conn=dict())
+        return dict(in_type=self.other_params['in_type'],
+                    diffpair_params=diffpair_params,
+                    cascode_params=cascode_params,
+                    diff_out=self.other_params['diff_out'])
