@@ -12,6 +12,7 @@ from bag.core import BagProject
 from bag.design.module import Module
 from . import DesignModule, get_mos_db, estimate_vth, parallel, verify_ratio, num_den_add
 from bag.data.lti import LTICircuit, get_w_3db, get_stability_margins
+from bag.io import load_sim_results, save_sim_results, load_sim_file
 
 # noinspection PyPep8Naming
 class bag2_analog__amp_folded_cascode_dsn(DesignModule):
@@ -131,26 +132,26 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
             raise ValueError(f'No solution. voutcm value {voutcm_opt} falls outside ({voutcm_min}, {voutcm_max})')
         else:
             voutcm_vec = [voutcm_opt]
-        print(f"voutcm {min(voutcm_vec)} to {max(voutcm_vec)}")
+        # print(f"voutcm {min(voutcm_vec)} to {max(voutcm_vec)}")
         for voutcm in voutcm_vec:
             # Sweep tail voltage
             vtail_min = vstar_min if n_in else vincm-vth_in
             vtail_max = vincm-vth_in if n_in else vdd-vstar_min
             vtail_vec = np.arange(vtail_min, vtail_max, 10e-3)
-            print(f'vtail {vtail_min} to {vtail_max}')
+            # print(f'vtail {vtail_min} to {vtail_max}')
             for vtail in vtail_vec:
                 vgtail_min = vth_n+vstar_min if n_in else vtail+vth_p
                 vgtail_max = vtail+vth_n if n_in else vdd+vth_p-vstar_min
                 vgtail_vec = np.arange(vgtail_min, vgtail_max, 10e-3)
                 if vgtail_min == vgtail_max:
                     vgtail_vec = [vgtail_min]
-                print(f'******* vgtail {vgtail_min} to {vgtail_max}')
+                # print(f'******* vgtail {vgtail_min} to {vgtail_max}')
 
                 # Sweep vout1 bias point
                 vout1_min = max(vincm-vth_in, voutcm+vstar_min) if n_in else vstar_min
                 vout1_max = vdd-vstar_min if n_in else min(vincm-vth_in, voutcm-vstar_min)
                 vout1_vec = np.arange(vout1_min, vout1_max, 10e-3)
-                print(f'* vout1 {vout1_min} to {vout1_max}')
+                # print(f'* vout1 {vout1_min} to {vout1_max}')
                 for vout1 in vout1_vec:
                     op_in = db_dict['in'].query(vgs=vincm-vtail, vds=vout1-vtail, vbs=vb_in-vtail)
 
@@ -158,7 +159,7 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
                     vg_same_outer_min = vout1+vth_p if n_in else vth_n+vstar_min
                     vg_same_outer_max = vdd+vth_p-vstar_min if n_in else vout1+vth_n
                     vg_same_outer_vec = np.arange(max(vg_same_outer_min, 0), vg_same_outer_max, 10e-3)
-                    print(f'** vg_same_outer {vg_same_outer_min} to {vg_same_outer_max}')
+                    # print(f'** vg_same_outer {vg_same_outer_min} to {vg_same_outer_max}')
                     for vg_same_outer in vg_same_outer_vec:
                         op_same_outer = db_same.query(vgs=vg_same_outer-vb_same,
                                                       vds=vout1-vb_same,
@@ -168,27 +169,27 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
                         vg_same_inner_min = voutcm+vth_p if n_in else vout1+vth_n+vstar_min
                         vg_same_inner_max = vout1+vth_p-vstar_min if n_in else voutcm+vth_n
                         vg_same_inner_vec = np.arange(max(0, vg_same_inner_min), vg_same_inner_max, 10e-3)
-                        print(f'*** vg_same_inner {vg_same_inner_min} to {vg_same_inner_max}')
+                        # print(f'*** vg_same_inner {vg_same_inner_min} to {vg_same_inner_max}')
                         for vg_same_inner in vg_same_inner_vec:
                             op_same_inner = db_same.query(vgs=vg_same_inner-vout1, vds=voutcm-vout1, vbs=vb_same-vout1)
                             # Sweep the gate voltage of the outer "opposite"-side device
                             vg_opp_outer_min = vth_n+vstar_min if n_in else voutcm+vth_p-vstar_min
                             vg_opp_outer_max = voutcm-vth_n-vstar_min if n_in else vdd+vth_p-vstar_min
                             vg_opp_outer_vec = np.arange(max(vg_opp_outer_min, 0), vg_opp_outer_max, 10e-3)
-                            print(f'**** vg_opp_outer {vg_opp_outer_min} to {vg_opp_outer_max}')
+                            # print(f'**** vg_opp_outer {vg_opp_outer_min} to {vg_opp_outer_max}')
                             for vg_opp_outer in vg_opp_outer_vec:
                                 op_opp_outer = db_opp.query(vgs=vg_opp_outer-vb_opp, vds=vg_opp_outer-vb_opp, vbs=0)
                                 op_opp_inner = db_opp.query(vgs=voutcm-vg_opp_outer, vds=voutcm-vg_opp_outer, vbs=vb_opp-vg_opp_outer)
                                 # Sweep device sizes to meet current
                                 nf_same_outer_vec = np.arange(2, nf_same_outer_max, 2)
-                                print(f'***** nf_same_outer {2} to {nf_same_outer_max}')
+                                # print(f'***** nf_same_outer {2} to {nf_same_outer_max}')
                                 for nf_same_outer in nf_same_outer_vec:
                                     # Sweep the proportion of the current split between the input devices vs. rest of the cascode
                                     # Match device sizing for desired current (since prior loops already give bias voltages)
                                     ibranch_big = op_same_outer['ibias']*nf_same_outer
                                     nf_in_max = int(round(ibranch_big/op_in['ibias']))
                                     nf_in_vec = np.arange(2, nf_in_max, 1)
-                                    print(f'****** nf_in {2} to {nf_in_max}')
+                                    # print(f'****** nf_in {2} to {nf_in_max}')
                                     for nf_in in nf_in_vec:
                                         ibranch_in = op_in['ibias']*nf_in
                                         ibranch_small = ibranch_big - ibranch_in
@@ -220,6 +221,32 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
                                             if not match_tail:
                                                 continue
 
+                                            # Preliminary checks of gain, bandwidth (to avoid too many sims)
+                                            op_dict = {'in' : op_in,
+                                                       'tail' : op_tail,
+                                                       'same_outer' : op_same_outer,
+                                                       'same_inner' : op_same_inner,
+                                                       'opp_inner' : op_opp_inner,
+                                                       'opp_outer' : op_opp_outer}
+
+                                            nf_dict = {'in' : nf_in,
+                                                       'tail' : nf_tail,
+                                                       'same_outer' : nf_same_outer,
+                                                       'same_inner' : nf_same_inner,
+                                                       'opp_inner' : nf_opp_inner,
+                                                       'opp_outer' : nf_opp_outer}
+
+                                            print('Constructing LTICircuit')
+                                            gain_lti, fbw_lti, pm_lti = self._get_ss_lti(op_dict, nf_dict, cload)
+                                            print(f'...done')
+
+                                            if gain_lti < gain_min:
+                                                break
+
+                                            if fbw_lti < fbw_min*0.75:
+                                                continue
+
+                                            # Simulated checks of gain, bandwidth, unity gain phase margin
                                             nf_dict = {'in' : nf_in,
                                                        'tail' : nf_tail,
                                                        'p_outer' : nf_same_outer if n_in else nf_opp_outer,
@@ -250,23 +277,26 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
                                             tb_params = dict(tb_params)
                                             tb_params.update(dict(params=tb_sch_params,
                                                                   tb_vars=tb_vars))
-                                            # Get small signal figures of merit
-                                            gain, fbw, pm = self._get_ss_sim(**tb_params)
-                                            print(f'gain/fbw/pm: {gain}/{fbw*1e-6}e6/{pm}')
+                                            print('Simulating...')
+                                            gain_sim, fbw_sim, pm_sim = self._get_ss_sim(**tb_params)
+                                            print('...done')
 
                                             # Check small signal FoM against spec
-                                            if gain < gain_min:
+                                            if gain_sim < gain_min:
+                                                print(f'\tgain {gain_sim}')
                                                 break
-                                            if fbw < fbw_min:
+                                            if fbw_sim < fbw_min:
+                                                print(f'\tfbw {fbw_sim}')
                                                 continue
-                                            if pm < pm_min:
+                                            if pm_sim < pm_min:
+                                                print(f'\tpm {pm_sim}')
                                                 continue
                                             
-                                            op = op.update(gain=gain, fbw=fbw, pm=pm)
+                                            op = op.update(gain=gain_sim, fbw=fbw_sim, pm=pm_sim)
                                             
                                             viable_op_list.append(op)
                                             print("(SUCCESS)")
-                                            print(viable_op)
+                                            print(op)
 
         return viable_op_list
 
@@ -295,7 +325,9 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
         prj = BagProject()
         tb_dsn = prj.create_design_module(tb_lib, tb_cell)
         tb_dsn.design(**(spec['params']))
-        tb_sch.implement_design(impl_lib, tb_gen_name)
+        tb_dsn.implement_design(impl_lib, top_cell_name=tb_gen_name)
+
+        # Copy and load ADEXL state of generated testbench
         tb_obj = prj.configure_testbench(impl_lib, tb_gen_name)
 
         # Assign testbench design variables (the ones that show in ADE)
@@ -313,7 +345,10 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
 
         gain = results['acVal_gain']
         fbw = results['acVal_f3dB']
-        pm = results['acVal_pmUnity']
+        if 'acVal_pmUnity' not in results.keys():
+            pm = np.inf
+        else:
+            pm = results['acVal_pmUnity']
 
         return gain, fbw, pm
 

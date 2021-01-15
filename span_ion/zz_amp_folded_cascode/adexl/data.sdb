@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<setupdb version="6">data
+	<active>Active Setup
+		<corners>
+			<corner enabled="1">_default</corner>
+		</corners>
+		<extensions>
+			<extension>Parasitics
+				<callback>_parSetupDBExtensionCB</callback>
+				<iconvalue></iconvalue>
+				<icontype></icontype>
+			</extension>
+		</extensions>
+		<currentmode>Single Run, Sweeps and Corners</currentmode>
+		<overwritehistory>0</overwritehistory>
+		<tests>
+			<test enabled="1">span_ion:zz_amp_folded_cascode:1
+				<tool>ADE</tool>
+				<tooloptions>
+					<option>cell
+						<value>zz_amp_folded_cascode</value>
+					</option>
+					<option>lib
+						<value>span_ion</value>
+					</option>
+					<option>sim
+						<value>spectre</value>
+					</option>
+					<option>view
+						<value>schematic</value>
+					</option>
+					<option>path
+						<value>$AXL_SETUPDB_DIR/test_states</value>
+					</option>
+					<option>state
+						<value>span_ion:zz_amp_folded_cascode:1_active</value>
+					</option>
+				</tooloptions>
+				<origoptions>
+					<option>cell
+						<value>zz_amp_folded_cascode</value>
+					</option>
+					<option>lib
+						<value>span_ion</value>
+					</option>
+					<option>sim
+						<value>spectre</value>
+					</option>
+					<option>view
+						<value>schematic</value>
+					</option>
+					<option>path
+						<value>$AXL_SETUPDB_DIR/test_states</value>
+					</option>
+					<option>state
+						<value>spectre_state1</value>
+					</option>
+				</origoptions>
+			</test>
+		</tests>
+		<vars>
+			<var>CLOAD
+				<value>0</value>
+				<dependentTests>
+					<dependentTest enabled="1">span_ion:zz_amp_folded_cascode:1</dependentTest>
+				</dependentTests>
+			</var>
+			<var>VDD
+				<value>0</value>
+				<dependentTests>
+					<dependentTest enabled="1">span_ion:zz_amp_folded_cascode:1</dependentTest>
+				</dependentTests>
+			</var>
+			<var>VGN0
+				<value>0</value>
+				<dependentTests>
+					<dependentTest enabled="1">span_ion:zz_amp_folded_cascode:1</dependentTest>
+				</dependentTests>
+			</var>
+			<var>VGN1
+				<value>0</value>
+				<dependentTests>
+					<dependentTest enabled="1">span_ion:zz_amp_folded_cascode:1</dependentTest>
+				</dependentTests>
+			</var>
+			<var>VGP0
+				<value>0</value>
+				<dependentTests>
+					<dependentTest enabled="1">span_ion:zz_amp_folded_cascode:1</dependentTest>
+				</dependentTests>
+			</var>
+			<var>VGP1
+				<value>0</value>
+				<dependentTests>
+					<dependentTest enabled="1">span_ion:zz_amp_folded_cascode:1</dependentTest>
+				</dependentTests>
+			</var>
+			<var>VGTAIL
+				<value>0</value>
+				<dependentTests>
+					<dependentTest enabled="1">span_ion:zz_amp_folded_cascode:1</dependentTest>
+				</dependentTests>
+			</var>
+			<var>VIN_AC
+				<value>1</value>
+				<dependentTests>
+					<dependentTest enabled="1">span_ion:zz_amp_folded_cascode:1</dependentTest>
+				</dependentTests>
+			</var>
+			<var>VIN_DC
+				<value>0</value>
+				<dependentTests>
+					<dependentTest enabled="1">span_ion:zz_amp_folded_cascode:1</dependentTest>
+				</dependentTests>
+			</var>
+		</vars>
+		<disabledtests></disabledtests>
+	</active>
+	<history>History</history>
+</setupdb>
