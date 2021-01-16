@@ -84,6 +84,10 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
         cload = params['cload']
         tb_params = params['tb_params']
 
+        # To be used when instantiating testbenches further down
+        prj = BagProject()
+        tb_num = 0
+
         assert not diff_out, f'Currently only supports single-ended output with self-biasing'
         self.other_params = dict(in_type=in_type,
                                  diff_out=diff_out,
@@ -236,14 +240,14 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
                                                        'opp_inner' : nf_opp_inner,
                                                        'opp_outer' : nf_opp_outer}
 
-                                            print('Constructing LTICircuit')
+                                            # print('Constructing LTICircuit')
                                             gain_lti, fbw_lti, pm_lti = self._get_ss_lti(op_dict, nf_dict, cload)
-                                            print(f'...done')
+                                            # print(f'...done')
 
                                             if gain_lti < gain_min:
                                                 break
 
-                                            if fbw_lti < fbw_min*0.75:
+                                            if fbw_lti < fbw_min:
                                                 continue
 
                                             # Simulated checks of gain, bandwidth, unity gain phase margin
@@ -275,18 +279,24 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
                                                            VIN_AC=1,
                                                            VIN_DC=vincm)
                                             tb_params = dict(tb_params)
-                                            tb_params.update(dict(params=tb_sch_params,
-                                                                  tb_vars=tb_vars))
+                                            tb_params.update(dict(prj=prj,
+                                                                  params=tb_sch_params,
+                                                                  tb_vars=tb_vars,
+                                                                  num=tb_num))
+                                            tb_num = tb_num + 1
+
                                             print('Simulating...')
                                             gain_sim, fbw_sim, pm_sim = self._get_ss_sim(**tb_params)
                                             print('...done')
 
                                             # Check small signal FoM against spec
                                             if gain_sim < gain_min:
-                                                print(f'\tgain {gain_sim}')
+                                                print(f'\tgain sim/lti: {gain_sim}/{gain_lti}')
+                                                # raise ValueError("Pause")
                                                 break
                                             if fbw_sim < fbw_min:
-                                                print(f'\tfbw {fbw_sim}')
+                                                print(f'\tfbw sim/lti {fbw_sim}/{fbw_lti}')
+                                                # raise ValueError("Pauses")
                                                 continue
                                             if pm_sim < pm_min:
                                                 print(f'\tpm {pm_sim}')
@@ -300,29 +310,34 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
 
         return viable_op_list
 
+    def _get_tb_gen_name(self, base, num):
+        return f'{base}_{num}'
+
     def _get_ss_sim(self, **spec):
         '''
         Inputs:
+            prj: BagProject
             tb_vars: Testbench variables to set in ADE testbench
             tb_lib: The template testbench library.
             tb_cell: The template testbench cell.
             impl_lib: The implemented testbench library.
-            tb_gen_name: The generated testbench name.
+            tb_gen_name: The generated testbench base name.
+            num: The generated testbench number.
         Outputs:
             gain: Simulated DC gain in V/V
             fbw: Simulated 3dB frequency in Hz
             pm: Unity gain phase margin in degrees (not calculated in feedback,
                 calculated using the simulated open loop gain and phase)
         '''
+        prj = spec['prj']
         tb_vars = spec['tb_vars']
         tb_lib = spec['tb_lib']
         tb_cell = spec['tb_cell']
         impl_lib = spec['impl_lib']
         impl_cell = spec['impl_cell']
-        tb_gen_name = spec['tb_gen_name']
+        tb_gen_name = self._get_tb_gen_name(spec['tb_gen_name'], spec['num'])
 
         # Generate testbench schematic
-        prj = BagProject()
         tb_dsn = prj.create_design_module(tb_lib, tb_cell)
         tb_dsn.design(**(spec['params']))
         tb_dsn.implement_design(impl_lib, top_cell_name=tb_gen_name)

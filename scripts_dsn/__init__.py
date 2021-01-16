@@ -120,6 +120,13 @@ def num_den_add(num1, num2, den1, den2):
     num1_new = np.convolve(num1, den2)
     num2_new = np.convolve(num2, den1)
 
+    num_zeros = abs(len(num1_new)-len(num2_new))
+
+    if len(num1_new) > len(num2_new):
+        num2_new = np.pad(num2_new, ((num_zeros, 0)), 'constant')
+    elif len(num2_new) > len(num1_new):
+        num1_new = np.pad(num1_new, ((num_zeros, 0)), 'constant')
+
     num_new = np.add(num1_new, num2_new)
 
     return num_new, den_new
