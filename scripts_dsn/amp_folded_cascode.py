@@ -46,7 +46,7 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
             vincm = 'Input common mode voltage.',
             ibias = 'Maximum bias current, in amperes.',
             cload = 'Output load capacitance in farads.',
-            optional_params = 'Optional parameters. voutcm=output bias voltage.',
+            optional_params = 'Optional parameters. voutcm=output bias voltage, run_sim=True to verify with simulation, False for only LTICircuit.',
             tb_params = 'Parameters applicable to the testbench, e.g. tb_lib, tb_cell, impl_lib, etc.'
         ))
         return ans
@@ -58,6 +58,7 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
         Raises a ValueError if there is no solution.
         """
         optional_params = params['optional_params']
+        run_sim = optional_params.get('run_sim', False)
 
         ### Get DBs for each device
         specfile_dict = params['specfile_dict']
@@ -69,6 +70,8 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
         db_dict = {k:get_mos_db(spec_file=specfile_dict[k],
                                 intent=th_dict[k],
                                 sim_env=sim_env) for k in specfile_dict.keys()}
+
+        
 
         ### Design devices
         in_type = params['in_type']
@@ -250,6 +253,9 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
                                             if fbw_lti < fbw_min:
                                                 continue
 
+                                            if pm_lti < pm_min:
+                                                continue
+
                                             # Simulated checks of gain, bandwidth, unity gain phase margin
                                             nf_dict = {'in' : nf_in,
                                                        'tail' : nf_tail,
@@ -266,43 +272,49 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
                                                       vg_same_outer=vg_same_outer,
                                                       vg_same_inner=vg_same_inner,
                                                       vg_opp_outer=vg_opp_outer,
-                                                      ibias=ibranch_big*2)
+                                                      ibias=ibranch_big*2,
+                                                      gain=gain_lti,
+                                                      fbw=fbw_lti,
+                                                      pm=pm_lti
+                                                      )
 
-                                            tb_sch_params = self.get_sch_params(op)
-                                            tb_vars = dict(CLOAD=cload,
-                                                           VDD=vdd,
-                                                           VGN0=vg_opp_outer if n_in else vg_same_outer,
-                                                           VGN1=voutcm if n_in else vg_same_inner,
-                                                           VGP0=vg_same_outer if n_in else vg_opp_outer,
-                                                           VGP1=vg_same_inner if n_in else voutcm,
-                                                           VGTAIL=vgtail,
-                                                           VIN_AC=1,
-                                                           VIN_DC=vincm)
-                                            tb_params = dict(tb_params)
-                                            tb_params.update(dict(prj=prj,
-                                                                  params=tb_sch_params,
-                                                                  tb_vars=tb_vars,
-                                                                  num=tb_num))
-                                            tb_num = tb_num + 1
+                                            if run_sim:
+                                                tb_sch_params = self.get_sch_params(op)
+                                                tb_vars = dict(CLOAD=cload,
+                                                               VDD=vdd,
+                                                               VGN0=vg_opp_outer if n_in else vg_same_outer,
+                                                               VGN1=voutcm if n_in else vg_same_inner,
+                                                               VGP0=vg_same_outer if n_in else vg_opp_outer,
+                                                               VGP1=vg_same_inner if n_in else voutcm,
+                                                               VGTAIL=vgtail,
+                                                               VIN_AC=1,
+                                                               VIN_DC=vincm)
+                                                tb_params = dict(tb_params)
+                                                tb_params.update(dict(prj=prj,
+                                                                      params=tb_sch_params,
+                                                                      tb_vars=tb_vars,
+                                                                      num=tb_num))
+                                                tb_num = tb_num + 1
 
-                                            print('Simulating...')
-                                            gain_sim, fbw_sim, pm_sim = self._get_ss_sim(**tb_params)
-                                            print('...done')
+                                                print('Simulating...')
+                                                gain_sim, fbw_sim, pm_sim = self._get_ss_sim(**tb_params)
+                                                print('...done')
 
-                                            # Check small signal FoM against spec
-                                            if gain_sim < gain_min:
-                                                print(f'\tgain sim/lti: {gain_sim}/{gain_lti}')
-                                                # raise ValueError("Pause")
-                                                break
-                                            if fbw_sim < fbw_min:
-                                                print(f'\tfbw sim/lti {fbw_sim}/{fbw_lti}')
-                                                # raise ValueError("Pauses")
-                                                continue
-                                            if pm_sim < pm_min:
-                                                print(f'\tpm {pm_sim}')
-                                                continue
-                                            
-                                            op = op.update(gain=gain_sim, fbw=fbw_sim, pm=pm_sim)
+                                                # Check small signal FoM against spec
+                                                if gain_sim < gain_min:
+                                                    print(f'\tgain sim/lti: {gain_sim}/{gain_lti}')
+                                                    # raise ValueError("Pause")
+                                                    break
+                                                if fbw_sim < fbw_min:
+                                                    print(f'\tfbw sim/lti {fbw_sim}/{fbw_lti}')
+                                                    # raise ValueError("Pauses")
+                                                    continue
+                                                if pm_sim < pm_min:
+                                                    print(f'\tpm {pm_sim}')
+                                                    continue
+                                                
+                                                # Swap out LTICircuit values for simultaed values
+                                                op.update(gain=gain_sim, fbw=fbw_sim, pm=pm_sim)
                                             
                                             viable_op_list.append(op)
                                             print("(SUCCESS)")
