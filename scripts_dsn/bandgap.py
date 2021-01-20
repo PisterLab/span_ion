@@ -86,7 +86,7 @@ class bag2_analog__bandgap_dsn(DesignModule):
 
     def verify_pmos(self, db, vg:float, vdd:float, vbg:float, ibias:float):
         p_op = db.query(vgs=vg-vdd, vds=vbg-vdd, vbs=0)
-        match_p, nf_p = verify_ratio(ibias, p_op['ibias'], 1, 0.1)
+        match_p, nf_p = verify_ratio(ibias, p_op['ibias'], 1, 0.05)
 
         if not match_p:
             return False, 0
@@ -144,6 +144,7 @@ class bag2_analog__bandgap_dsn(DesignModule):
                                    th_dict=amp_th_dict,
                                    l_dict=amp_l_dict,
                                    sim_env=sim_env))
+        print(f'Amp vincm: {passive_info["amp_vincm"]}')
 
         # Spec out constant gm
         constgm_specfile_dict = dict()

@@ -33,8 +33,11 @@ class span_ion__comparator_fd_main(Module):
             dictionary from parameter names to descriptions.
         """
         return dict(
-            diffpair_params = 'Differential pair parameters',
-            res_params = 'Resistor strip parameters',
+            in_type = '"p" or "n" for NMOS or PMOS input pair',
+            l_dict = 'Channel and resistor lengths',
+            w_dict = 'Channel and resistor widths',
+            th_dict = 'Device and resistor flavors',
+            seg_dict = 'Device and resistor number of devices',
             bulk_conn = 'Bulk connection for resistors'
         )
 
@@ -54,15 +57,42 @@ class span_ion__comparator_fd_main(Module):
         restore_instance()
         array_instance()
         """
-        diffpair_params = params['diffpair_params']
-        res_params = params['res_params']
+        in_type = params['in_type']
+        l_dict = params['l_dict']
+        w_dict = params['w_dict']
+        th_dict = params['th_dict']
+        seg_dict = params['seg_dict']
         bulk_conn = params['bulk_conn']
 
-        assert bulk_conn in ('VDD', 'VSS'), f'Bulk must be connected to VDD or VSS, not {bulk_conn}'
+        # Design instances
+        if in_type == 'p':
+            self.replace_instance_master(inst_name='XDIFFPAIR',
+                                         lib_name='bag2_analog',
+                                         cell_name='diffpair_n')
+            diffpair_conn = dict(VDD='VDD',
+                                 VINP='VINP',
+                                 VINN='VINN',
+                                 VOUTP='VOUTP',
+                                 VOUTN='VOUTN',
+                                 VGTAIL='VGTAIL')
 
-        self.instances['RN'].design(**res_params)
-        self.instances['RP'].design(**res_params)
-        self.instances['XDIFFPAIR'].design(**diffpair_params)
+        self.instances['XDIFFPAIR'].design(lch_dict=l_dict,
+                                           w_dict=w_dict,
+                                           seg_dict=seg_dict,
+                                           th_dict=th_dict)
+
+        self.instances['RP'].design(w=w_dict['res'],
+                                    l=l_dict['res'],
+                                    num_unit=seg_dict['res'],
+                                    intent=th_dict['res'])
+
+        self.instances['RN'].design(w=w_dict['res'],
+                                    l=l_dict['res'],
+                                    num_unit=seg_dict['res'],
+                                    intent=th_dict['res'])
+
+        # Connect bulk
+        assert bulk_conn in ('VDD', 'VSS'), f'Resistor bulk must be connected to VDD or VSS, not {bulk_conn}'
 
         self.reconnect_instance_terminal('RN', 'BULK', bulk_conn)
         self.reconnect_instance_terminal('RP', 'BULK', bulk_conn)

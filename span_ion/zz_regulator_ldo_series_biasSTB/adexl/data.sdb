@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<setupdb version="6">data
+	<active>Active Setup
+		<corners>
+			<corner enabled="1">_default</corner>
+		</corners>
+		<extensions>
+			<extension>Parasitics
+				<callback>_parSetupDBExtensionCB</callback>
+				<iconvalue></iconvalue>
+				<icontype></icontype>
+			</extension>
+		</extensions>
+		<currentmode>Single Run, Sweeps and Corners</currentmode>
+		<overwritehistory>0</overwritehistory>
+		<tests>
+			<test>span_ion:zz_regulator_ldo_series_biasSTB:1
+				<tool>ADE</tool>
+				<tooloptions>
+					<option>cell
+						<value>zz_regulator_ldo_series_biasSTB</value>
+					</option>
+					<option>lib
+						<value>span_ion</value>
+					</option>
+					<option>sim
+						<value>spectre</value>
+					</option>
+					<option>view
+						<value>schematic</value>
+					</option>
+					<option>path
+						<value>$AXL_SETUPDB_DIR/test_states</value>
+					</option>
+					<option>state
+						<value>span_ion:zz_regulator_ldo_series_biasSTB:1_active</value>
+					</option>
+				</tooloptions>
+				<origoptions>
+					<option>cell
+						<value>zz_regulator_ldo_series_biasSTB</value>
+					</option>
+					<option>lib
+						<value>span_ion</value>
+					</option>
+					<option>sim
+						<value>spectre</value>
+					</option>
+					<option>view
+						<value>schematic</value>
+					</option>
+					<option>path
+						<value>$AXL_SETUPDB_DIR/test_states</value>
+					</option>
+					<option>state
+						<value>tmpstate.468088650</value>
+					</option>
+				</origoptions>
+			</test>
+		</tests>
+		<vars>
+			<var>CLOAD
+				<value>1p</value>
+				<dependentTests>
+					<dependentTest omitted="0">span_ion:zz_regulator_ldo_series_ac:1</dependentTest>
+				</dependentTests>
+			</var>
+			<var>RLOAD
+				<value>1k</value>
+				<dependentTests>
+					<dependentTest omitted="0">span_ion:zz_regulator_ldo_series_ac:1</dependentTest>
+				</dependentTests>
+			</var>
+			<var>VDD
+				<value>3.3</value>
+				<dependentTests>
+					<dependentTest omitted="0">span_ion:zz_regulator_ldo_series_ac:1</dependentTest>
+				</dependentTests>
+			</var>
+			<var>VGTAIL
+				<value>1</value>
+				<dependentTests>
+					<dependentTest omitted="0">span_ion:zz_regulator_ldo_series_ac:1</dependentTest>
+				</dependentTests>
+			</var>
+			<var>VREF
+				<value>1.2</value>
+				<dependentTests>
+					<dependentTest omitted="0">span_ion:zz_regulator_ldo_series_ac:1</dependentTest>
+				</dependentTests>
+			</var>
+		</vars>
+	</active>
+	<history>History</history>
+</setupdb>

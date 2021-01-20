@@ -44,7 +44,7 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
         ))
         return ans
 
-    def meet_spec(self, **params) -> Tuple[Mapping[str,Any],Mapping[str,Any]]:
+    def meet_spec(self, **params) -> List[Mapping[str,Any]]:
         """To be overridden by subclasses to design this module.
 
         Raises a ValueError if there is no solution.
@@ -207,3 +207,11 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
         minimizing bias current.
         """
         return op2 if op1['ibias'] > op2['ibias'] else op1
+
+    def get_sch_params(self, op):
+        return dict(lch_dict=self.other_params['lch_dict'],
+                    wch_dict=self.other_params['w_dict'],
+                    th_dict=self.other_params['th_dict'],
+                    seg_dict={'in' : op['nf_in'],
+                              'tail' : op['nf_tail'],
+                              'load' : op['nf_load']})

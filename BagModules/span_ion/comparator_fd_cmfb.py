@@ -33,6 +33,7 @@ class span_ion__comparator_fd_cmfb(Module):
             dictionary from parameter names to descriptions.
         """
         return dict(
+            in_type = 'p or n for input pair type',
             lch_dict = 'Dictionary of channel lengths',
             wch_dict = 'Dictionary of channel widths',
             th_dict = 'Dictionary of device flavors',
@@ -55,11 +56,43 @@ class span_ion__comparator_fd_cmfb(Module):
         restore_instance()
         array_instance()
         """
+        in_type = params['in_type']
         lch_dict = params['lch_dict']
         wch_dict = params['wch_dict']
         th_dict = params['th_dict']
         seg_dict = params['seg_dict']
 
+        if in_type == 'n':
+            lib_name = 'BAG_prim'
+            p_name = 'pmos4_standard'
+            n_name = 'nmos4_standard'
+            n_vb = 'VSS'
+            p_vb = 'VDD'
+            inst_conn_dict = dict(XINNA=dict(D='VOUTP', G='VINNA', S='VTAIL', B=n_vb),
+                                  XINNB=dict(D='VOUTP', G='VINNB', S='VTAIL', B=n_vb),
+                                  XOUTP=dict(D='VOUTP', G='VOUTP', S=p_vb, B=p_vb),
+                                  XINPA=dict(D='VOUTN', G='VINPA', S='VTAIL', B=n_vb),
+                                  XINPB=dict(D='VOUTN', G='VINPB', S='VTAIL', B=n_vb),
+                                  XOUTN=dict(D='VOUTN', G='VOUTN', S=p_vb, B=p_vb),
+                                  XTAIL=dict(D='VTAIL', G='VGTAIL', S=n_vb, B=n_vb))
+            inst_type_dict = dict(XINNA=n_name,
+                                  XINNB=n_name,
+                                  XINPA=n_name,
+                                  XINPB=n_name,
+                                  XOUTP=p_name,
+                                  XOUTN=p_name,
+                                  XTAIL=n_name)
+
+            # Changing the input pair type
+            for inst, ch_type in inst_type_dict.items():
+                self.replace_instance_master(inst_name=inst,
+                                             lib_name=lib_name,
+                                             cell_name=ch_type)
+                
+                for pin, net in inst_conn_dict[inst].items():
+                    self.reconnect_instance_terminal(inst, pin, net)
+
+        # Design instances
         key_map = dict(XTAIL='tail',
                        XINPA='in',
                        XINPB='in',

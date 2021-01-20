@@ -7,16 +7,17 @@ import pkg_resources
 
 from bag.design.module import Module
 
+from bag2_analog.regulator_ldo_series import bag2_analog__regulator_ldo_series
 
 # noinspection PyPep8Naming
-class span_ion__comparator_fd_stage(Module):
-    """Module for library span_ion cell comparator_fd_stage.
+class span_ion__zz_regulator_ldo_series_tranLoad(Module):
+    """Module for library span_ion cell zz_regulator_ldo_series_tranLoad.
 
     Fill in high level description here.
     """
     yaml_file = pkg_resources.resource_filename(__name__,
                                                 os.path.join('netlist_info',
-                                                             'comparator_fd_stage.yaml'))
+                                                             'zz_regulator_ldo_series_tranLoad.yaml'))
 
 
     def __init__(self, database, parent=None, prj=None, **kwargs):
@@ -33,10 +34,13 @@ class span_ion__comparator_fd_stage(Module):
             dictionary from parameter names to descriptions.
         """
         return dict(
-            in_type = 'n or p for PMOS or NMOS input pair',
-            main_params = 'Main amplifier parameters',
-            cmfb_params = 'Common mode feedback parameters',
-            constgm_params = 'CMFB constant gm parameters'
+            series_params = 'Parameters "type" (n/p), and the various device parameters (assumes MOSFET)',
+            amp_params = 'amp_folded_cascode parameters',
+            biasing_params = 'TODO',
+            cap_conn_list = 'List of dictionaries of device connections',
+            cap_param_list = 'List of dictionaries containing device parameters',
+            res_conn_list = 'List of dictionaries of device connections',
+            res_param_list = 'List of dictionaries containing device parameters',
         )
 
     def design(self, **params):
@@ -55,21 +59,5 @@ class span_ion__comparator_fd_stage(Module):
         restore_instance()
         array_instance()
         """
-        in_type = params['in_type']
-        cmfb_in = 'p' if in_type=='n' else 'n'
-        
-        main_params = params['main_params']
-        cmfb_params = params['cmfb_params']
-        constgm_params = params['constgm_params']
+        bag2_analog__regulator_ldo_series.design(**params)
 
-        self.instances['XMAIN'].design(in_type=in_type, **main_params)
-        self.instances['XCMFB'].design(in_type=cmfb_in, **cmfb_params)
-        self.instances['XCONSTGM'].design(res_side=cmfb_in,
-                                          **constgm_params)
-
-        if in_type == 'n':
-            self.reconnect_instance_terminal('XCONSTGM', 'VP', 'VGTAIL_CMFB')
-        elif in_type == 'p':
-            self.reconnect_instance_terminal('XCONSTGM', 'VN', 'VGTAIL_CMFB')
-        else:
-            raise ValueError(f"input type should be n or p, not {in_type}")
