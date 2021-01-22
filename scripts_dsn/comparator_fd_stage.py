@@ -230,7 +230,7 @@ class span_ion__comparator_fd_stage_dsn(DesignModule):
                 try:
                     disable_print()
                     _, constgm_dsn_info = constgm_dsn_mod.design(**constgm_dsn_params)
-                except ValueError:
+                except ValueError as e:
                     continue
                 finally:
                     enable_print()
@@ -310,7 +310,12 @@ class span_ion__comparator_fd_stage_dsn(DesignModule):
         """Returns the best operating condition based on 
         minimizing bias current.
         """
-        return op2 if op1['ibias'] > op2['ibias'] else op1
+        if op2['fbw'] > op1['fbw']:
+            return op2
+        elif op1['fbw'] > op2['fbw']:
+            return op1
+        else:
+            return op2 if op1['ibias'] > op2['ibias'] else op1
 
     def get_sch_params(self, op):
         return dict(in_type=self.other_params['in_type'],

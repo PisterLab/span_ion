@@ -5,6 +5,7 @@ from typing import Mapping, Tuple, Any, List
 import os
 import pkg_resources
 import numpy as np
+import warnings
 
 from bag.design.module import Module
 from . import DesignModule, get_mos_db, estimate_vth, parallel, verify_ratio, num_den_add
@@ -75,7 +76,7 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
         ibias_max = params['ibias']
 
         # Somewhat arbitrary vstar_min in this case
-        vstar_min = 0.25
+        vstar_min = 0.2
 
         # Estimate threshold of each device TODO can this be more generalized?
         n_in = in_type=='n'
@@ -100,7 +101,7 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
         vtail_min = vstar_min if n_in else vincm-vth_in
         vtail_max = vincm-vth_in if n_in else vdd-vstar_min
         vtail_vec = np.arange(vtail_min, vtail_max, 10e-3)
-        # print(f'Sweeping tail from {vtail_min} to {vtail_max}')
+        print(f'Sweeping tail from {vtail_min} to {vtail_max}')
         for vtail in vtail_vec:
             # Sweep output common mode or use taken-in optional parameter
             voutcm_min = vincm-vth_in+vswing_low if n_in else vstar_min+vth_load+vswing_low
@@ -110,11 +111,12 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
             if voutcm_opt == None:
                 voutcm_vec = np.arange(voutcm_min, voutcm_max, 10e-3)                
             elif voutcm_opt < voutcm_min or voutcm_opt > voutcm_max:
-                break
+                warnings.warn(f'voutcm {voutcm_opt} not in [{voutcm_min}, {voutcm_max}]')
+                voutcm_vec = [voutcm_opt]
             else:
                 voutcm_vec = [voutcm_opt]
 
-            # print(f'Sweeping output common mode from {voutcm_min} to {voutcm_max}')
+            print(f'Sweeping output common mode from {voutcm_min} to {voutcm_max}')
             for voutcm in voutcm_vec:
                 in_op = db_dict['in'].query(vgs=vincm-vtail,
                                             vds=voutcm-vtail,
@@ -138,7 +140,7 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
                                                       nf_in,
                                                       0.1)
                     if not match_load:
-                        # print("Load match")
+                        print("Load match")
                         continue
 
                     # Check approximate gain, bandwidth (makes meh assumption about virtual ground)
@@ -172,10 +174,10 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
                     fbw = wbw/(2*np.pi)
                     
                     if fbw < fbw_min:
-                        # print(f"BW: {fbw}")
+                        print(f"fbw: {fbw}")
                         continue
                     if gain < gain_min:
-                        # print(f'Gain: {gain}')
+                        print(f'gain: {gain}')
                         break
 
                     # Design tail to current match
@@ -191,7 +193,7 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
                                                              nf_in,
                                                              0.1)
                         if not tail_success:
-                            # print('Tail match')
+                            print('Tail match')
                             continue
 
                         # Check against spec again, now with full circuit
@@ -236,7 +238,10 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
                                          gain=gain,
                                          fbw=fbw,
                                          vtail=vtail,
-                                         ibias=tail_op['ibias']*nf_tail)
+                                         ibias=tail_op['ibias']*nf_tail,
+                                         op_in=in_op,
+                                         op_tail=tail_op,
+                                         op_load=load_op)
                         viable_op_list.append(viable_op)
                         print("\n(SUCCESS)")
                         print(viable_op)

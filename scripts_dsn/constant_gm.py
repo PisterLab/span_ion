@@ -119,7 +119,6 @@ class bag2_analog__constant_gm_dsn(DesignModule):
                                                                         nf_side_diode,
                                                                         0.05)
                             if not match_side:
-                                # raise ValueError("pause")
                                 print("side match")
                                 continue
 

@@ -5,10 +5,15 @@ from typing import Mapping, Tuple, Any, List
 import os
 import pkg_resources
 import numpy as np
+import warnings
+from pprint import pprint
 
 from bag.design.module import Module
-from . import DesignModule, get_mos_db, estimate_vth, parallel, verify_ratio, num_den_add
+from . import DesignModule, get_mos_db, estimate_vth, parallel, verify_ratio, num_den_add, enable_print, disable_print
 from bag.data.lti import LTICircuit, get_w_3db, get_stability_margins
+
+from .amp_diff_mirr import bag2_analog__amp_diff_mirr_dsn
+from .constant_gm import bag2_analog__constant_gm_dsn
 
 # noinspection PyPep8Naming
 class bag2_analog__regulator_ldo_series_dsn(DesignModule):
@@ -39,12 +44,12 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
             vout = 'Reference voltage to regulate the output to',
             loadreg = 'Maximum fractional change in output voltage given change in output current',
             ibias = 'Maximum bias current of amp and biasing, in amperes.',
-            rload = '',
-            cload = '',
+            rload = 'Load resistance from the output of the LDO to ground',
+            cload = 'Load capacitance from the output of the LDO to ground',
             psrr = 'Minimum power supply rejection (linear, not dB)',
+            pm = 'Minimum phase margin for the large feedback loop',
             amp_dsn_params = "Amplifier design parameters that aren't either calculated or handled above",
-            bias_dsn_params = '',
-            optional_params = 'Optional parameters. voutcm=output bias voltage.',
+            bias_dsn_params = "Design parameters for the biasing that aren't calculated or handled above.",
             tb_stb_params = '',
             tb_iload_params = ''
         ))
@@ -63,24 +68,25 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
         vdd = params['vdd']
         vout = params['vout']
         vg = params['vg']
+        rload = params['rload']
 
         vs = vout if series_type == 'n' else vdd
         vd = vdd if series_type == 'n' else vout
         vb = 0 if series_type == 'n' else vdd
 
         ser_op = db_dict['ser'].query(vgs=vg-vs, vds=vd-vs, vbs=vb-vs)
-        idc = zload.num[-1]/zload.den[-1]
+        idc = vout/rload
         nf = int(round(idc/ser_op['ibias']))
         return nf > 1, dict(nf=nf, op=ser_op)
 
-    def meet_spec(self, **params) -> List[Mapping[str,Any]]:
-        optional_params = params['optional_params']
 
+    def meet_spec(self, **params) -> List[Mapping[str,Any]]:
         specfile_dict = params['specfile_dict']
         th_dict = params['th_dict']
         l_dict = params['l_dict']
         sim_env = params['sim_env']
 
+        # TODO simulating
         tb_iload_params = params['tb_iload_params']
         tb_stb_params = params['tb_stb_params']
 
@@ -91,11 +97,12 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
         ser_type = params['series_type']
         vdd = params['vdd']
         vout = params['vout']
-        loadreg = params['load_reg']
-        ibias = params['ibias']
-        psrr = params['psrr']
+        loadreg = params['loadreg'] # TODO load regulation
+        ibias_max = params['ibias']
+        psrr_min = params['psrr'] # TODO include PSRR
         rload = params['rload']
         cload = params['cload']
+        pm_min = params['pm']
 
         vth_ser = estimate_vth(db=db_dict['ser'],
                                is_nch=ser_type=='n',
@@ -108,17 +115,17 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
         amp_th_dict = dict()
         amp_l_dict = dict()
 
-        for k in ('in', 'tail', 'load'): # TODO amp topology might change
-            amp_specfile_dict = specfile_dict[f'amp_{k}']
-            amp_th_dict = th_dict[f'amp_{k}']
-            amp_l_dict = l_dict[f'amp_{k}']
+        for k in ('in', 'tail', 'load'):
+            amp_specfile_dict[k] = specfile_dict[f'amp_{k}']
+            amp_th_dict[k] = th_dict[f'amp_{k}']
+            amp_l_dict[k] = l_dict[f'amp_{k}']
         amp_dsn_params = dict(params['amp_dsn_params'])
-        amp_dsn_params['vdd'] = vdd
         amp_dsn_params.update(dict(vincm=vout,
                                    specfile_dict=amp_specfile_dict,
                                    th_dict=amp_th_dict,
                                    l_dict=amp_l_dict,
-                                   sim_env=sim_env))
+                                   sim_env=sim_env,
+                                   vdd=vdd))
 
         # TODO Spec out biasing
         bias_specfile_dict = dict()
@@ -128,52 +135,58 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
             bias_specfile_dict[k] = specfile_dict[f'bias_{k}']
             bias_th_dict[k] = th_dict[f'bias_{k}']
             bias_l_dict[k] = l_dict[f'bias_{k}']
-        bias_th_dict['res'] = th_dict[f'bias_res']
         bias_dsn_params = dict(params['bias_dsn_params'])
-        bias_dsn_params['vdd'] = vdd
         bias_dsn_params.update(dict(specfile_dict=bias_specfile_dict,
                                        th_dict=bias_th_dict,
                                        l_dict=bias_l_dict,
-                                       sim_env=sim_env))
+                                       sim_env=sim_env,
+                                       vdd=vdd))
 
         # Keep track of viable ops
         viable_op_list = []
 
         amp_dsn_mod = bag2_analog__amp_diff_mirr_dsn()
-        constgm_dsn_mod = bag2_analog__constant_gm_dsn()
+        bias_dsn_mod = bag2_analog__constant_gm_dsn()
 
         # Sweep gate bias voltage of the series device
-        vg_min = vout+vth_ser if ser_type=='n' else vout+vth_ser
-        vg_max = vdd+vth_ser if ser_type=='n' else vdd+vth_ser
+        vg_min = vout+vth_ser
+        vg_max = min(vdd+vth_ser, vdd)
         vg_vec = np.arange(vg_min, vg_max, 10e-3)
         for vg in vg_vec:
+            print('Designing the series device...')
             # Size the series device
-            match_ser, ser_info = dsn_fet(**params)
+            match_ser, ser_info = self.dsn_fet(vg=vg, **params)
             if not match_ser:
                 continue
+            print('Done')
 
             # TODO Design amplifier s.t. output bias = gate voltage
             # This is to maintain accuracy in the computational design proces
+            print('Designing the amplifier...')
             ser_op = ser_info['op']
             amp_cload = ser_op['cgg']
             amp_dsn_params.update(dict(cload=amp_cload,
-                                       optional_params=dict(voutcm=vout)))
+                                       optional_params=dict(voutcm=vg),
+                                       ibias=ibias_max))
             try:
                 disable_print()
-                amp_dsn_list = amp_dsn_mod.meet_spec(**amp_dsn_params)
+                amp_dsn_lst = amp_dsn_mod.meet_spec(**amp_dsn_params)
             except ValueError:
                 continue
             finally:
                 enable_print()
+            print(f'{len(amp_dsn_lst)} viable amps')
 
             # For each possibility, design the biasing
             for amp_dsn_info in amp_dsn_lst:
                 if amp_dsn_params['in_type'] == 'n':
                     bias_dsn_params.update(dict(vref=dict(n=amp_dsn_info['vgtail']),
-                                                res_side='n'))
+                                                res_side='n'),
+                                                ibias=ibias_max-amp_dsn_info['ibias'])
                 else:
                     bias_dsn_params.update(dict(vref=dict(p=amp_dsn_info['vgtail']),
-                                                res_side='p'))
+                                                res_side='p'),
+                                                ibias=ibias_max-amp-dsn_info['ibias'])
 
                 print(f'Attempting to design biasing...')
                 try:
@@ -183,21 +196,94 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
                     continue
                 finally:
                     enable_print()
-                print(f"Constant gm: {constgm_dsn_info}")
+                # print(f"bias: {bias_dsn_info}")
+                print('Done')
 
-                # TODO Check against transient load
+                op_dict = {'in' : amp_dsn_info['op_in'],
+                           'tail' : amp_dsn_info['op_tail'] ,
+                           'load' : amp_dsn_info['op_load'],
+                           'ser' : ser_info['op']}
 
-                # TODO Check PSRR
+                nf_dict = {'in' : amp_dsn_info['nf_in'],
+                           'tail' : amp_dsn_info['nf_tail'],
+                           'load' : amp_dsn_info['nf_load'],
+                           'ser' : ser_info['nf']}
 
-                # TODO Check against stb 
+                # TODO Check against transient load - use Jackson's (likely need to modify)
+
+                # TODO Check PSRR - use Jackson's
+
+                # TODO Check STB against simulation
+                pm_lti = self._get_stb_lti(op_dict=op_dict, 
+                                       nf_dict=nf_dict, 
+                                       series_type=ser_type,
+                                       rload=rload,
+                                       cload=cload)
+
+                if np.isnan(pm_lti):
+                    pm_lti = -1
+
+                if pm_lti < pm_min:
+                    print(f'pm {pm_lti}')
+                    continue
+
+                viable_op = dict(amp_params=amp_dsn_info,
+                                 bias_params=bias_dsn_info,
+                                 ser_params=ser_info, 
+                                 pm=pm_lti,
+                                 vg=vg)
+
+                pprint(viable_op)
+                viable_op_list.append(viable_op)
+
+
+        self.other_params = dict(l_dict=l_dict,
+                                 w_dict={k:db.width_list[0] for k,db in db_dict.items()},
+                                 rload=rload,
+                                 cload=cload)
 
         return viable_op_list
 
-    def _get_stb_sim(self, **spec):
+    def _get_stb_lti(self, op_dict, nf_dict, series_type, rload, cload) -> float:
+        '''
+        Returns:
+            pm: Phase margins (in degrees)
+        '''
+        ckt = LTICircuit()
+
+        n_ser = series_type == 'n'
+       
+        # Series device
+        ser_d = 'gnd' if n_ser else 'reg'
+        ser_s = 'reg' if n_ser else 'gnd'
+        ckt.add_transistor(op_dict['ser'], ser_d, 'out', ser_s, fg=nf_dict['ser'], neg_cap=False)
+
+        # Load passives
+        ckt.add_res(rload, 'reg', 'gnd')
+        ckt.add_cap(rload, 'reg', 'gnd')
+        # TODO include any compensation passives
+
+        # Amplifier
+        inp_conn = 'gnd' if n_ser else 'in'
+        inn_conn = 'gnd' if not n_ser else 'in' 
+        ckt.add_transistor(op_dict['in'], 'outx', inp_conn, 'tail', fg=nf_dict['in'], neg_cap=False)
+        ckt.add_transistor(op_dict['in'], 'out', inn_conn, 'tail', fg=nf_dict['in'], neg_cap=False)
+        ckt.add_transistor(op_dict['tail'], 'tail', 'gnd', 'gnd', fg=nf_dict['tail'], neg_cap=False)
+        ckt.add_transistor(op_dict['load'], 'outx', 'outx', 'gnd', fg=nf_dict['load'], neg_cap=False)
+        ckt.add_transistor(op_dict['load'], 'out', 'outx', 'gnd', fg=nf_dict['load'], neg_cap=False)
+
+        # Calculating stability margins
+        num, den = ckt.get_num_den(in_name='in', out_name='reg', in_type='v')
+        pm, _ = get_stability_margins(np.convolve(num, [-1]), den)
+
         return pm
 
+    def _get_stb_sim(self, **spec):
+        pass
+        # return pm
+
     def _get_psrr_sim(self, **spec):
-        return
+        pass
 
     def _get_iload_bounce_sim(self, **spec):
         prj = spec['prj']
@@ -235,5 +321,7 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
 
 
     def op_compare(self, op1:Mapping[str,Any], op2:Mapping[str,Any]):
+        return op1 if op1['ibias'] < op2['ibias'] else op2
 
     def get_sch_params(self, op):
+        return dict()

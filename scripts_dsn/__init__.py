@@ -6,6 +6,7 @@ from bag.util.search import FloatBinaryIterator
 from verification.mos.query import MOSDBDiscrete
 from typing import Tuple, Mapping, Any, List
 import numpy as np
+from pprint import pprint
 
 def disable_print():
     sys.stdout = open(os.devnull, 'w')
@@ -186,7 +187,11 @@ class DesignModule(object):
         best_op = self.choose_op(self.viable_op_list)
         sch_params = self.get_sch_params(best_op)
 
-        print(f"OP: \n{best_op}\n\nSCH:\n{sch_params}")
+        # print(f"OP: \n{best_op}\n\nSCH:\n{sch_params}")
+        print('OP\n')
+        pprint(best_op)
+        print('\n\nSCH\n')
+        pprint(sch_params)
 
         return sch_params, best_op
 
