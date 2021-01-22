@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import Mapping, Tuple, Any
+from typing import Mapping, Tuple, Any, List
 
 import os
 import pkg_resources
@@ -30,6 +30,7 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
         ans = super().get_params_info()
         # TODO: add resistors to specfile_dict and th_dict 
         ans.update(dict(
+            in_type = 'Input pair type',
             specfile_dict = 'Transistor database spec file names for each device',
             th_dict = 'Transistor flavor dictionary.',
             l_dict = 'Transistor channel length dictionary',
@@ -61,6 +62,7 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
                                 sim_env=sim_env) for k in specfile_dict.keys()}
 
         ### Design devices
+        in_type = params['in_type']
         vdd = params['vdd']
         vincm = params['vincm']
         voutcm = params['voutcm']
@@ -70,38 +72,46 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
         ibias_max = params['ibias']
 
         # Somewhat arbitrary vstar_min in this case
-        vstar_min = 0.25
+        vstar_min = 0.2
+
+        n_in = in_type == 'n'
+        vtest_in = vdd/2 if n_in else -vdd/2
+        vtest_tail = vdd/2 if n_in else -vdd/2
+        vtest_out = -vdd/2 if n_in else vdd/2
+
+        vb_in = 0 if n_in else vdd
+        vb_tail = 0 if n_in else vdd
+        vb_out = vdd if n_in else 0
 
         # Estimate threshold of each device TODO can this be more generalized?
-        vth_in = estimate_vth(is_nch=False, vgs=-vdd/2, vbs=0, db=db_dict['in'])
-        vth_tail = estimate_vth(is_nch=False, vgs=-vdd/2, vbs=0, db=db_dict['tail'])
-        vth_out = estimate_vth(is_nch=True, vgs=vdd/2, vbs=0, db=db_dict['out'])
+        vth_in = estimate_vth(is_nch=n_in, vgs=vtest_in, vbs=0, db=db_dict['in'], lch=l_dict['in'])
+        vth_tail = estimate_vth(is_nch=n_in, vgs=vtest_tail, vbs=0, db=db_dict['tail'], lch=l_dict['tail'])
+        vth_out = estimate_vth(is_nch=(not n_in), vgs=vtest_out, vbs=0, db=db_dict['out'], lch=l_dict['out'])
 
-        ibias_min = np.inf
         # Keeping track of operating points which work for future comparison
         viable_op_list = []
 
         # Sweep tail voltage
-        vtail_min = vincm
-        vtail_max = vdd-vstar_min
+        vtail_min = vstar_min if n_in else vincm-vth_in
+        vtail_max = vincm-vth_in if n_in else vdd-vstar_min
         vtail_vec = np.arange(vtail_min, vtail_max, 10e-3)
         print(f'Sweeping tail from {vtail_min} to {vtail_max}')
         for vtail in vtail_vec:
             in_op = db_dict['in'].query(vgs=vincm-vtail,
                                         vds=voutcm-vtail,
-                                        vbs=vdd-vtail)
-            out_op = db_dict['out'].query(vgs=voutcm,
-                                          vds=voutcm,
+                                        vbs=vb_in-vtail)
+            out_op = db_dict['out'].query(vgs=voutcm-vb_out,
+                                          vds=voutcm-vb_out,
                                           vbs=0)
             ibias_min = 4*abs(in_op['ibias'])
             # Step input device size (integer steps)
             nf_in_max = int(round(ibias_max/ibias_min))
             nf_in_vec = np.arange(1, nf_in_max, 1)
-            # print(f'Number of input devices from 1 to {nf_in_max}')
+            print(f'Number of input devices from 1 to {nf_in_max}')
             for nf_in in nf_in_vec:
                 ibias = ibias_min * nf_in
                 if ibias > ibias_max:
-                    # print("(FAIL) ibias")
+                    print(f'ibias {ibias}')
                     break
 
                 # Match load device size
@@ -111,7 +121,7 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
                                                  0.05)
 
                 if not out_match:
-                    # print("(FAIL) out match")
+                    print("out match")
                     continue
 
                 # Check target specs
@@ -141,32 +151,32 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
                 # Cout = cload + (nf_in*2*in_op['cgs']) + (1+gain)*(nf_in*2*in_op['cds'])
                 # fbw = 1/(2*np.pi*Rout*Cout)
                 # ugf = Gm / Cout * (1/2*np.pi)
-                gain = num[-1]/den[-1]
+                gain = -num[-1]/den[-1]
                 ugf = fbw * gain
                 if fbw < fbw_min:
-                    # print(f"(FAIL) fbw {fbw}")
+                    print(f"fbw {fbw}")
                     continue
 
                 if ugf < ugf_min:
-                    # print(f"(FAIL) ugf {ugf}")
+                    print(f"ugf {ugf}")
                     break
 
                 # Design matching tail
                 vgtail_min = vtail + vth_tail
                 vgtail_max = vdd + vth_tail - vstar_min
                 vgtail_vec = np.arange(vgtail_min, vgtail_max, 10e-3)
-                # print(f"Tail gate from {vgtail_min} to {vgtail_max}")
+                print(f"Tail gate from {vgtail_min} to {vgtail_max}")
                 for vgtail in vgtail_vec:
-                    tail_op = db_dict['tail'].query(vgs=vgtail-vdd,
-                                                    vds=vtail-vdd,
+                    tail_op = db_dict['tail'].query(vgs=vgtail-vb_tail,
+                                                    vds=vtail-vb_tail,
                                                     vbs=0)
                     tail_match, nf_tail = verify_ratio(in_op['ibias']*4,
                                                        tail_op['ibias'],
                                                        nf_in,
-                                                       0.05)
+                                                       0.01)
 
                     if not tail_match:
-                        # print("(FAIL) tail match")
+                        print("tail match")
                         continue
 
                     print('(SUCCESS)')
@@ -180,27 +190,11 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
                                      ibias=abs(tail_op['ibias'])*nf_tail)
                     print(viable_op)
                     viable_op_list.append(viable_op)
-
-        if len(viable_op_list) < 1:
-            raise ValueError("No solution")
-
-        # Find the best operating point among those which do
-        best_op = dict(ibias=np.inf)
-        for op in viable_op_list:
-            best_op = self.op_compare(best_op, op)
-
-
-        # Arranging schematic parameters
-        sch_params = dict(lch_dict=l_dict,
-                          wch_dict={k:db.width_list[0] for k, db in db_dict.items()},
-                          th_dict=th_dict,
-                          seg_dict={'in': best_op['nf_in'],
-                                      'out': best_op['nf_out'],
-                                      'tail': best_op['nf_tail']})
-
-        print(f"(RESULT) {sch_params}\n{best_op}")
-
-        return sch_params, best_op
+        self.other_params = dict(in_type=in_type,
+                                 lch_dict=l_dict,
+                                 w_dict={k:db.width_list[0] for k,db in db_dict.items()},
+                                 th_dict=th_dict)
+        return viable_op_list
 
     def op_compare(self, op1:Mapping[str,Any], op2:Mapping[str,Any]):
         """Returns the best operating condition based on 
@@ -209,9 +203,10 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
         return op2 if op1['ibias'] > op2['ibias'] else op1
 
     def get_sch_params(self, op):
-        return dict(lch_dict=self.other_params['lch_dict'],
+        return dict(in_type=self.other_params['in_type'],
+                    lch_dict=self.other_params['lch_dict'],
                     wch_dict=self.other_params['w_dict'],
                     th_dict=self.other_params['th_dict'],
                     seg_dict={'in' : op['nf_in'],
                               'tail' : op['nf_tail'],
-                              'load' : op['nf_load']})
+                              'out' : op['nf_out']})

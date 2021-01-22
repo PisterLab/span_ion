@@ -159,14 +159,12 @@ class bag2_analog__constant_gm_dsn(DesignModule):
                                              nf_side_nondiode=nf_side_nondiode)
                             viable_op_list.append(viable_op)
                             print('\n(SUCCESS)')
-                            print(viable_op)        
+                            print(viable_op)
 
-        if len(viable_op_list) < 1:
-            raise ValueError("No solution")
-
+    
         self.other_params = dict(res_side=res_side,
                                  l_dict=l_dict,
-                                 w_dict={k:db.width_list[0] for k,db in db_dict.items()}.update(dict(res=1e-6)), # TODO real resistor
+                                 w_dict={k:db.width_list[0] for k,db in db_dict.items()},
                                  th_dict=th_dict)
 
         return viable_op_list
@@ -179,12 +177,14 @@ class bag2_analog__constant_gm_dsn(DesignModule):
 
     def get_sch_params(self, op):
         res_side = self.other_params['res_side']
+        self.other_params['l_dict'].update(dict(res=op['res_val']*1e-6/600))  # TODO real resistor
+        self.other_params['w_dict'].update(dict(res=1e-6))
 
         return dict(bulk_conn='VDD',
                     res_side=res_side,
-                    l_dict=self.other_params['l_dict'].update(dict(res=op['res_val']*1e-6/600)), # TODO real resistor
+                    l_dict=self.other_params['l_dict'],
                     w_dict=self.other_params['w_dict'],
                     th_dict=self.other_params['th_dict'],
-                    seg_dict=dict(n=op['nf_diode_n'], p=op['nf_diode_p'], res=1e-6), # TODO real resistor
+                    seg_dict=dict(n=op['nf_diode_n'], p=op['nf_diode_p'], res=1), # TODO real resistor
                     device_mult=op['nf_nondiode_n']/op['nf_diode_n'] if res_side=='n' else \
                                 op['nf_nondiode_p']/op['nf_diode_p'])
