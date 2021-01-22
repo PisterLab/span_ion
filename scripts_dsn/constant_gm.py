@@ -39,13 +39,6 @@ class bag2_analog__constant_gm_dsn(DesignModule):
             vdd = 'Supply voltage (volts)',
             ibias = 'Maximum bias current',
             res_lim = 'Minimum and maximum resistor values'
-            # vswing_lim = 'Tuple of lower and upper swing from the bias',
-            # gain = '(Min, max) small signal gain target in V/V',
-            # fbw = 'Minimum bandwidth in Hz',
-            # vdd = 'Supply voltage in volts.',
-            # vincm = 'Input common mode voltage.',
-            # ibias = 'Maximum bias current, in amperes.',
-            # cload = 'Output load capacitance in farads.'
         ))
         return ans
 
@@ -69,19 +62,20 @@ class bag2_analog__constant_gm_dsn(DesignModule):
         vref_targets = params['vref']
         vdd = params['vdd']
         res_side = params['res_side']
-        vn = None if 'n' not in vref_targets.keys() else vref_targets['n']
-        vp = None if 'p' not in vref_targets.keys() else vref_targets['p']
+        vn = vref_targets.get('n', None)
+        vp = vref_targets.get('p', None)
         ibias_max = params['ibias']
         res_min, res_max = params['res_lim']
 
+        res_n = res_side == 'n'
         assert vn != None or vp != None, f'At least one of vp or vn have to be assigned'
 
         vstar_min = 0.2
         vth_n = estimate_vth(is_nch=True, vgs=vdd/2, vbs=0, db=db_dict['n'], lch=l_dict['n'])
         vth_p = estimate_vth(is_nch=False, vgs=-vdd/2, vbs=0, db=db_dict['p'], lch=l_dict['p'])
 
-        vg_p_vec = [vp] if vp != None else np.arange(max(0, min(vn-vth_n, vn+vth_p)), min(vdd+vth_p-vstar_min, vdd), 10e-3)
-        vg_n_vec = [vn] if vn != None else np.arange(max(0, vth_n+vstar_min), min(vdd, max(vp+vth_n, vp-vth_p)), 10e-3)
+        vg_p_vec = [vp] if vp != None else np.arange(max(0, vn-vth_n, vn+vth_p), min(vdd, vdd+vth_p-vstar_min), 10e-3)
+        vg_n_vec = [vn] if vn != None else np.arange(max(0, vth_n+vstar_min), min(vdd, vp+vth_n, vp-vth_p), 10e-3)
 
         viable_op_list = []
 
@@ -91,18 +85,18 @@ class bag2_analog__constant_gm_dsn(DesignModule):
             for vg_n in vg_n_vec:
                 n_diode_op = db_dict['n'].query(vgs=vg_n, vds=vg_n, vbs=0)
 
-                vs_p_vec = [vdd] if res_side=='n' else np.arange(max(vg_p-vth_p+vstar_min, vg_n+vstar_min), vdd, 10e-3)
-                vs_n_vec = [0] if res_side=='p' else np.arange(0, min(vg_n-vth_n-vstar_min, vg_p-vstar_min), 10e-3)
+                vs_p_vec = [vdd] if res_n else np.arange(vg_p-vth_p+vstar_min, vdd, 10e-3)
+                vs_n_vec = [0] if not res_n else np.arange(0, vg_n-vth_n-vstar_min, 10e-3)
 
                 for vs_p in vs_p_vec:
                     p_nondiode_op = db_dict['p'].query(vgs=vg_p-vs_p, vds=vg_n-vs_p, vbs=vdd-vs_p)
                     for vs_n in vs_n_vec:
                         n_nondiode_op = db_dict['n'].query(vgs=vg_n-vs_n, vds=vg_p-vs_n, vbs=0-vs_n)
 
-                        main_diode_op = n_diode_op if res_side == 'n' else p_diode_op
-                        main_nondiode_op = p_nondiode_op if res_side == 'n' else n_nondiode_op
-                        side_diode_op = p_diode_op if res_side == 'n' else n_diode_op
-                        side_nondiode_op = n_nondiode_op if res_side == 'n' else p_nondiode_op
+                        main_diode_op = n_diode_op if res_n else p_diode_op
+                        main_nondiode_op = p_nondiode_op if res_n else n_nondiode_op
+                        side_diode_op = p_diode_op if res_n else n_diode_op
+                        side_nondiode_op = n_nondiode_op if res_n else p_nondiode_op
 
                         imain_unit = main_diode_op['ibias']
                         nf_main_diode_max = int(round(ibias_max/imain_unit))
@@ -113,7 +107,7 @@ class bag2_analog__constant_gm_dsn(DesignModule):
                             main_match, nf_main_nondiode = verify_ratio(main_diode_op['ibias'],
                                                                         main_nondiode_op['ibias'],
                                                                         nf_main_diode,
-                                                                        0.1)
+                                                                        0.05)
                             if not main_match:
                                 continue
 
@@ -123,10 +117,10 @@ class bag2_analog__constant_gm_dsn(DesignModule):
                             match_side, nf_side_nondiode = verify_ratio(side_diode_op['ibias'],
                                                                         side_nondiode_op['ibias'],
                                                                         nf_side_diode,
-                                                                        0.1)
+                                                                        0.05)
                             if not match_side:
                                 # raise ValueError("pause")
-                                print("Side match fail")
+                                print("side match")
                                 continue
 
                             if nf_side_nondiode == nf_main_diode:
@@ -134,20 +128,20 @@ class bag2_analog__constant_gm_dsn(DesignModule):
 
                             iside_unit = side_diode_op['ibias']
                             iside = iside_unit * nf_side_diode
-                            res_val = vs_n/iside if res_side=='n' else vs_p/iside
+                            res_val = vs_n/iside if res_n else (vdd-vs_p)/iside
 
                             if res_val > res_max or res_val < res_min:
-                                print("Res fail")
+                                print(f"res {res_val}")
                                 break
 
                             if imain + iside > ibias_max:
-                                print("Ibias fail")
+                                print(f"ibias {imain+iside}")
                                 break
 
-                            viable_op = dict(nf_diode_p=nf_main_diode if res_side=='p' else nf_side_diode,
-                                             nf_diode_n=nf_main_diode if res_side=='n' else nf_side_diode,
-                                             nf_nondiode_p=nf_main_nondiode if res_side=='n' else nf_side_nondiode,
-                                             nf_nondiode_n=nf_main_nondiode if res_side=='p' else nf_side_nondiode,
+                            viable_op = dict(nf_diode_p=nf_main_diode if not res_n else nf_side_diode,
+                                             nf_diode_n=nf_main_diode if res_n else nf_side_diode,
+                                             nf_nondiode_p=nf_main_nondiode if res_n else nf_side_nondiode,
+                                             nf_nondiode_n=nf_main_nondiode if not res_n else nf_side_nondiode,
                                              vgn=vg_n,
                                              vgp=vg_p,
                                              vsn=vs_n,
