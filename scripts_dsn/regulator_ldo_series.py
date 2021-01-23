@@ -46,7 +46,7 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
             ibias = 'Maximum bias current of amp and biasing, in amperes.',
             rload = 'Load resistance from the output of the LDO to ground',
             cload = 'Load capacitance from the output of the LDO to ground',
-            psrr = 'Minimum power supply rejection (linear, not dB)',
+            psrr = 'Minimum power supply rejection ratio (dB, 20*log10(dVdd/dVout))',
             pm = 'Minimum phase margin for the large feedback loop',
             amp_dsn_params = "Amplifier design parameters that aren't either calculated or handled above",
             bias_dsn_params = "Design parameters for the biasing that aren't calculated or handled above.",
@@ -99,7 +99,7 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
         vout = params['vout']
         loadreg = params['loadreg'] # TODO load regulation
         ibias_max = params['ibias']
-        psrr_min = params['psrr'] # TODO include PSRR
+        psrr_min = params['psrr']
         rload = params['rload']
         cload = params['cload']
         pm_min = params['pm']
@@ -127,7 +127,7 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
                                    sim_env=sim_env,
                                    vdd=vdd))
 
-        # TODO Spec out biasing
+        # Spec out biasing
         bias_specfile_dict = dict()
         bias_th_dict = dict()
         bias_l_dict = dict()
@@ -160,7 +160,7 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
                 continue
             print('Done')
 
-            # TODO Design amplifier s.t. output bias = gate voltage
+            # Design amplifier s.t. output bias = gate voltage
             # This is to maintain accuracy in the computational design proces
             print('Designing the amplifier...')
             ser_op = ser_info['op']
@@ -196,7 +196,6 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
                     continue
                 finally:
                     enable_print()
-                # print(f"bias: {bias_dsn_info}")
                 print('Done')
 
                 op_dict = {'in' : amp_dsn_info['op_in'],
@@ -211,7 +210,17 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
 
                 # TODO Check against transient load - use Jackson's (likely need to modify)
 
-                # TODO Check PSRR - use Jackson's
+                # Check PSRR
+                psrr_lti = self._get_psrr_lti(op_dict=op_dict,
+                                              nf_dict=nf_dict,
+                                              series_type=ser_type,
+                                              amp_in=amp_dsn_params['in_type'],
+                                              rload=rload,
+                                              cload=cload)
+
+                if psrr_lti < psrr_min:
+                    print(f'psrr {psrr_lti}')
+                    continue
 
                 # TODO Check STB against simulation
                 pm_lti = self._get_stb_lti(op_dict=op_dict, 
@@ -231,6 +240,7 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
                                  bias_params=bias_dsn_info,
                                  ser_params=ser_info, 
                                  pm=pm_lti,
+                                 psrr=psrr_lti,
                                  vg=vg)
 
                 pprint(viable_op)
@@ -243,6 +253,54 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
                                  cload=cload)
 
         return viable_op_list
+
+    def _get_psrr_lti(self, op_dict, nf_dict, series_type, amp_in, rload, cload) -> float:
+        
+        n_ser = series_type == 'n'
+        n_amp = amp_in == 'n'
+
+        # Supply -> output gain
+        ckt_sup = LTICircuit()
+        ser_d = 'vdd' if n_ser else 'reg'
+        ser_s = 'reg' if n_ser else 'vdd'
+        inp_conn = 'gnd' if n_ser else 'reg'
+        inn_conn = 'reg' if n_ser else 'gnd'
+        tail_rail = 'gnd' if n_amp else 'vdd'
+        load_rail = 'vdd' if n_amp else 'gnd'
+        ckt_sup.add_transistor(op_dict['ser'], ser_d, 'out', ser_s, fg=nf_dict['ser'], neg_cap=False)
+        ckt_sup.add_res(rload, 'reg', 'gnd')
+        ckt_sup.add_cap(rload, 'reg', 'gnd')
+        ckt_sup.add_transistor(op_dict['in'], 'outx', inp_conn, 'tail', fg=nf_dict['in'], neg_cap=False)
+        ckt_sup.add_transistor(op_dict['in'], 'out', inn_conn, 'tail', fg=nf_dict['in'], neg_cap=False)
+        ckt_sup.add_transistor(op_dict['tail'], 'tail', 'gnd', tail_rail, fg=nf_dict['tail'], neg_cap=False)
+        ckt_sup.add_transistor(op_dict['load'], 'outx', 'outx', load_rail, fg=nf_dict['load'], neg_cap=False)
+        ckt_sup.add_transistor(op_dict['load'], 'out', 'outx', load_rail, fg=nf_dict['load'], neg_cap=False)
+
+        num_sup, den_sup = ckt_sup.get_num_den(in_name='vdd', out_name='reg', in_type='v')
+        gain_sup = num_sup[-1]/den_sup[-1]
+
+        # Reference -> output gain
+        # ckt_norm = LTICircuit()
+        # ser_d = 'gnd' if n_ser else 'reg'
+        # ser_s = 'reg' if n_ser else 'gnd'
+        # inp_conn = 'in' if n_ser else 'reg'
+        # inn_conn = 'reg' if n_ser else 'in'
+        # ckt_norm.add_transistor(op_dict['ser'], ser_d, 'out', ser_s, fg=nf_dict['ser'], neg_cap=False)
+        # ckt_norm.add_res(rload, 'reg', 'gnd')
+        # ckt_norm.add_cap(rload, 'reg', 'gnd')
+        # ckt_norm.add_transistor(op_dict['in'], 'outx', inp_conn, 'tail', fg=nf_dict['in'], neg_cap=False)
+        # ckt_norm.add_transistor(op_dict['in'], 'out', inn_conn, 'tail', fg=nf_dict['in'], neg_cap=False)
+        # ckt_norm.add_transistor(op_dict['tail'], 'tail', 'gnd', 'gnd', fg=nf_dict['tail'], neg_cap=False)
+        # ckt_norm.add_transistor(op_dict['load'], 'outx', 'outx', 'gnd', fg=nf_dict['load'], neg_cap=False)
+        # ckt_norm.add_transistor(op_dict['load'], 'out', 'outx', 'gnd', fg=nf_dict['load'], neg_cap=False)
+
+        # num_norm, den_norm = ckt_norm.get_num_den(in_name='in', out_name='reg', in_type='v')
+        # gain_norm = num_norm[-1]/den_norm[-1]
+
+        if gain_sup == 0:
+            return float('inf')
+
+        return 10*np.log10((1/gain_sup)**2)
 
     def _get_stb_lti(self, op_dict, nf_dict, series_type, rload, cload) -> float:
         '''
