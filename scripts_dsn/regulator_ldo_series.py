@@ -152,6 +152,7 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
         vg_min = vout+vth_ser
         vg_max = min(vdd+vth_ser, vdd)
         vg_vec = np.arange(vg_min, vg_max, 10e-3)
+
         for vg in vg_vec:
             print('Designing the series device...')
             # Size the series device

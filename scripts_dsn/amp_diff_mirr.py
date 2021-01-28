@@ -104,12 +104,14 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
         print(f'Sweeping tail from {vtail_min} to {vtail_max}')
         for vtail in vtail_vec:
             # Sweep output common mode or use taken-in optional parameter
-            voutcm_min = vincm-vth_in+vswing_low if n_in else vstar_min+vth_load+vswing_low
-            voutcm_max = vdd+vth_load-vstar_min-vswing_high if n_in else vincm-vth_in-vswing_high
+            voutcm_min = max(vincm-vth_in+vswing_low, vtail) if n_in else vstar_min+vth_load+vswing_low
+            voutcm_max = vdd+vth_load-vstar_min-vswing_high if n_in else min(vincm-vth_in-vswing_high, vtail)
             
             voutcm_opt = optional_params.get('voutcm', None)
             if voutcm_opt == None:
-                voutcm_vec = np.arange(voutcm_min, voutcm_max, 10e-3)                
+                voutcm_vec = np.arange(voutcm_min, voutcm_max, 10e-3)          
+            elif (n_in and (voutcm_opt < vtail)) or ((not n_in) and (voutcm_opt > vtail)):
+                continue
             elif voutcm_opt < voutcm_min or voutcm_opt > voutcm_max:
                 warnings.warn(f'voutcm {voutcm_opt} not in [{voutcm_min}, {voutcm_max}]')
                 voutcm_vec = [voutcm_opt]
