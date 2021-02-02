@@ -46,6 +46,9 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
             vincm = 'Input common mode voltage.',
             ibias = 'Maximum bias current, in amperes.',
             cload = 'Output load capacitance in farads.',
+            n_drain_conn = 'List of drain connections for the NMOS of the A (left) side. Leave empty for no connection',
+            p_drain_conn = 'List of drain connections for the PMOS of the A (left) side. Leave empty for no connection',
+            res_conn = 'Dictionary (PLUS, MINUS, BULK) of drain connections. Leave empty to remove the resistor.',
             optional_params = 'Optional parameters. voutcm=output bias voltage, run_sim=True to verify with simulation, False for only LTICircuit.',
             tb_params = 'Parameters applicable to the testbench, e.g. tb_lib, tb_cell, impl_lib, etc.'
         ))
@@ -61,6 +64,10 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
         run_sim = optional_params.get('run_sim', False)
 
         ### Get DBs for each device
+        n_drain_conn = params['n_drain_conn']
+        p_drain_conn = params['p_drain_conn']
+        res_conn = params['res_conn']
+
         specfile_dict = params['specfile_dict']
         l_dict = params['l_dict']
         th_dict = params['th_dict']
@@ -70,8 +77,6 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
         db_dict = {k:get_mos_db(spec_file=specfile_dict[k],
                                 intent=th_dict[k],
                                 sim_env=sim_env) for k in specfile_dict.keys()}
-
-        
 
         ### Design devices
         in_type = params['in_type']
