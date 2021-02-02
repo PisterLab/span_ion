@@ -78,5 +78,3 @@ class span_ion__zz_amp_folded_cascode(Module):
 
         for vg_inst in vg_inst_remove:
             self.delete_instance(vg_inst)
-
-        
