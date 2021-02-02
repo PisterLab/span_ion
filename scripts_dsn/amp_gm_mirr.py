@@ -41,7 +41,8 @@ class bag2_analog__amp_gm_mirr_dsn(DesignModule):
             vdd = 'Supply voltage in volts.',
             vincm = 'Input common mode voltage.',
             ibias = 'Maximum bias current, in amperes.',
-            cload = 'Output load capacitance in farads.'
+            cload = 'Output load capacitance in farads.',
+            optional_params = 'Optional parameters. voutcm=output bias voltage.'
         ))
         return ans
 
@@ -104,7 +105,12 @@ class bag2_analog__amp_gm_mirr_dsn(DesignModule):
             # Sweep out1 common mode
             vout1_min = vincm-vth_in if n_in else vstar_min+vth_load
             vout1_max = vdd+vth_load-vstar_min if n_in else vincm-vth_in
-            vout1_vec = np.arange(vout1_min, vout1_max, 10e-3)
+            vout1_opt = params['optional_params'].get('voutcm', None)
+            if vout1_opt == None:
+                vout1_vec = np.arange(vout1_min, vout1_max, 10e-3)
+            else:
+                vout1_vec = [vout1_opt]
+                
             for vout1 in vout1_vec:
                 in_op = db_dict['in'].query(vgs=vincm-vtail,
                                             vds=vout1-vtail,

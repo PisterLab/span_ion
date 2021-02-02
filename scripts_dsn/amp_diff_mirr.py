@@ -102,15 +102,17 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
         vtail_max = vincm-vth_in if n_in else vdd-vstar_min
         vtail_vec = np.arange(vtail_min, vtail_max, 10e-3)
         print(f'Sweeping tail from {vtail_min} to {vtail_max}')
+
         for vtail in vtail_vec:
             # Sweep output common mode or use taken-in optional parameter
             voutcm_min = max(vincm-vth_in+vswing_low, vtail) if n_in else vstar_min+vth_load+vswing_low
             voutcm_max = vdd+vth_load-vstar_min-vswing_high if n_in else min(vincm-vth_in-vswing_high, vtail)
-            
+
             voutcm_opt = optional_params.get('voutcm', None)
             if voutcm_opt == None:
                 voutcm_vec = np.arange(voutcm_min, voutcm_max, 10e-3)          
             elif (n_in and (voutcm_opt < vtail)) or ((not n_in) and (voutcm_opt > vtail)):
+                warnings.warn(f'voutcm {voutcm_opt} vs. vtail {vtail}')
                 continue
             elif voutcm_opt < voutcm_min or voutcm_opt > voutcm_max:
                 warnings.warn(f'voutcm {voutcm_opt} not in [{voutcm_min}, {voutcm_max}]')
@@ -118,7 +120,6 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
             else:
                 voutcm_vec = [voutcm_opt]
 
-            print(f'Sweeping output common mode from {voutcm_min} to {voutcm_max}')
             for voutcm in voutcm_vec:
                 in_op = db_dict['in'].query(vgs=vincm-vtail,
                                             vds=voutcm-vtail,
@@ -140,9 +141,9 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
                     match_load, nf_load = verify_ratio(in_op['ibias'],
                                                       load_op['ibias'],
                                                       nf_in,
-                                                      0.1)
+                                                      0.05)
                     if not match_load:
-                        print("Load match")
+                        print(f"Load match {nf_load}")
                         continue
 
                     # Check approximate gain, bandwidth (makes meh assumption about virtual ground)
