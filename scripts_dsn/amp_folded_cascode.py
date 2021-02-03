@@ -7,12 +7,13 @@ import pkg_resources
 import numpy as np
 from math import isnan
 from pprint import pprint
+from math import floor
 import warnings
 
 from bag.core import BagProject
 from bag.design.module import Module
 from . import DesignModule, get_mos_db, estimate_vth, parallel, verify_ratio, num_den_add
-from bag.data.lti import LTICircuit, get_w_3db, get_stability_margins
+from bag.data.lti import LTICircuit, get_w_3db, get_stability_margins, get_w_crossings
 from bag.io import load_sim_results, save_sim_results, load_sim_file
 
 # noinspection PyPep8Naming
@@ -45,6 +46,7 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
             vswing_lim = 'Tuple of lower and upper output swing from the bias',
             gain = '(Min, max) small signal gain target in V/V',
             fbw = 'Minimum bandwidth in Hz',
+            ugf = 'Minimum unity gain frequency',
             pm = 'Minimum unity gain phase margin in degrees',
             vdd = 'Supply voltage in volts.',
             vincm = 'Input common mode voltage.',
@@ -52,8 +54,10 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
             cload = 'Output load capacitance in farads.',
             n_drain_conn = 'List of drain connections for the NMOS of the A (left) side. Leave empty for no connection',
             p_drain_conn = 'List of drain connections for the PMOS of the A (left) side. Leave empty for no connection',
-            optional_params = 'Optional parameters. voutcm=output bias voltage, run_sim=True to verify with simulation, False for only LTICircuit.',
-            tb_params = 'Parameters applicable to the testbench, e.g. tb_lib, tb_cell, impl_lib, etc.'
+            tb_params = 'Parameters applicable to the testbench, e.g. tb_lib, tb_cell, impl_lib, etc.',
+            optional_params = 'Optional parameters. voutcm=output bias voltage, \
+                                run_sim=True to verify with simulation, False for only LTICircuit. \
+                                vstar_min, error_tol, res_vstep',
         ))
         return ans
 
@@ -89,6 +93,7 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
         cload = params['cload']
         gain_min = params['gain']
         fbw_min = params['fbw']
+        ugf_min = params['ugf']
         pm_min = params['pm']
         ibias_max = params['ibias']
         cload = params['cload']
@@ -107,13 +112,18 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
                                  n_drain_conn=n_drain_conn,
                                  p_drain_conn=p_drain_conn)
 
-        # Somewhat arbitrary vstar_min in this case
-        vstar_min = 0.2
+        vstar_min = optional_params.get('vstar_min', 0.2)
+        error_tol = optional_params.get('error_tol', 0.05)
+        res_vstep = optional_params.get('res_vstep', 10e-3)
 
         # Estimate threshold of each device TODO can this be more generalized?
         n_in = in_type=='n'
         opp_drain_conn = n_drain_conn if n_in else p_drain_conn
         same_drain_conn = p_drain_conn if n_in else n_drain_conn
+
+        diode_inner = (n_in and (opp_drain_conn[1]=='GN<1>')) or ((not n_in) and (opp_drain_conn[1]=='GP<1>'))
+        diode_outer =  (n_in and (opp_drain_conn[0]=='GN<0>')) or ((not n_in) and (opp_drain_conn[0]=='GP<0>'))
+        highswing_outer = (n_in and (opp_drain_conn[1]=='GN<0>')) or ((not n_in) and (opp_drain_conn[1]=='GP<0>'))
 
         vtest_in = vdd/2 if n_in else -vdd/2
         vtest_tail = vdd/2 if n_in else -vdd/2
@@ -140,134 +150,153 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
         # Keeping track of operating points which work for future comparison
         viable_op_list = []
 
-        # Output bias
-        voutcm_min = 2*vstar_min
-        voutcm_max = vdd-2*vstar_min
-        voutcm_opt = optional_params.get('voutcm', None)
-        if voutcm_opt == None:
-            voutcm_vec = np.arange(voutcm_min, voutcm_max, 10e-3)
-        elif voutcm_opt < voutcm_min or voutcm_opt > voutcm_max:
-            raise ValueError(f'No solution. voutcm value {voutcm_opt} falls outside ({voutcm_min}, {voutcm_max})')
-        else:
-            voutcm_vec = [voutcm_opt]
+        ### 1. Tail voltage
+        vtail_min = vstar_min if n_in else vincm-vth_in
+        vtail_max = vincm-vth_in if n_in else vdd-vstar_min
+        vtail_vec = np.arange(vtail_min, vtail_max, res_vstep)
 
-        # print(f'voutcm {min(voutcm_vec)} to {max(voutcm_vec)}')
-        for voutcm in voutcm_vec:
-            # Tail voltage
-            vtail_min = vstar_min if n_in else vincm-vth_in
-            vtail_max = vincm-vth_in if n_in else vdd-vstar_min
-            vtail_vec = np.arange(vtail_min, vtail_max, 10e-3)
-            # print(f'* vtail {min(vtail_vec)} to {max(vtail_vec)}')
-            for vtail in vtail_vec:
-                vgtail_min = vth_n+vstar_min if n_in else vtail+vth_p
-                vgtail_max = vtail+vth_n if n_in else vdd+vth_p-vstar_min
-                if vgtail_min == vgtail_max:
-                    vgtail_vec = [vgtail_min]
+        ### 2. Vout1
+        vout1_min = vincm-vth_in if n_in else vstar_min
+        vout1_max = vdd-vstar_min if n_in else vincm-vth_in
+        vout1_vec = np.arange(max(0, vout1_min), min(vdd, vout1_max), res_vstep)
+        if len(vout1_vec) < 1:
+            return []
+
+        for vtail in vtail_vec:
+            # check: viable vgtail values
+            vgtail_min = vth_tail+vstar_min if n_in else vtail+vth_tail
+            vgtail_max = vtail+vth_tail if n_in else vdd+vth_tail-vstar_min
+            vgtail_vec = np.arange(vgtail_min, vgtail_max, res_vstep)
+            if len(vgtail_vec) < 1:
+                continue
+            
+            for vout1 in vout1_vec:
+                # op: input pair
+                op_in = db_dict['in'].query(vgs=vincm-vtail, vds=vout1-vtail, vbs=vb_in-vtail)
+
+                ### 3. Outer same gate
+                vg_same_outer_min = vout1+vth_p if n_in else vth_n+vstar_min
+                vg_same_outer_max = vdd+vth_p-vstar_min if n_in else vout1+vth_n
+                vg_same_outer_vec = np.arange(max(0, vg_same_outer_min), min(vdd, vg_same_outer_max), res_vstep)
+
+                ### 4. Output bias point
+                if diode_inner and diode_outer:
+                    voutcm_min = 2*(vth_n+vstar_min) if n_in else vout1+vstar_min 
+                    voutcm_max = vout1-vstar_min if n_in else vdd+2*(vth_p-vstar_min)
+                elif diode_inner:
+                    voutcm_min = vth_n+2*vstar if n_in else vout1+vstar_min 
+                    voutcm_max = vout1-vstar_min if n_in else vdd+vth_p-2*vstar
                 else:
-                    vgtail_vec = np.arange(vgtail_min, vgtail_max, 10e-3)
+                    voutcm_min = vstar_min*2 if n_in else vout1+vstar_min
+                    voutcm_max = vout1-vstar_min if n_in else vdd-vstar_min*2
+                
+                voutcm_opt = optional_params.get('voutcm', None)
+                if voutcm_opt == None:
+                    voutcm_vec = np.arange(max(0, voutcm_min), min(vdd, voutcm_max), res_vstep)
+                else:
+                    if voutcm_opt < voutcm_min or voutcm_opt > voutcm_max:
+                        continue
+                    voutcm_vec = [voutcm_opt]
+                if len(voutcm_vec) < 1:
+                    continue
 
-                # vout1 bias
-                vout1_min = max(vincm-vth_in, voutcm+vstar_min) if n_in else vstar_min
-                vout1_max = vdd-vstar_min if n_in else min(vincm-vth_in, voutcm-vstar_min)
-                vout1_vec = np.arange(vout1_min, vout1_max, 10e-3)
-                # print(f'** vout1 {min(vout1_vec)} to {max(vout1_vec)}')
-                for vout1 in vout1_vec:
-                    op_in = db_dict['in'].query(vgs=vincm-vtail, vds=vout1-vtail, vbs=vb_in-vtail)
+                for vg_same_outer in vg_same_outer_vec:
+                    # op: same outer
+                    op_same_outer = db_same.query(vgs=vg_same_outer_min-vb_same, vds=vout1-vb_same, vbs=0)
 
-                    # Gate voltage of outer "same" side device (that connected to the input pair)
-                    vg_same_outer_min = vout1+vth_p if n_in else vth_n+vstar_min
-                    vg_same_outer_max = vdd+vth_p-vstar_min if n_in else vout1+vth_n
-                    vg_same_outer_vec = np.arange(max(vg_same_outer_min, 0), vg_same_outer_max, 10e-3)
-                    # print(f'*** vg_same_outer {min(vg_same_outer_vec)} to {max(vg_same_outer_vec)}')
-                    for vg_same_outer in vg_same_outer_vec:
-                        op_same_outer = db_same.query(vgs=vg_same_outer-vb_same,
-                                                      vds=vout1-vb_same,
-                                                      vbs=0)
-                        nf_same_outer_max = int(round(ibias_max/op_same_outer['ibias'] / 2))
-                        # Gate of the inner "same" side device
-                        vg_same_inner_min = voutcm+vth_p if n_in else vout1+vth_n_vstar_min
+                    for voutcm in voutcm_vec:
+                        ### 5. Inner same gate
+                        vg_same_inner_min = voutcm+vth_p if n_in else vout1+vth_n+vstar_min
                         vg_same_inner_max = vout1+vth_p-vstar_min if n_in else voutcm+vth_n
-                        vg_same_inner_vec = np.arange(max(0, vg_same_inner_min), vg_same_inner_max, 10e-3)
-                        # print(f'**** vg_same_inner {min(vg_same_inner_vec)} to {max(vg_same_inner_vec)}')
-                        for vg_same_inner in vg_same_inner_vec:
-                            op_same_inner = db_same.query(vgs=vg_same_inner-vout1, vds=voutcm-vout1, vbs=vb_same-vout1)
-                            # Gate of the outer "opposite" side device
-                            vg_opp_outer_min = vth_n+vstar_min if n_in else voutcm-vstar_min+vth_p
-                            vg_opp_outer_max = voutcm-vstar_min+vth_n if n_in else vdd+vth_p-vstar_min
-                            if (n_in and (n_drain_conn[1]=='GN<0>')) or ((not n_in) and (p_drain_conn[1]=='GP<0>')):
-                                vg_opp_outer_vec = [voutcm]
-                            else:
-                                vg_opp_outer_vec = np.arange(max(0, vg_opp_outer_min), vg_opp_outer_max, 10e-3)
-                            print(f'***** vg_opp_outer {min(vg_opp_outer_vec)} to {max(vg_opp_outer_vec)}')
-                            for vg_opp_outer in vg_opp_outer_vec:
-                                # Drain of the outer "opposite" side device
-                                vd_opp_outer_min = vg_opp_outer-vth_n if n_in else voutcm+vstar_min
-                                vd_opp_outer_max = voutcm-vstar_min if n_in else vg_opp_outer-vth_p
-                                if (n_in and (n_drain_conn[0] != '')) or ((not n_in) and (p_drain_conn[0] != '')):
-                                    if opp_drain_conn[0] == f'G{in_type.upper()}<0>':
-                                        vd_opp_outer_vec = [vg_opp_outer]
-                                    elif opp_drain_conn[0] == 'DA':
-                                        vd_opp_outer_vec = [voutcm]
-                                    else:
-                                        raise ValueError(f'opp_drain_conn[0] ({opp_drain_conn[0]}) should be GX<0> or DA')
-                                else:
-                                    vd_opp_outer_vec = np.arange(max(0, vd_opp_outer_min), vd_opp_outer_max, 10e-3)
+                        vg_same_inner_vec = np.arange(max(0, vg_same_inner_min), min(vdd, vg_same_inner_max), res_vstep)
 
-                                # print(f'****** vd_opp_outer {min(vd_opp_outer_vec)} to {max(vd_opp_outer_vec)}')
-                                for vd_opp_outer in vd_opp_outer_vec:
-                                    op_opp_outer = db_opp.query(vgs=vg_opp_outer-vb_opp, vds=vd_opp_outer-vb_opp, vbs=0)
-                                    # Gate of the inner "opposite" side device
+                        ### 6. Opposite outer drain
+                        if opp_drain_conn[0] == '':
+                            vd_opp_outer_min = vstar_min if n_in else voutcm+vstar_min
+                            vd_opp_outer_max = voutcm-vstar_min if n_in else vdd-vstar_min
+                        else:
+                            assert (n_in and opp_drain_conn[0] == 'GN<0>') or ((not n_in) and (opp_drain_conn[0] == 'GP<0>')), f'Drain of outer opposite device should either be left free or tied to its gate ({op_drain_conn[0]})'
+                            vd_opp_outer_min = vth_n+vstar_min if n_in else voutcm-vth_p+vstar_min
+                            vd_opp_outer_max = voutcm-vth_n-vstar_min if n_in else vdd+vth_p-vstar_min
+                        vd_opp_outer_vec = np.arange(max(0, vd_opp_outer_min), min(vdd, vd_opp_outer_max), res_vstep)
+                        if len(vd_opp_outer_vec) < 1: 
+                            continue
+
+                        for vg_same_inner in vg_same_inner_vec:
+                            # op: same inner
+                            op_same_inner = db_same.query(vgs=vg_same_inner-vout1, vds=voutcm-vout1, vbs=vb_same-vout1)
+
+                            for vd_opp_outer in vd_opp_outer_vec:
+                                ### 7. Opposite inner gate
+                                if diode_inner:
+                                    vg_opp_inner_vec = [voutcm]
+                                else:
                                     vg_opp_inner_min = vd_opp_outer+vth_n+vstar_min if n_in else voutcm+vth_p
                                     vg_opp_inner_max = voutcm+vth_n if n_in else vd_opp_outer+vth_p-vstar_min
-                                    if (n_in and (n_drain_conn[1] == 'GN<1>')) or ((not n_in) and ('GP<1>' not in p_drain_conn)):
-                                        warnings.warn('Currently only supports inner opposite diode connected or externally biased')
-                                        vg_opp_inner_vec = [voutcm]
-                                    else:
-                                        vg_opp_inner_vec = np.arange(vg_opp_inner_min, vg_opp_inner_max, 10e-3)
+                                    vg_opp_inner_vec = np.arange(max(0, vg_opp_inner_min), min(vdd, vg_opp_inner_max), res_vstep)
 
-                                    # print(f'******* vg_opp_outer {min(vg_opp_outer_vec)} to {max(vg_opp_outer_vec)}')
-                                    for vg_opp_inner in vg_opp_inner_vec:
-                                        op_opp_inner = db_opp.query(vgs=vg_opp_inner-vd_opp_outer, vds=voutcm-vd_opp_outer, vbs=vb_opp-vd_opp_outer)
-                                        # Size max-current devices to meet current spec
+                                for vg_opp_inner in vg_opp_inner_vec:
+                                    # op: opposite inner
+                                    op_opp_inner = db_opp.query(vgs=vg_opp_inner-vd_opp_outer, vds=voutcm-vd_opp_outer, vbs=vb_opp-vd_opp_outer)
+
+                                    ### 8. Opposite outer gate
+                                    if diode_outer:
+                                        vg_opp_outer_vec = [vd_opp_outer]
+                                    elif highswing_outer:
+                                        vg_opp_outer_vec = [voutcm]
+                                    else:
+                                        vg_opp_outer_min = vth_n+vstar_min if n_in else vd_opp_outer+vth_p
+                                        vg_opp_outer_max = vd_opp_outer+vth_n if n_in else vdd+vth_p-vstar_min
+                                        vg_opp_outer_vec = np.arange(max(0, vg_opp_outer_min), min(vdd, vg_opp_outer_max), res_vstep)
+                                    
+                                    for vg_opp_outer in vg_opp_outer_vec:
+                                        # op: opposite outer
+                                        op_opp_outer = db_opp.query(vgs=vg_opp_outer-vb_opp, vds=vd_opp_outer-vb_opp, vbs=0)
+
+                                        ### 9. Opposite outer size
+                                        nf_same_outer_max = int(floor(ibias_max/op_same_outer['ibias'] * 0.5))
                                         nf_same_outer_vec = np.arange(1, nf_same_outer_max, 1)
                                         for nf_same_outer in nf_same_outer_vec:
-                                            # Sweep the proportion of current split between input devices vs. cascode
+                                            ### 10. Partition current between branches
                                             ibranch_big = op_same_outer['ibias']*nf_same_outer
-                                            # Size input devices
-                                            nf_in_max = int(round(ibranch_big/op_in['ibias']))
+                                            nf_in_max = int(floor(ibranch_big/op_in['ibias']))
                                             nf_in_vec = np.arange(1, nf_in_max, 1)
                                             for nf_in in nf_in_vec:
                                                 ibranch_in = op_in['ibias']*nf_in
                                                 ibranch_small = ibranch_big - ibranch_in
-                                                # Size cascode to match current
-                                                match_small, nf_opp_outer = verify_ratio(ibranch_small,
-                                                                                         op_opp_outer['ibias'],
-                                                                                         1, 0.01)
-                                                if not match_small:
-                                                    continue
-                                                
-                                                match_small, nf_opp_inner = verify_ratio(ibranch_small,
-                                                                                         op_opp_inner['ibias'],
-                                                                                         1, 0.01)
-                                                if not match_small:
+                                                # Size all devices
+                                                match_same_inner, nf_same_inner = verify_ratio(ibranch_small,
+                                                                                               op_same_inner['ibias'],
+                                                                                               1, error_tol)
+                                                if not match_same_inner:
                                                     continue
 
-                                                match_small, nf_same_inner = verify_ratio(ibranch_small,
-                                                                                          op_same_inner['ibias'],
-                                                                                          1, 0.01)
-                                                if not match_small:
+                                                match_opp_inner, nf_opp_inner = verify_ratio(ibranch_small,
+                                                                                             op_opp_inner['ibias'],
+                                                                                             1, error_tol)
+                                                if not match_opp_inner:
                                                     continue
 
-                                                # Tail gate v*oltage
-                                                # print(f'******** vgtail {min(vgtail_vec)} to {max(vgtail_vec)}')
+                                                match_opp_outer, nf_opp_outer = verify_ratio(ibranch_small,
+                                                                                             op_opp_outer['ibias'],
+                                                                                             1, error_tol)
+
+                                                if not match_opp_outer:
+                                                    continue
+
+                                                ### 11. Size tail
                                                 for vgtail in vgtail_vec:
+                                                    # op: tail
                                                     op_tail = db_dict['tail'].query(vgs=vgtail-vb_tail, vds=vtail-vb_tail, vbs=0)
-                                                    match_tail, nf_tail = verify_ratio(op_in['ibias']*2,
+
+                                                    match_tail, nf_tail = verify_ratio(ibranch_in*2,
                                                                                        op_tail['ibias'],
-                                                                                       nf_in, 0.05)
+                                                                                       1, error_tol)
+
                                                     if not match_tail:
                                                         continue
 
+                                                    ### Checking against spec
                                                     # Preliminary checks of gain, bandwidth (to avoid too many sims)
                                                     op_dict = {'in' : op_in,
                                                                'tail' : op_tail,
@@ -283,17 +312,21 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
                                                                'opp_inner' : nf_opp_inner,
                                                                'opp_outer' : nf_opp_outer}
 
-                                                    gain_lti, fbw_lti, pm_lti = self._get_ss_lti(op_dict=op_dict,
+                                                    gain_lti, fbw_lti, ugf_lti, pm_lti = self._get_ss_lti(op_dict=op_dict,
                                                                                                  nf_dict=nf_dict,
                                                                                                  opp_drain_conn=opp_drain_conn,
                                                                                                  cload=cload)
+
                                                     if gain_lti < gain_min:
                                                         print(f'gain {gain_lti}')
                                                         break
 
                                                     if fbw_lti < fbw_min:
                                                         print(f'fbw {fbw_lti}')
-                                                        # assert False, 'merp'
+                                                        continue
+
+                                                    if ugf_lti < ugf_min:
+                                                        print(f'ugf {ugf_lti}')
                                                         continue
 
                                                     if pm_lti < pm_min:
@@ -310,6 +343,7 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
 
                                                     op = dict(nf_dict=nf_dict,
                                                               voutcm=voutcm,
+                                                              vincm=vincm,
                                                               vgtail=vgtail,
                                                               vtail=vtail,
                                                               vout1=vout1,
@@ -319,8 +353,11 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
                                                               vg_opp_inner=vg_opp_inner,
                                                               vd_opp_outer=vd_opp_outer,
                                                               ibias=ibranch_big*2,
+                                                              ibranch_small=ibranch_small,
+                                                              ibranch_in=ibranch_in,
                                                               gain=gain_lti,
                                                               fbw=fbw_lti,
+                                                              ugf=ugf_lti,
                                                               pm=pm_lti)
 
                                                     if run_sim:
@@ -328,9 +365,9 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
                                                         tb_vars = dict(CLOAD=cload,
                                                                        VDD=vdd,
                                                                        VGN0=vg_opp_outer if n_in else vg_same_outer,
-                                                                       VGN1=voutcm if n_in else vg_same_inner,
+                                                                       VGN1=vg_opp_inner if n_in else vg_same_inner,
                                                                        VGP0=vg_same_outer if n_in else vg_opp_outer,
-                                                                       VGP1=vg_same_inner if n_in else voutcm,
+                                                                       VGP1=vg_same_inner if n_in else vg_opp_inner,
                                                                        VGTAIL=vgtail,
                                                                        VIN_AC=1,
                                                                        VIN_DC=vincm)
@@ -342,29 +379,36 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
                                                         tb_num = tb_num + 1
 
                                                         print('Simulating...')
-                                                        gain_sim, fbw_sim, pm_sim = self._get_ss_sim(**tb_params)
+                                                        gain_sim, fbw_sim, ugf_sim, pm_sim = self._get_ss_sim(**tb_params)
                                                         print('...done')
 
                                                         # Check small signal FoM against spec
                                                         if gain_sim < gain_min:
                                                             print(f'\tgain sim/lti: {gain_sim}/{gain_lti}')
-                                                            # raise ValueError("Pause")
                                                             break
                                                         if fbw_sim < fbw_min:
                                                             print(f'\tfbw sim/lti {fbw_sim}/{fbw_lti}')
                                                             # raise ValueError("Pauses")
+                                                            continue
+                                                        if ugf_sim < ugf_min:
+                                                            print(f'\tugf sim/lti: {ugf_sim}/{ugf_lti}')
                                                             continue
                                                         if pm_sim < pm_min:
                                                             print(f'\tpm {pm_sim}')
                                                             continue
                                                         
                                                         # Swap out LTICircuit values for simultaed values
-                                                        op.update(gain=gain_sim, fbw=fbw_sim, pm=pm_sim)
+                                                        op.update(gain=gain_sim, fbw=fbw_sim, pm=pm_sim, ugf=ugf_sim)
                                                     
                                                     viable_op_list.append(op)
                                                     print("(SUCCESS)")
                                                     pprint(op)
-                                                    assert False, 'merp'
+                                                else:
+                                                    continue
+                                                break
+                                            else:
+                                                continue
+                                            break
 
         return viable_op_list
 
@@ -384,6 +428,7 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
         Outputs:
             gain: Simulated DC gain in V/V
             fbw: Simulated 3dB frequency in Hz
+            ugf: Simultaed unity gain frequency in hz
             pm: Unity gain phase margin in degrees (not calculated in feedback,
                 calculated using the simulated open loop gain and phase)
         '''
@@ -418,12 +463,10 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
 
         gain = results['acVal_gain']
         fbw = results['acVal_f3dB']
-        if 'acVal_pmUnity' not in results.keys():
-            pm = np.inf
-        else:
-            pm = results['acVal_pmUnity']
+        ugf = results.get('acVal_ugf', -1)
+        pm = results.get('acVal_pmUnity', np.inf)
 
-        return gain, fbw, pm
+        return gain, fbw, ugf, pm
 
 
     def make_ltickt(self, op_dict:Mapping[str,Any], nf_dict:Mapping[str,int], 
@@ -450,7 +493,11 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
         '''
         def conv_drain_conn(d_conn):
             return d_conn.replace('G', 'g').replace('D', 'd').replace('N', '').replace('P', '').replace('<', '').replace('>', '')
-            
+        
+        diode_inner = opp_drain_conn[1] in ('GN<1>', 'GP<1>')
+        diode_outer =  opp_drain_conn[0] in ('GN<0>', 'GP<0>')
+        highswing_outer = opp_drain_conn[1] in ('GN<0>', 'GP<0>')
+
         opp_drain_conn_conv = [conv_drain_conn(d_conn) for d_conn in opp_drain_conn]
         ckt = LTICircuit()
 
@@ -468,20 +515,20 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
         ckt.add_transistor(op_dict['same_outer'], 'out1p', 'gnd', 'gnd', fg=nf_dict['same_outer'], neg_cap=False)
         
         # Inner "same"-side cascode devices
-        d_inner = 'outx' if opp_drain_conn_conv[1] == '' else opp_drain_conn_conv[1]
+        d_inner = 'g0' if highswing_outer else 'g1' if diode_inner else 'outx'
         ckt.add_transistor(op_dict['same_inner'], d_inner, 'gnd', 'out1n', fg=nf_dict['same_inner'], neg_cap=False)
         ckt.add_transistor(op_dict['same_inner'], 'out', 'gnd', 'out1p', fg=nf_dict['same_inner'], neg_cap=False)
         
         # Inner "opposite" side cascode devices
-        g_opp_inner = 'gnd' if 'g1' not in opp_drain_conn_conv else 'g1'
-        g_opp_outer = 'gnd' if 'g0' not in opp_drain_conn_conv else 'g0'
-        d_opp_outer = 'opp_out' if opp_drain_conn_conv[0] == '' else opp_drain_conn_conv[0]
-        ckt.add_transistor(op_dict['opp_inner'], d_inner, g_opp_inner, d_opp_outer, fg=nf_dict['opp_inner'], neg_cap=False)
-        ckt.add_transistor(op_dict['opp_inner'], 'out', g_opp_inner, f'{d_opp_outer}x', fg=nf_dict['opp_inner'], neg_cap=False)
+        g_inner = 'g0' if (highswing_outer and diode_inner) else 'g1' if diode_inner else 'gnd'
+        g_outer = 'g0' if (highswing_outer or diode_inner) else 'gnd'
+        d_outer = 'g0' if diode_outer else 'd0'
+        ckt.add_transistor(op_dict['opp_inner'], d_inner, g_inner, d_outer, fg=nf_dict['opp_inner'], neg_cap=False)
+        ckt.add_transistor(op_dict['opp_inner'], 'out', g_inner, f'{d_outer}x', fg=nf_dict['opp_inner'], neg_cap=False)
         
         # Inner "opposite" side cascode devices
-        ckt.add_transistor(op_dict['opp_outer'], d_opp_outer, g_opp_outer, 'gnd', fg=nf_dict['opp_outer'], neg_cap=False)
-        ckt.add_transistor(op_dict['opp_outer'], f'{d_opp_outer}x', g_opp_outer, 'gnd', fg=nf_dict['opp_outer'], neg_cap=False)
+        ckt.add_transistor(op_dict['opp_outer'], d_outer, g_outer, 'gnd', fg=nf_dict['opp_outer'], neg_cap=False)
+        ckt.add_transistor(op_dict['opp_outer'], f'{d_outer}x', g_outer, 'gnd', fg=nf_dict['opp_outer'], neg_cap=False)
         
         # Load
         ckt.add_cap(cload, 'out', 'gnd')
@@ -501,6 +548,7 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
         Outputs:
             gain: Calculated DC gain in V/V
             fbw: Calculated 3dB frequency in Hz
+            ugf: Calculated unity gain frequency in Hz
             pm: Simulated unity gain phase margin in degrees. Can also be NaN.
         '''
         ckt_p = self.make_ltickt(op_dict=op_dict, nf_dict=nf_dict, meas_side='p', 
@@ -525,7 +573,12 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
             wbw = 0
         fbw = wbw/(2*np.pi)
 
-        return gain, fbw, pm
+        ugw, _ = get_w_crossings(num, den)
+        if ugw == None:
+            ugw = 0
+        ugf = ugw/(2*np.pi)
+
+        return gain, fbw, ugf, pm
 
     def op_compare(self, op1:Mapping[str,Any], op2:Mapping[str,Any]):
         """Returns the best operating condition based on 
@@ -549,7 +602,7 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
                         w_list=[self.other_params['w_dict']['p']]*2,
                         intent_list=[self.other_params['th_dict']['p']]*2,
                         seg_list=[op['nf_dict']['p_outer'], op['nf_dict']['p_inner']])
-        # TODO currently assumes 2 diode connections
+
         n_drain_conn = self.other_params['n_drain_conn']
         p_drain_conn = self.other_params['p_drain_conn']
         cascode_params = dict(n_params=n_params,
@@ -558,6 +611,7 @@ class bag2_analog__amp_folded_cascode_dsn(DesignModule):
                               p_drain_conn=p_drain_conn,
                               res_params=dict(),
                               res_conn=dict())
+
         return dict(in_type=self.other_params['in_type'],
                     diffpair_params=diffpair_params,
                     cascode_params=cascode_params,

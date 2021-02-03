@@ -107,7 +107,7 @@ def verify_ratio(ibase_A:float, ibase_B:float,
     error = abs(id_A - id_B)/abs(id_A)
 
     if abs(error) > error_tol:
-        return False, 0
+        return False, nf_B
 
     return True, nf_B
 

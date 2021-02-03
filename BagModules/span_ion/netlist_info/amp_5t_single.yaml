@@ -1,0 +1,32 @@
+lib_name: span_ion
+cell_name: amp_5t_single
+pins: [  ]
+instances:
+  XOTA:
+    lib_name: bag2_analog
+    cell_name: amp_diff_mirr
+    instpins:
+      VGTAIL:
+        direction: input
+        net_name: "net1"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "net2"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "net3"
+        num_bits: 1
+      VOUT:
+        direction: output
+        net_name: "net4"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "net5"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "net6"
+        num_bits: 1
