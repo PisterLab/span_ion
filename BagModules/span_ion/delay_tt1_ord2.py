@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import Dict
+from typing import Dict, Mapping, Any
 
 import os
 import pkg_resources
@@ -61,11 +61,14 @@ class span_ion__delay_tt1_ord2(Module):
         constgm_params_list = params['constgm_params_list']
 
         # Design instances
-        for i in range(8):
-            self.instances[f'XR<{i}>'].parameters = res_params_list[i]
+        for i, res_params in enumerate(res_params_list):
+            if res_params['num_unit'] == 0:
+                self.delete_instance(f'XR<{i}>')
+            else:
+                self.instances[f'XR<{i}>'].design(**res_params)
 
-        for i in range(2):
-            self.instances[f'XC<{i}>'].parameters = cap_params_list[i]
+        for i, cap_params in enumerate(cap_params_list):
+            self.instances[f'XC<{i}>'].parameters = cap_params
 
         print('*** WARNING *** (delay_tt1_ord2) Check passive component values in generated schematic.', flush=True)
 

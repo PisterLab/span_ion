@@ -44,7 +44,7 @@ class bag2_analog__amp_single_sf_dsn(DesignModule):
             vincm = 'Input bias mode voltage.',
             ibias = 'Maximum bias current, in amperes.',
             cload = 'Output load capacitance in farads.',
-            in_conn = '',
+            in_conn = 'Which gate to connect to (e.g. GP<0>, GN<1>, etc.)',
             optional_params = 'Optional parameters. voutcm=output bias voltage.',
         ))
         return ans
@@ -211,11 +211,11 @@ class bag2_analog__amp_single_sf_dsn(DesignModule):
                                                                  cload=cload)
 
                             if gain_lti < gain_min or gain_lti > gain_max:
-                                print(f'gain {gain_lti}')
+                                # print(f'gain {gain_lti}')
                                 break
 
                             if fbw_lti < fbw_min:
-                                print(f'fbw {fbw_lti}')
+                                # print(f'fbw {fbw_lti}')
                                 continue
 
                             viable_op = dict(vout=voutcm,

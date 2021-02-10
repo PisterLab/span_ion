@@ -9,7 +9,7 @@ import warnings
 
 from bag.design.module import Module
 from . import DesignModule, get_mos_db, estimate_vth, parallel, verify_ratio, num_den_add
-from bag.data.lti import LTICircuit, get_w_3db, get_stability_margins
+from bag.data.lti import LTICircuit, get_w_3db, get_stability_margins, get_w_crossings
 
 # noinspection PyPep8Naming
 class bag2_analog__amp_diff_mirr_dsn(DesignModule):
@@ -39,11 +39,13 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
             vswing_lim = 'Tuple of lower and upper swing from the bias',
             gain = '(Min, max) small signal gain target in V/V',
             fbw = 'Minimum bandwidth in Hz',
+            ugf = 'Minimum unity gain frequency in Hz',
+            pm = 'Minimum unity gain phase margin (calculated from in/out transfer function, does not account for changes in biaing)',
             vdd = 'Supply voltage in volts.',
             vincm = 'Input common mode voltage.',
             ibias = 'Maximum bias current, in amperes.',
             cload = 'Output load capacitance in farads.',
-            optional_params = 'Optional parameters. voutcm=output bias voltage.'
+            optional_params = 'Optional parameters. voutcm=output bias voltage. res_vstep, vstar_min, error_tol'
         ))
         return ans
 
@@ -73,10 +75,14 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
         cload = params['cload']
         gain_min = params['gain']
         fbw_min = params['fbw']
+        ugf_min = params['ugf']
+        pm_min = params['pm']
         ibias_max = params['ibias']
 
         # Somewhat arbitrary vstar_min in this case
-        vstar_min = 0.2
+        vstar_min = optional_params.get('vstar_min', 0.2)
+        res_vstep = optional_params.get('res_vstep', 10e-3)
+        error_tol = optional_params.get('error_tol', 0.01)
 
         # Estimate threshold of each device TODO can this be more generalized?
         n_in = in_type=='n'
@@ -100,8 +106,8 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
         # Sweep tail voltage
         vtail_min = vstar_min if n_in else vincm-vth_in
         vtail_max = vincm-vth_in if n_in else vdd-vstar_min
-        vtail_vec = np.arange(vtail_min, vtail_max, 10e-3)
-        print(f'Sweeping tail from {vtail_min} to {vtail_max}')
+        vtail_vec = np.arange(vtail_min, vtail_max, res_vstep)
+        # print(f'Sweeping tail from {vtail_min} to {vtail_max}')
 
         for vtail in vtail_vec:
             # Sweep output common mode or use taken-in optional parameter
@@ -110,7 +116,7 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
 
             voutcm_opt = optional_params.get('voutcm', None)
             if voutcm_opt == None:
-                voutcm_vec = np.arange(voutcm_min, voutcm_max, 10e-3)          
+                voutcm_vec = np.arange(voutcm_min, voutcm_max, res_vstep)          
             elif (n_in and (voutcm_opt < vtail)) or ((not n_in) and (voutcm_opt > vtail)):
                 warnings.warn(f'voutcm {voutcm_opt} vs. vtail {vtail}')
                 continue
@@ -141,9 +147,9 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
                     match_load, nf_load = verify_ratio(in_op['ibias'],
                                                       load_op['ibias'],
                                                       nf_in,
-                                                      0.05)
+                                                      error_tol)
                     if not match_load:
-                        print(f"Load match {nf_load}")
+                        # print(f"Load match {nf_load}")
                         continue
 
                     # Check approximate gain, bandwidth (makes meh assumption about virtual ground)
@@ -177,16 +183,16 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
                     fbw = wbw/(2*np.pi)
                     
                     if fbw < fbw_min:
-                        print(f"fbw: {fbw}")
+                        # print(f"fbw: {fbw}")
                         continue
                     if gain < gain_min:
-                        print(f'gain: {gain}')
+                        # print(f'gain: {gain}')
                         break
 
                     # Design tail to current match
                     vgtail_min = vth_tail + vstar_min if n_in else vtail + vth_tail
                     vgtail_max = vtail + vth_tail if n_in else vdd + vth_tail - vstar_min
-                    vgtail_vec = np.arange(vgtail_min, vgtail_max, 10e-3)
+                    vgtail_vec = np.arange(vgtail_min, vgtail_max, res_vstep)
                     for vgtail in vgtail_vec:
                         tail_op = db_dict['tail'].query(vgs=vgtail-vb_tail,
                                                         vds=vtail-vb_tail,
@@ -194,52 +200,44 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
                         tail_success, nf_tail = verify_ratio(in_op['ibias']*2,
                                                              tail_op['ibias'],
                                                              nf_in,
-                                                             0.1)
+                                                             error_tol)
                         if not tail_success:
-                            print('Tail match')
+                            # print('Tail match')
                             continue
 
                         # Check against spec again, now with full circuit
-                        ckt_full_p = LTICircuit()
-                        ckt_full_p.add_transistor(tail_op, 'tail', 'gnd', 'gnd', fg=nf_tail)
-                        ckt_full_p.add_transistor(in_op, 'out', 'gnd', 'tail', fg=nf_in)
-                        ckt_full_p.add_transistor(in_op, 'outx', 'inp', 'tail', fg=nf_in)
-                        ckt_full_p.add_transistor(load_op, 'outx', 'outx', 'gnd', fg=nf_load)
-                        ckt_full_p.add_transistor(load_op, 'out', 'outx', 'gnd', fg=nf_load)
-                        ckt_full_p.add_cap(cload, 'out', 'gnd')
-                        
-                        p_num, p_den = ckt_full_p.get_num_den(in_name='inp', out_name='out', in_type='v')
-                        
-                        ckt_full_n = LTICircuit()
-                        ckt_full_n.add_transistor(tail_op, 'tail', 'gnd', 'gnd', fg=nf_tail)
-                        ckt_full_n.add_transistor(in_op, 'out', 'inn', 'tail', fg=nf_in)
-                        ckt_full_n.add_transistor(in_op, 'outx', 'gnd', 'tail', fg=nf_in)
-                        ckt_full_n.add_transistor(load_op, 'outx', 'outx', 'gnd', fg=nf_load)
-                        ckt_full_n.add_transistor(load_op, 'out', 'outx', 'gnd', fg=nf_load)
-                        ckt_full_n.add_cap(cload, 'out', 'gnd')
+                        op_dict = {'in' : in_op,
+                                   'tail' : tail_op,
+                                   'load' : load_op}
+                        nf_dict = {'in' : nf_in,
+                                   'tail' : nf_tail,
+                                   'load' : nf_load}
 
-                        n_num, n_den = ckt_full_n.get_num_den(in_name='inn', out_name='out', in_type='v')
-                        num, den = num_den_add(p_num, np.convolve(n_num, [-1]), p_den, n_den)
-                        num = np.convolve(num, [0.5])
-
-                        gain = num[-1]/den[-1]
-                        wbw = get_w_3db(num, den)
-                        if wbw == None:
-                            wbw = 0
-                        fbw = wbw/(2*np.pi)
+                        gain_lti, fbw_lti, ugf_lti, pm_lti = self._get_ss_lti(op_dict=op_dict,
+                                                                              nf_dict=nf_dict,
+                                                                              cload=cload)
                         
-                        if fbw < fbw_min:
-                            continue
-                        if gain < gain_min:
+                        if gain_lti < gain_min:
                             break
+
+                        if fbw_lti < fbw_min:
+                            continue
+
+                        if ugf_lti < ugf_min:
+                            continue
+
+                        if pm_lti < pm_min:
+                            continue
 
                         viable_op = dict(nf_in=nf_in,
                                          nf_tail=nf_tail,
                                          nf_load=nf_load,
                                          voutcm=voutcm,
                                          vgtail=vgtail,
-                                         gain=gain,
-                                         fbw=fbw,
+                                         gain=gain_lti,
+                                         fbw=fbw_lti,
+                                         ugf=ugf_lti,
+                                         pm=pm_lti,
                                          vtail=vtail,
                                          ibias=tail_op['ibias']*nf_tail,
                                          op_in=in_op,
@@ -256,11 +254,56 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
 
         return viable_op_list
 
+    def _get_ss_lti(self, op_dict:Mapping[str,Any], 
+                    nf_dict:Mapping[str,int], 
+                    cload:float) -> Tuple[float,float]:
+        ckt_p = self.make_ltickt(op_dict=op_dict, nf_dict=nf_dict, cload=cload, meas_side='p')
+        p_num, p_den = ckt_p.get_num_den(in_name='inp', out_name='out', in_type='v')
+
+        ckt_n = self.make_ltickt(op_dict=op_dict, nf_dict=nf_dict, cload=cload, meas_side='n')
+        n_num, n_den = ckt_n.get_num_den(in_name='inn', out_name='out', in_type='v')
+
+        num, den = num_den_add(p_num, np.convolve(n_num, [-1]),
+                               p_den, n_den)
+
+        num = np.convolve(num, [0.5])
+
+        gain = num[-1]/den[-1]
+        wbw = get_w_3db(num, den)
+        pm, _ = get_stability_margins(num, den)
+        ugw, _ = get_w_crossings(num, den)
+
+        if wbw == None:
+            wbw = 0
+        fbw = wbw/(2*np.pi)
+
+        if ugw == None:
+            ugw = 0
+        ugf = ugw/(2*np.pi)
+
+        return gain, fbw, ugf, pm
+
+    def make_ltickt(self, op_dict:Mapping[str,Any], nf_dict:Mapping[str,int], 
+                    cload:float, meas_side:str) -> LTICircuit:
+        inn_conn = 'gnd' if meas_side=='p' else 'inn'
+        inp_conn = 'gnd' if meas_side=='n' else 'inp'
+
+        ckt = LTICircuit()
+        ckt.add_transistor(op_dict['tail'], 'tail', 'gnd', 'gnd', fg=nf_dict['tail'])
+        ckt.add_transistor(op_dict['in'], 'out', inn_conn, 'tail', fg=nf_dict['in'])
+        ckt.add_transistor(op_dict['in'], 'outx', inp_conn, 'tail', fg=nf_dict['in'])
+        ckt.add_transistor(op_dict['load'], 'outx', 'outx', 'gnd', fg=nf_dict['load'])
+        ckt.add_transistor(op_dict['load'], 'out', 'outx', 'gnd', fg=nf_dict['load'])
+        ckt.add_cap(cload, 'out', 'gnd')
+
+        return ckt
+
     def op_compare(self, op1:Mapping[str,Any], op2:Mapping[str,Any]):
         """Returns the best operating condition based on 
         minimizing bias current.
         """
-        return op2 if op1['ibias'] > op2['ibias'] else op1
+        # return op2 if op1['ibias'] > op2['ibias'] else op1
+        return op2 if op2['ugf'] > op1['ugf'] else op1
 
     def get_sch_params(self, op):
         return dict(in_type=self.other_params['in_type'],

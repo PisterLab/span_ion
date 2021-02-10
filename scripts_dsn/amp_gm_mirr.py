@@ -124,10 +124,9 @@ class bag2_analog__amp_gm_mirr_dsn(DesignModule):
                                                 vds=vout1-vb_load,
                                                 vbs=0)
 
-
                 ### 3. Sweep output bias
-                vout_min = vstar_min+vswing_low if n_in else vout1-vth_load+vswing_low
-                vout_max = vout1-vth_load-vswing_high if n_in else vdd-vstar_min-vswing_high
+                vout_min = vth_flip+vstar_min+vswing_low if n_in else vout1-vth_load+vswing_low
+                vout_max = vout1-vth_load-vswing_high if n_in else vdd+vth_flip-vstar_min-vswing_high
                 if vout_opt == None:
                     vout_vec = np.arange(vout_min, vout_max, res_vstep)
                 else:
@@ -141,7 +140,7 @@ class bag2_analog__amp_gm_mirr_dsn(DesignModule):
                                                     vds=vout-vb_flip,
                                                     vbs=0)
                     nf_in_max = int(floor(ibias_max/in_op['ibias'] * 0.5))
-                    nf_in_vec = np.arange(1, nf_in_max, 1)
+                    nf_in_vec = np.arange(2, nf_in_max, 2)
                     ### 4. Step input device size (integer steps)
                     for nf_in in nf_in_vec:
                         itail = in_op['ibias'] * 2*nf_in
@@ -152,6 +151,7 @@ class bag2_analog__amp_gm_mirr_dsn(DesignModule):
                                                            nf_in, error_tol)
 
                         if not match_load:
+                            # print('load match')
                             continue
 
                         ### 5. Design tail to current match
@@ -166,18 +166,20 @@ class bag2_analog__amp_gm_mirr_dsn(DesignModule):
                                                                  tail_op['ibias'],
                                                                  nf_in, error_tol)
                             if not tail_success:
+                                # print('tail match')
                                 continue
 
                             ### 6. Step flip device size (integer steps)
                             ibias_left = ibias_max - itail
                             nf_flip_max = int(floor(ibias_left/flip_op['ibias'] * 0.5))
-                            nf_flip_vec = np.arange(1, nf_flip_max, 1)
+                            nf_flip_vec = np.arange(2, nf_flip_max, 2)
                             for nf_flip in nf_flip_vec:
                                 # Match load copy device
                                 match_load_copy, nf_load_copy = verify_ratio(flip_op['ibias'],
                                                                              load_copy_op['ibias'],
                                                                              nf_flip, error_tol)
                                 if not match_load_copy:
+                                    # print('load copy match')
                                     continue
 
                                 op_dict = {'in' : in_op,
@@ -198,20 +200,25 @@ class bag2_analog__amp_gm_mirr_dsn(DesignModule):
                                                                      cload=cload)
 
                                 if gain_lti < gain_min:
-                                    break
+                                    # print(f'gain {gain_lti}')
+                                    continue
                                         
                                 if fbw_lti < fbw_min:
+                                    # print(f'fbw {fbw_lti}')
                                     continue
 
                                 if ugf_lti < ugf_min:
+                                    print(f'ugf {ugf_lti}' )
                                     continue
 
                                 if pm_lti < pm_min:
+                                    print(f'pm {pm_lti}')
                                     continue
 
                                 viable_op = dict(nf_dict=nf_dict,
                                                  vout=vout,
                                                  vout1=vout1,
+                                                 vincm=vincm,
                                                  gain=gain_lti,
                                                  fbw=fbw_lti,
                                                  ugf=ugf_lti,
