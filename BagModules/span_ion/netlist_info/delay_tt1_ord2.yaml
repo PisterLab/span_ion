@@ -2,90 +2,6 @@ lib_name: span_ion
 cell_name: delay_tt1_ord2
 pins: [ "VSS", "VDD", "VIN", "VOUT", "VREF<2:0>" ]
 instances:
-  XAMP<1>:
-    lib_name: bag2_analog
-    cell_name: amp_diff_mirr
-    instpins:
-      VGTAIL:
-        direction: input
-        net_name: "VP<1>"
-        num_bits: 1
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      VOUT:
-        direction: output
-        net_name: "VOUT"
-        num_bits: 1
-      VINN:
-        direction: input
-        net_name: "net05"
-        num_bits: 1
-      VINP:
-        direction: input
-        net_name: "VREF<1>"
-        num_bits: 1
-  XAMP<0>:
-    lib_name: bag2_analog
-    cell_name: amp_diff_mirr
-    instpins:
-      VGTAIL:
-        direction: input
-        net_name: "VP<0>"
-        num_bits: 1
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      VOUT:
-        direction: output
-        net_name: "net018"
-        num_bits: 1
-      VINN:
-        direction: input
-        net_name: "net02"
-        num_bits: 1
-      VINP:
-        direction: input
-        net_name: "VREF<0>"
-        num_bits: 1
-  XAMP<2>:
-    lib_name: bag2_analog
-    cell_name: amp_diff_mirr
-    instpins:
-      VGTAIL:
-        direction: input
-        net_name: "VP<2>"
-        num_bits: 1
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      VOUT:
-        direction: output
-        net_name: "net023"
-        num_bits: 1
-      VINN:
-        direction: input
-        net_name: "net017"
-        num_bits: 1
-      VINP:
-        direction: input
-        net_name: "VREF<2>"
-        num_bits: 1
   PIN0:
     lib_name: basic
     cell_name: iopin
@@ -129,6 +45,90 @@ instances:
       PLUS:
         direction: inputOutput
         net_name: "net023"
+        num_bits: 1
+  XAMP<1>:
+    lib_name: bag2_analog
+    cell_name: amp_gm_mirr
+    instpins:
+      VGTAIL:
+        direction: input
+        net_name: "VP<1>"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUT:
+        direction: output
+        net_name: "VOUT"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "net05"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VREF<1>"
+        num_bits: 1
+  XAMP<0>:
+    lib_name: bag2_analog
+    cell_name: amp_gm_mirr
+    instpins:
+      VGTAIL:
+        direction: input
+        net_name: "VP<0>"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUT:
+        direction: output
+        net_name: "net018"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "net02"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VREF<0>"
+        num_bits: 1
+  XAMP<2>:
+    lib_name: bag2_analog
+    cell_name: amp_gm_mirr
+    instpins:
+      VGTAIL:
+        direction: input
+        net_name: "VP<2>"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUT:
+        direction: output
+        net_name: "net023"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "net017"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VREF<2>"
         num_bits: 1
   XCONSTGM<0>:
     lib_name: bag2_analog
@@ -190,38 +190,6 @@ instances:
         direction: output
         net_name: "VP<2>"
         num_bits: 1
-  XR<6>:
-    lib_name: bag2_analog
-    cell_name: res_multistrip
-    instpins:
-      PLUS:
-        direction: inputOutput
-        net_name: "net018"
-        num_bits: 1
-      MINUS:
-        direction: inputOutput
-        net_name: "net05"
-        num_bits: 1
-      BULK:
-        direction: inputOutput
-        net_name: "net020"
-        num_bits: 1
-  XR<5>:
-    lib_name: bag2_analog
-    cell_name: res_multistrip
-    instpins:
-      PLUS:
-        direction: inputOutput
-        net_name: "VIN"
-        num_bits: 1
-      MINUS:
-        direction: inputOutput
-        net_name: "net05"
-        num_bits: 1
-      BULK:
-        direction: inputOutput
-        net_name: "net021"
-        num_bits: 1
   XR<3>:
     lib_name: bag2_analog
     cell_name: res_multistrip
@@ -270,6 +238,22 @@ instances:
         direction: inputOutput
         net_name: "net017"
         num_bits: 1
+  XR<6>:
+    lib_name: bag2_analog
+    cell_name: res_multistrip
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "net018"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "net05"
+        num_bits: 1
+      BULK:
+        direction: inputOutput
+        net_name: "net020"
+        num_bits: 1
   XR<1>:
     lib_name: bag2_analog
     cell_name: res_multistrip
@@ -317,4 +301,20 @@ instances:
       MINUS:
         direction: inputOutput
         net_name: "VOUT"
+        num_bits: 1
+  XR<5>:
+    lib_name: bag2_analog
+    cell_name: res_multistrip
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "VIN"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "net05"
+        num_bits: 1
+      BULK:
+        direction: inputOutput
+        net_name: "net021"
         num_bits: 1

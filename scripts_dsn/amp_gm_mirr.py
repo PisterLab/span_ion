@@ -227,7 +227,8 @@ class bag2_analog__amp_gm_mirr_dsn(DesignModule):
                                                  vgtail=vgtail,
                                                  itail=tail_op['ibias']*nf_tail,
                                                  iflip=flip_op['ibias']*nf_flip*2,
-                                                 ibias=tail_op['ibias']*nf_tail + 2*nf_flip*flip_op['ibias'])
+                                                 ibias=tail_op['ibias']*nf_tail + 2*nf_flip*flip_op['ibias'],
+                                                 cin=in_op['cgg']*nf_in)
 
                                 viable_op_list.append(viable_op)
                                 print("\n(SUCCESS)")
