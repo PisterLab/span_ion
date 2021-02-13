@@ -1,11 +1,15 @@
 lib_name: span_ion
 cell_name: delay_tt1
-pins: [ "VDD", "VSS", "VOUT", "VIN" ]
+pins: [ "VDD", "VSS", "VOUT", "VIN", "VREF" ]
 instances:
   XDELAY:
     lib_name: span_ion
     cell_name: delay_tt1_ord2
     instpins:
+      VREF<2:0>:
+        direction: input
+        net_name: "<*3>VREF"
+        num_bits: 3
       VSS:
         direction: inputOutput
         net_name: "VSS"
@@ -33,6 +37,10 @@ instances:
   PIN2:
     lib_name: basic
     cell_name: opin
+    instpins: {}
+  PIN4:
+    lib_name: basic
+    cell_name: ipin
     instpins: {}
   PIN3:
     lib_name: basic

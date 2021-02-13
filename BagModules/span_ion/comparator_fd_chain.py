@@ -77,6 +77,6 @@ class span_ion__comparator_fd_chain(Module):
             self.rename_pin('VOUTCM', f'VOUTCM<{num_stages-1}:0>')
 
             for i in range(num_stages):
-                self.instances['XSTAGE'][i].design(**stage_params_list[i])
+                self.instances['XSTAGE'][i].design(**(stage_params_list[i]))
         else:
-            self.instances['XSTAGE'].design(**stage_params_list[0])
+            self.instances['XSTAGE'].design(**(stage_params_list[0]))

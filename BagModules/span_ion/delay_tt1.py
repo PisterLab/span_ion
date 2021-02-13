@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import Dict
+from typing import Dict, Mapping
 
 import os
 import pkg_resources
@@ -23,7 +23,7 @@ class span_ion__delay_tt1(Module):
         Module.__init__(self, database, self.yaml_file, parent=parent, prj=prj, **kwargs)
 
     @classmethod
-    def get_params_info(cls):
+    def get_params_info(cls) -> Mapping[str,str]:
         # type: () -> Dict[str, str]
         """Returns a dictionary from parameter names to descriptions.
 
@@ -33,9 +33,10 @@ class span_ion__delay_tt1(Module):
             dictionary from parameter names to descriptions.
         """
         return dict(
+            unit_params_list = 'List of delay_tt2_ord2 parameters.'
         )
 
-    def design(self):
+    def design(self, **params):
         """To be overridden by subclasses to design this module.
 
         This method should fill in values for all parameters in
@@ -51,5 +52,30 @@ class span_ion__delay_tt1(Module):
         restore_instance()
         array_instance()
         """
-        pass
+        unit_params_list = params['unit_params_list']
+        num_units = len(unit_params_list)
 
+        assert num_units > 0, f'Number of units {num_units} should be > 0'
+
+        # Wire up and design chain of instances
+        if num_units > 1:
+            inst_list = []
+            conn_list = []
+            for i in range(num_units):
+                inst_list.append(f'XDELAY<{i}>')
+
+                vin_conn = 'VIN' if i == 0 else f'm<{i-1}>'
+                vout_conn = 'VOUT' if i == num_units-1 else f'm<{i}>'
+                conn_list.append({'VDD' : 'VDD',
+                                  'VSS' : 'VSS',
+                                  'VIN' : vin_conn,
+                                  'VOUT' : vout_conn,
+                                  'VREF' : f'VREF<{i}>'})
+
+            self.array_instance('XDELAY', inst_list, conn_list)
+            self.rename_pin('VREF', f'VREF<{num_units-1}:0>')
+
+            for i in range(num_units):
+                self.instances['XDELAY'][i].design(**(unit_params_list[i]))
+        else:
+            self.instances['XDELAY'].design(**(unit_params_list[0]))

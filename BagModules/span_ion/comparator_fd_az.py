@@ -33,7 +33,10 @@ class span_ion__comparator_fd_az(Module):
             dictionary from parameter names to descriptions.
         """
         return dict(
-            az_params_list = 'List of comparator_fd_chain_az parameters'
+            az_params_list = 'List of comparator_fd_chain_az parameters',
+            single_params = 'Differential in to single ended out parameters',
+            constgm_params = 'Constant gm parameters',
+            inv_out = 'True to invert the output'
         )
 
     def design(self, **params):
@@ -105,3 +108,21 @@ class span_ion__comparator_fd_az(Module):
                 voutcm_pin = f'VOUTCM<{num_amps-1}:0>'
                 self.reconnect_instance_terminal('XCHAIN_AZ', voutcm_pin, voutcm_pin)
                 self.rename_pin('VOUTCM', voutcm_pin)
+
+        ### Designing the diff-to-single amp with biasing
+        single_params = params['single_params']
+        constgm_params = params['constgm_params']
+        inv_out = params['inv_out']
+
+        single_in = single_params['in_type']
+
+        self.instances['XSINGLE'].design(**single_params)
+        self.instances['XCONSTGM'].design(res_side=single_in, **constgm_params)
+
+        vgtail_pin = 'VP' if single_in=='p' else 'VN'
+        self.reconnect_instance_terminal('XCONSTGM', vgtail_pin, 'VGTAIL')
+
+        if inv_out:
+            self.reconnect_instance_terminal('XSINGLE', 'VINP', 'VOUTN')
+            self.reconnect_instance_terminal('XSINGLE', 'VINN', 'VOUTP')
+            self.rename_pin('OUT', 'OUTb')

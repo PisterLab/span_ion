@@ -1,6 +1,6 @@
 lib_name: span_ion
 cell_name: comparator_fd_az
-pins: [ "PHI_EARLYb", "PHI_EARLY", "PHIb", "PHI", "VOUTCM", "VREFP", "VSS", "VINN", "VOUTN", "VDD", "VINP", "VOUTP", "VREFN" ]
+pins: [ "PHI_EARLYb", "PHI_EARLY", "PHIb", "PHI", "VOUTCM", "VREFP", "VSS", "VINN", "VDD", "VINP", "OUT", "VREFN" ]
 instances:
   XCHAIN_AZ:
     lib_name: span_ion
@@ -106,7 +106,51 @@ instances:
     lib_name: basic
     cell_name: opin
     instpins: {}
-  PIN7:
-    lib_name: basic
-    cell_name: opin
-    instpins: {}
+  XSINGLE:
+    lib_name: bag2_analog
+    cell_name: amp_diff_mirr
+    instpins:
+      VGTAIL:
+        direction: input
+        net_name: "VGTAIL"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUT:
+        direction: output
+        net_name: "OUT"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "VOUTN"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VOUTP"
+        num_bits: 1
+  XCONSTGM:
+    lib_name: bag2_analog
+    cell_name: constant_gm
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VN:
+        direction: output
+        net_name: "VN"
+        num_bits: 1
+      VP:
+        direction: output
+        net_name: "VP"
+        num_bits: 1

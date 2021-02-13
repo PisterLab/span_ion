@@ -4,6 +4,7 @@ from typing import Mapping
 
 import os
 import pkg_resources
+import warnings
 
 from bag.design.module import Module
 
@@ -77,9 +78,9 @@ class span_ion__one_shot_nand(Module):
         self.instances['XNOR'].design(num_in=3, **nor_params)
         self.instances['XRST'].design(mos_type='n', **rst_params)
 
-        print("*** WARNING *** (one_shot_nand) Ensure that passive values are correct in the generated schematic")
+        self.instances['XR'].design(**res_params)
 
-        self.instances['XR'].parameters = res_params
+        warnings.warn('(one_shot_nand) check cap values generated correctly')
         self.instances['XC'].parameters = cap_params
 
         self.reconnect_instance_terminal('XNAND', 'in<1:0>', 'inb,outb')
