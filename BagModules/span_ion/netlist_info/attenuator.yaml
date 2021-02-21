@@ -1,0 +1,52 @@
+lib_name: span_ion
+cell_name: attenuator
+pins: [ "VREF", "VIN", "BULK", "VOUT" ]
+instances:
+  XR<0>:
+    lib_name: bag2_analog
+    cell_name: res_multistrip
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "VIN"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "VOUT"
+        num_bits: 1
+      BULK:
+        direction: inputOutput
+        net_name: "BULK"
+        num_bits: 1
+  XR<1>:
+    lib_name: bag2_analog
+    cell_name: res_multistrip
+    instpins:
+      PLUS:
+        direction: inputOutput
+        net_name: "VOUT"
+        num_bits: 1
+      MINUS:
+        direction: inputOutput
+        net_name: "VREF"
+        num_bits: 1
+      BULK:
+        direction: inputOutput
+        net_name: "BULK"
+        num_bits: 1
+  PIN1:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN0:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN2:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}

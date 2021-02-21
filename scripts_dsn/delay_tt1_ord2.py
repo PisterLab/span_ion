@@ -181,7 +181,7 @@ class span_ion__delay_tt1_ord2_dsn(DesignModule):
                 bias0_dsn_params = dict(bias_dsn_params_list[0])
                 bias0_dsn_params.update(dict(optional_params=bias_optional_params,
                                              vref={in_type_list[0] : amp_dsn_info[0]['vgtail']}))
-                bias0.update(bias_update_dict_list[0])
+                bias0_dsn_params.update(bias_update_dict_list[0])
                                 
                 bias1_dsn_params = dict(bias_dsn_params_list[1])
                 bias1_dsn_params.update(dict(optional_params=bias_optional_params,
@@ -243,9 +243,9 @@ class span_ion__delay_tt1_ord2_dsn(DesignModule):
         den =np.asarray([1, a1, a0])
 
         # Calculate remaining resistor values (R4 and R6 are removed)
-        R1 = a1 * C1
+        R1 = 1/(a1 * C1)
         R2 = k1 / (np.sqrt(a0)*C2)
-        R3 = 1/(k1*k2) * 1/(np.sqrt(a0)*C2)
+        R3 = 1/(k1*k2) * 1/(np.sqrt(a0)*C1)
         R5 = k1*np.sqrt(a0) / (b0*C2)
         R7 = k2 * R8
 
@@ -254,11 +254,11 @@ class span_ion__delay_tt1_ord2_dsn(DesignModule):
             wbw = 0
         fbw = wbw / (2*np.pi)
 
-        return dict(R1 = a1 * C1,
-                    R2 = k1 / (np.sqrt(a0)*C2),
-                    R3 = 1/(k1*k2) * 1/(np.sqrt(a0)*C2),
-                    R5 = k1*np.sqrt(a0) / (b0*C2),
-                    R7 = k2 * R8,
+        return dict(R1 = R1,
+                    R2 = R2,
+                    R3 = R3,
+                    R5 = R5,
+                    R7 = R7,
                     k1=k1,
                     k2=k2,
                     C1=C1,

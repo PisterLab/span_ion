@@ -200,11 +200,11 @@ class bag2_analog__amp_gm_mirr_dsn(DesignModule):
                                                                      cload=cload)
 
                                 if gain_lti < gain_min:
-                                    # print(f'gain {gain_lti}')
+                                    print(f'gain {gain_lti}')
                                     continue
                                         
                                 if fbw_lti < fbw_min:
-                                    # print(f'fbw {fbw_lti}')
+                                    print(f'fbw {fbw_lti}')
                                     continue
 
                                 if ugf_lti < ugf_min:

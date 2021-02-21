@@ -214,26 +214,6 @@ instances:
     lib_name: basic
     cell_name: ipin
     instpins: {}
-  PIN12:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
-  PIN11:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
-  PIN10:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
-  PIN9:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
-  PIN8:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
   PIN7:
     lib_name: basic
     cell_name: ipin
@@ -251,6 +231,26 @@ instances:
     cell_name: ipin
     instpins: {}
   PIN3:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN12:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN8:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN9:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN10:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN11:
     lib_name: basic
     cell_name: ipin
     instpins: {}
