@@ -1,6 +1,6 @@
 lib_name: span_ion
 cell_name: one_shot_nand
-pins: [ "out", "outb", "VDD", "VSS", "in" ]
+pins: [ "out", "outb", "VDD", "VSS", "in", "CTRLb" ]
 instances:
   XINV_IN:
     lib_name: bag2_digital
@@ -78,6 +78,38 @@ instances:
         direction: input
         net_name: "in_filt"
         num_bits: 1
+  XR:
+    lib_name: bag2_analog
+    cell_name: res_trim_series
+    instpins:
+      BULK:
+        direction: inputOutput
+        net_name: "BULK"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      Z:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "net01"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "CTRLb"
+        num_bits: 1
+      A:
+        direction: inputOutput
+        net_name: "in_filt"
+        num_bits: 1
   PIN1:
     lib_name: basic
     cell_name: opin
@@ -98,6 +130,10 @@ instances:
     lib_name: basic
     cell_name: ipin
     instpins: {}
+  PIN5:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
   XRST:
     lib_name: bag2_analog
     cell_name: switch
@@ -108,7 +144,7 @@ instances:
         num_bits: 1
       CTRLb:
         direction: input
-        net_name: "rstb_RC"
+        net_name: "net03"
         num_bits: 1
       CTRL:
         direction: input
@@ -145,20 +181,4 @@ instances:
       in:
         direction: input
         net_name: "in"
-        num_bits: 1
-  XR:
-    lib_name: bag2_analog
-    cell_name: res_multistrip
-    instpins:
-      BULK:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      PLUS:
-        direction: inputOutput
-        net_name: "in_filt"
-        num_bits: 1
-      MINUS:
-        direction: inputOutput
-        net_name: "VSS"
         num_bits: 1

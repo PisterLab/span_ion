@@ -4,6 +4,7 @@ from typing import Mapping
 
 import os
 import pkg_resources
+import warnings
 
 from bag.design.module import Module
 
@@ -33,6 +34,7 @@ class span_ion__delay_sk_ord2(Module):
             dictionary from parameter names to descriptions.
         """
         return dict(
+            num_bits = 'Number of bits for resistor tuning',
             res_params_list = 'List of resistor parameters. Ordering is indicated in the schematic by the index of the resistor.',
             cap_params_list = 'List of cap parameters. Ordering is indicated in schematic indices.',
             amp_params = 'Amplifier parameters',
@@ -55,6 +57,7 @@ class span_ion__delay_sk_ord2(Module):
         restore_instance()
         array_instance()
         """
+        num_bits = params['num_bits']
         amp_params = params['amp_params']
         constgm_params = params['constgm_params']
         res_params_list = params['res_params_list']
@@ -64,18 +67,32 @@ class span_ion__delay_sk_ord2(Module):
         self.instances['XAMP'].design(**amp_params)
         self.instances['XCONSTGM'].design(**constgm_params)
 
-        for i in range(6):
-            self.instances[f'XR<{i}>'].parameters = res_params_list[i]
+        for i, res_params in enumerate(res_params_list):
+            res_params_copy = res_params.copy()
+            res_params_copy.update(dict(res_groupings=[2**j for j in range(num_bits)]))
+            self.instances[f'XR<{i}>'].design(**res_params_copy)
+
+            if num_bits > 1:
+                suffix_ctrl = f'<{num_bits-1}:0>'
+                self.reconnect_instance_terminal(f'XR<{i}>', f'CTRL{suffix_ctrl}', f'CTRL{suffix_ctrl}')
+                self.reconnect_instance_terminal(f'XR<{i}>', f'CTRLb{suffix_ctrl}', f'CTRLb{suffix_ctrl}')
+                self.rename_pin('CTRL', f'CTRL{suffix_ctrl}')
+                self.rename_pin('CTRLb', f'CTRLb{suffix_ctrl}')
 
         for i in range(2):
             self.instances[f'XC<{i}>'].parameters = cap_params_list[i]
         
-        print('*** WARNING *** (delay_sk_ord2) Check passive component values in generated schematic.', flush=True)
+        warnings.warn('(delay_sk_ord2) Check generated cap values.')
 
         # Rewire tail biasing if necessary
         if amp_params['in_type'].lower() == 'n':
-            self.reconnect_instance_terminal('XAMP', 'VGTAIL', f'VN')
+            self.reconnect_instance_terminal('XCONSTGM', 'VN', 'VGTAIL')
         elif amp_params['in_type'].lower() == 'p':
-            self.reconnect_instance_terminal('XAMP', 'VGTAIL', f'VP')
+            self.reconnect_instance_terminal('XCONSTGM', 'VP', 'VGTAIL')
         else:
-             raise ValueError(f"in_type of amplifier {amp_params['in_type']} is invalid (should be p or n)")    
+             raise ValueError(f"in_type of amplifier {amp_params['in_type']} is invalid (should be p or n)")
+
+        # Removing unnecessary pins
+        if num_bits < 1:
+            self.remove_pin('CTRL')
+            self.remove_pin('CTRLb')

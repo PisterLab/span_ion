@@ -34,6 +34,7 @@ class span_ion__one_shot_nand(Module):
             dictionary from parameter names to descriptions.
         """
         return dict(
+            num_bits = 'Number of tuning bits for the resistor',
             inv_in_params = 'Input inverter parameters',
             nand_params = 'NAND parameters',
             nor_params = 'reset NOR parameters',
@@ -59,6 +60,7 @@ class span_ion__one_shot_nand(Module):
         restore_instance()
         array_instance()
         """
+        num_bits = params['num_bits']
         inv_in_params = params['inv_in_params']
         nand_params = params['nand_params']
         inv_chain_params = params['inv_chain_params']
@@ -72,16 +74,29 @@ class span_ion__one_shot_nand(Module):
         assert inv_chain_length >= 2, f'Length of inverter chain {inv_chain_length} must be >= 2'
 
         # Design instances
+        res_groupings = [2**i for i in range(num_bits)]
+        sw_params = res_params['sw_params']
+        sw_params['mos_type'] = 'n'
+        res_params_copy = res_params.copy()
+        res_params_copy.update(dict(sw_params=sw_params))
+        
+        self.instances['XR'].design(res_groupings=res_groupings, **res_params_copy)
         self.instances['XINV_IN'].design(**inv_in_params)
         self.instances['XNAND'].design(num_in=2, **nand_params)
         self.instances['XINV_OUT'].design(dual_output=True, **inv_chain_params)
         self.instances['XNOR'].design(num_in=3, **nor_params)
         self.instances['XRST'].design(mos_type='n', **rst_params)
 
-        self.instances['XR'].design(**res_params)
-
         warnings.warn('(one_shot_nand) check cap values generated correctly')
         self.instances['XC'].parameters = cap_params
 
         self.reconnect_instance_terminal('XNAND', 'in<1:0>', 'inb,outb')
         self.reconnect_instance_terminal('XNOR', 'in<2:0>', 'in,in_gate,out')
+
+        # Remove unnecessary pins
+        if num_bits < 1:
+            self.remove_pin('CTRLb')
+        elif num_bits > 1:
+            suffix_bits = f'<{num_bits-1}:0>'
+            self.rename_pin('CTRLb', f'CTRLb{suffix_bits}')
+            self.reconnect_instance_terminal('XR', f'CTRLb{suffix_bits}', f'CTRLb{suffix_bits}')

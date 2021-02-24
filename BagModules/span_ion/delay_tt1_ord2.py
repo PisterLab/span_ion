@@ -102,3 +102,7 @@ class span_ion__delay_tt1_ord2(Module):
             # Switching up tail connection to constant gm as necessary
             if amp_params_list[i]['in_type'] == 'n':
                 self.reconnect_instance_terminal(f'XAMP<{i}>', 'VGTAIL', f'VN<{i}>')
+
+        if num_bits < 1:
+            self.remove_pin("CTRL")
+            self.remove_pin("CTRLb")

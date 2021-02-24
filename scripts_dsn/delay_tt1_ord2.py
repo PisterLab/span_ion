@@ -81,6 +81,8 @@ class span_ion__delay_tt1_ord2_dsn(DesignModule):
                                           gain_target=params['gain_target'],
                                           scale_num=params['tf_scale_num'])
 
+        assert False, 'blep'
+
         # Design amplifiers back to front
         sim_env = params['sim_env']
 
