@@ -64,8 +64,8 @@ class span_ion__peak_detector_basic1(Module):
 
         self.instances['XAMP<0>'].design(**(amp_params_list[0]))
         self.instances['XAMP<1>'].design(**(amp_params_list[1]))
-        self.instances['XCONSTGM<0>'].design(**(constgm_params_list[0]))
-        self.instances['XCONSTGM<1>'].design(**(constgm_params_list[1]))
+        self.instances['XCONSTGM<0>'].design(res_side=amp_params_list[0]['in_type'], **(constgm_params_list[0]))
+        self.instances['XCONSTGM<1>'].design(res_side=amp_params_list[1]['in_type'], **(constgm_params_list[1]))
         self.instances['XRST_IN1'].design(mos_type='n', **(rst_params_dict['in1']))
         self.instances['XRST_OUT'].design(mos_type='n', **(rst_params_dict['out']))
 

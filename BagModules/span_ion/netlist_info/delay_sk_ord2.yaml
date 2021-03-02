@@ -30,18 +30,6 @@ instances:
         direction: input
         net_name: "VINP"
         num_bits: 1
-  XC<0>:
-    lib_name: bag2_wrappers
-    cell_name: cap_ideal
-    instpins:
-      MINUS:
-        direction: inputOutput
-        net_name: "VINDIV"
-        num_bits: 1
-      PLUS:
-        direction: inputOutput
-        net_name: "VOUT"
-        num_bits: 1
   XC<1>:
     lib_name: bag2_wrappers
     cell_name: cap_ideal
@@ -53,6 +41,18 @@ instances:
       PLUS:
         direction: inputOutput
         net_name: "VINP"
+        num_bits: 1
+  XC<0>:
+    lib_name: bag2_wrappers
+    cell_name: cap_ideal
+    instpins:
+      MINUS:
+        direction: inputOutput
+        net_name: "VINDIV"
+        num_bits: 1
+      PLUS:
+        direction: inputOutput
+        net_name: "VOUT"
         num_bits: 1
   PIN5:
     lib_name: basic
@@ -98,38 +98,6 @@ instances:
         direction: output
         net_name: "VP"
         num_bits: 1
-  XR<1>:
-    lib_name: bag2_analog
-    cell_name: res_trim_series
-    instpins:
-      BULK:
-        direction: inputOutput
-        net_name: "net1"
-        num_bits: 1
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      Z:
-        direction: inputOutput
-        net_name: "VINP"
-        num_bits: 1
-      CTRL:
-        direction: input
-        net_name: "CTRL"
-        num_bits: 1
-      CTRLb:
-        direction: input
-        net_name: "CTRLb"
-        num_bits: 1
-      A:
-        direction: inputOutput
-        net_name: "VINDIV"
-        num_bits: 1
   XR<0>:
     lib_name: bag2_analog
     cell_name: res_trim_series
@@ -161,4 +129,36 @@ instances:
       A:
         direction: inputOutput
         net_name: "VIN"
+        num_bits: 1
+  XR<1>:
+    lib_name: bag2_analog
+    cell_name: res_trim_series
+    instpins:
+      BULK:
+        direction: inputOutput
+        net_name: "net1"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      Z:
+        direction: inputOutput
+        net_name: "VINP"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "CTRL"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "CTRLb"
+        num_bits: 1
+      A:
+        direction: inputOutput
+        net_name: "VINDIV"
         num_bits: 1

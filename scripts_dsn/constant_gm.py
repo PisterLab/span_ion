@@ -38,7 +38,8 @@ class bag2_analog__constant_gm_dsn(DesignModule):
             vref = 'Dictionary of "n" and "p" of target bias voltages. If no spec, do not include',
             vdd = 'Supply voltage (volts)',
             ibias = 'Maximum bias current',
-            res_lim = 'Minimum and maximum resistor values'
+            res_lim = 'Minimum and maximum resistor values',
+            optional_params = 'res_vstep=resolution of voltage step, error_tol, vstar_min'
         ))
         return ans
 
@@ -47,6 +48,10 @@ class bag2_analog__constant_gm_dsn(DesignModule):
 
         Raises a ValueError if there is no solution.
         """
+        optional_params = params['optional_params']
+        res_vstep = optional_params.get('res_vstep', 10e-3)
+        error_tol = optional_params.get('error_tol', 0.05)
+
         ### Get DBs for each device
         specfile_dict = params['specfile_dict']
         l_dict = params['l_dict']
@@ -70,12 +75,12 @@ class bag2_analog__constant_gm_dsn(DesignModule):
         res_n = res_side == 'n'
         assert vn != None or vp != None, f'At least one of vp or vn have to be assigned'
 
-        vstar_min = 0.2
+        vstar_min = optional_params.get('vstar_min', 0.2)
         vth_n = estimate_vth(is_nch=True, vgs=vdd/2, vbs=0, db=db_dict['n'], lch=l_dict['n'])
         vth_p = estimate_vth(is_nch=False, vgs=-vdd/2, vbs=0, db=db_dict['p'], lch=l_dict['p'])
 
-        vg_p_vec = [vp] if vp != None else np.arange(max(0, vn-vth_n, vn+vth_p), min(vdd, vdd+vth_p-vstar_min), 10e-3)
-        vg_n_vec = [vn] if vn != None else np.arange(max(0, vth_n+vstar_min), min(vdd, vp+vth_n, vp-vth_p), 10e-3)
+        vg_p_vec = [vp] if vp != None else np.arange(max(0, vn-vth_n, vn+vth_p), min(vdd, vdd+vth_p-vstar_min), res_vstep)
+        vg_n_vec = [vn] if vn != None else np.arange(max(0, vth_n+vstar_min), min(vdd, vp+vth_n, vp-vth_p), res_vstep)
 
         viable_op_list = []
 
@@ -85,8 +90,8 @@ class bag2_analog__constant_gm_dsn(DesignModule):
             for vg_n in vg_n_vec:
                 n_diode_op = db_dict['n'].query(vgs=vg_n, vds=vg_n, vbs=0)
 
-                vs_p_vec = [vdd] if res_n else np.arange(vg_p-vth_p+vstar_min, vdd, 10e-3)
-                vs_n_vec = [0] if not res_n else np.arange(0, vg_n-vth_n-vstar_min, 10e-3)
+                vs_p_vec = [vdd] if res_n else np.arange(vg_p-vth_p+vstar_min, vdd, res_vstep)
+                vs_n_vec = [0] if not res_n else np.arange(0, vg_n-vth_n-vstar_min, res_vstep)
 
                 for vs_p in vs_p_vec:
                     p_nondiode_op = db_dict['p'].query(vgs=vg_p-vs_p, vds=vg_n-vs_p, vbs=vdd-vs_p)
@@ -107,7 +112,7 @@ class bag2_analog__constant_gm_dsn(DesignModule):
                             main_match, nf_main_nondiode = verify_ratio(main_diode_op['ibias'],
                                                                         main_nondiode_op['ibias'],
                                                                         nf_main_diode,
-                                                                        0.05)
+                                                                        error_tol)
                             if not main_match:
                                 continue
 

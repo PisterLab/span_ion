@@ -1,14 +1,14 @@
 lib_name: span_ion
 cell_name: cfd_signal
-pins: [ "OUT", "VDD", "VSS", "IIN", "SEL_DAC", "VREF_PREAMP", "VREF_DELAY", "RST_PEAK", "VOUTCM_LED", "VOUTCM_ZCD", "VREFP_ZCD", "VREFN_ZCD", "VREFP_LED", "VREFN_LED" ]
+pins: [ "OUT", "VDD", "VSS", "IIN", "Bb_DELAY", "VREF_PREAMP", "B_DELAY", "RST_PEAK", "VOUTCM_LED", "VOUTCM_ZCD", "VREFP_ZCD", "VREFN_ZCD", "VREFP_LED", "VREFN_LED", "B_DAC", "B_ATTEN", "Bb_ATTEN", "Bb_ONESHOT", "VREF_ATTEN" ]
 instances:
-  XDELAY:
+  XATTEN:
     lib_name: span_ion
-    cell_name: delay_tt1
+    cell_name: attenuator
     instpins:
-      VREF:
-        direction: input
-        net_name: "VREF_DELAY"
+      BULK:
+        direction: inputOutput
+        net_name: "BULK"
         num_bits: 1
       VSS:
         direction: inputOutput
@@ -20,11 +20,23 @@ instances:
         num_bits: 1
       VOUT:
         direction: output
-        net_name: "VOUT_DELAY"
+        net_name: "VOUT_ATTEN"
+        num_bits: 1
+      CTRL:
+        direction: 
+        net_name: "B_ATTEN"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "Bb_ATTEN"
         num_bits: 1
       VIN:
         direction: input
-        net_name: "VOUT_PREAMP"
+        net_name: "VOUT_PEAK"
+        num_bits: 1
+      VREF:
+        direction: input
+        net_name: "VREF_ATTEN"
         num_bits: 1
   XPEAK:
     lib_name: span_ion
@@ -178,6 +190,10 @@ instances:
     lib_name: span_ion
     cell_name: one_shot_nand
     instpins:
+      CTRLb:
+        direction: input
+        net_name: "Bb_ONESHOT"
+        num_bits: 1
       VSS:
         direction: inputOutput
         net_name: "VSS"
@@ -198,6 +214,34 @@ instances:
         direction: input
         net_name: "OUT_LOGIC"
         num_bits: 1
+  XDELAY:
+    lib_name: span_ion
+    cell_name: delay_sk_ord2
+    instpins:
+      CTRLb:
+        direction: input
+        net_name: "Bb_DELAY"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "B_DELAY"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUT:
+        direction: output
+        net_name: "VOUT_DELAY"
+        num_bits: 1
+      VIN:
+        direction: input
+        net_name: "VOUT_PREAMP"
+        num_bits: 1
   PIN0:
     lib_name: basic
     cell_name: opin
@@ -210,6 +254,14 @@ instances:
     lib_name: basic
     cell_name: iopin
     instpins: {}
+  PIN19:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN18:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
   PIN13:
     lib_name: basic
     cell_name: ipin
@@ -218,7 +270,7 @@ instances:
     lib_name: basic
     cell_name: ipin
     instpins: {}
-  PIN6:
+  PIN14:
     lib_name: basic
     cell_name: ipin
     instpins: {}
@@ -254,6 +306,18 @@ instances:
     lib_name: basic
     cell_name: ipin
     instpins: {}
+  PIN15:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN16:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN17:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
   XRDAC:
     lib_name: bag2_analog
     cell_name: dac_rladder
@@ -272,7 +336,7 @@ instances:
         num_bits: 1
       S:
         direction: input
-        net_name: "SEL_DAC"
+        net_name: "B_DAC"
         num_bits: 1
   XPREAMP:
     lib_name: span_ion
