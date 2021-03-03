@@ -143,8 +143,8 @@ class span_ion__comparator_fd_main_dsn(DesignModule):
                     vgtail_vec = np.arange(vgtail_min, vgtail_max, res_vstep)
                     print(f'vgtail {vgtail_min} to {vgtail_max}')
                     for vgtail in vgtail_vec:
-                        tail_op = db_dict['tail'].query(vgs=vgtail,
-                                                        vds=vtail,
+                        tail_op = db_dict['tail'].query(vgs=vgtail-vb,
+                                                        vds=vtail-vb,
                                                         vbs=0)
                         tail_success, nf_tail = verify_ratio(in_op['ibias']*2,
                                                              tail_op['ibias'],
