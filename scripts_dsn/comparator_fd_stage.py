@@ -224,7 +224,7 @@ class span_ion__comparator_fd_stage_dsn(DesignModule):
                     constgm_dsn_params.update(dict(res_side='p',
                                                    vref=dict(p=cmfb_dsn_info['vgtail'])))
                 else:
-                    constgm_dsn_params.update(dict(res_side='p',
+                    constgm_dsn_params.update(dict(res_side='n',
                                                    vref=dict(n=cmfb_dsn_info['vgtail'])))
 
                 try:

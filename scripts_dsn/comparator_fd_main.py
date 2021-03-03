@@ -113,13 +113,9 @@ class span_ion__comparator_fd_main_dsn(DesignModule):
                 nf_in_max = int(round(ibias_max/ibias_min))
                 nf_in_vec = np.arange(2, nf_in_max, 2)
                 for nf_in in nf_in_vec:
-                    # Check against max allowable current
                     ibias = ibias_min * nf_in
-                    if ibias > ibias_max:
-                        # print(f"ibias {ibias}")
-                        break
-
-                    res_val = (vdd-voutcm)/(ibias/2)
+                    ibranch = ibias/2
+                    res_val = (vdd-voutcm)/ibranch if n_in else voutcm/ibranch
                     # Check gain, bandwidth
                     ckt_half = LTICircuit()
                     ckt_half.add_transistor(in_op, 'out', 'in', 'gnd', fg=nf_in, neg_cap=False)
