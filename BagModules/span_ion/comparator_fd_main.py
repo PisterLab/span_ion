@@ -68,13 +68,18 @@ class span_ion__comparator_fd_main(Module):
         if in_type == 'p':
             self.replace_instance_master(inst_name='XDIFFPAIR',
                                          lib_name='bag2_analog',
-                                         cell_name='diffpair_n')
+                                         cell_name='diffpair_p')
             diffpair_conn = dict(VDD='VDD',
                                  VINP='VINP',
                                  VINN='VINN',
                                  VOUTP='VOUTP',
                                  VOUTN='VOUTN',
                                  VGTAIL='VGTAIL')
+            for pin, net in diffpair_conn.items():
+                self.reconnect_instance_terminal('XDIFFPAIR', pin, net)
+
+            self.reconnect_instance_terminal('RP', 'PLUS', 'VSS')
+            self.reconnect_instance_terminal('RN', 'PLUS', 'VSS')
 
         self.instances['XDIFFPAIR'].design(lch_dict=l_dict,
                                            w_dict=w_dict,

@@ -41,7 +41,7 @@ class span_ion__comparator_fd_main_dsn(DesignModule):
             vincm = 'Input common mode voltage.',
             ibias = 'Maximum bias current, in amperes.',
             cload = 'Output load capacitance in farads.',
-            optional_params = 'Optional parameters. voutcm=outpu common mode.'
+            optional_params = 'Optional parameters. voutcm=outpu common mode, vstar_min, res_vstep, error_tol'
         ))
         return ans
 
@@ -71,8 +71,10 @@ class span_ion__comparator_fd_main_dsn(DesignModule):
         ibias_max = params['ibias']
         optional_params = params['optional_params']
 
-        # Somewhat arbitrary vstar_min in this case
-        vstar_min = 0.2
+        # Pulling out optional parameters
+        vstar_min = optional_params.get('vstar_min', 0.2)
+        res_vstep = optional_params.get('res_vstep', 10e-3)
+        error_tol = optional_params.get('error_tol', 0.01)
 
         n_in = in_type=='n'
 
@@ -89,7 +91,7 @@ class span_ion__comparator_fd_main_dsn(DesignModule):
         # Sweep tail voltage
         vtail_min = vstar_min if n_in else vincm-vth_in
         vtail_max = vincm-vth_in if n_in else vdd-vstar_min
-        vtail_vec = np.arange(vtail_min, vtail_max, 10e-3)
+        vtail_vec = np.arange(vtail_min, vtail_max, res_vstep)
         print(f'Sweeping tail from {vtail_min} to {vtail_max}')
         for vtail in vtail_vec:
             voutcm_min = vincm-vth_in if n_in else 0
@@ -98,7 +100,7 @@ class span_ion__comparator_fd_main_dsn(DesignModule):
             voutcm = optional_params.get('voutcm', None)
 
             if voutcm == None:
-                voutcm_vec = np.arange(voutcm_min, voutcm_max, 10e-3)
+                voutcm_vec = np.arange(voutcm_min, voutcm_max, res_vstep)
             else:
                 voutcm_vec = [voutcm]
             # Sweep output common mode
@@ -142,7 +144,7 @@ class span_ion__comparator_fd_main_dsn(DesignModule):
                     # Design tail to current match
                     vgtail_min = vth_tail+vstar_min if n_in else vtail+vth_tail
                     vgtail_max = vtail+vth_tail if n_in else vdd+vth_tail-vstar_min
-                    vgtail_vec = np.arange(vgtail_min, vgtail_max, 10e-3)
+                    vgtail_vec = np.arange(vgtail_min, vgtail_max, res_vstep)
                     print(f'vgtail {vgtail_min} to {vgtail_max}')
                     for vgtail in vgtail_vec:
                         tail_op = db_dict['tail'].query(vgs=vgtail,
@@ -151,7 +153,7 @@ class span_ion__comparator_fd_main_dsn(DesignModule):
                         tail_success, nf_tail = verify_ratio(in_op['ibias']*2,
                                                              tail_op['ibias'],
                                                              nf_in,
-                                                             0.01)
+                                                             error_tol)
                         if not tail_success:
                             print('tail match')
                             continue

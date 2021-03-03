@@ -41,7 +41,8 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
             vincm = 'Input common mode voltage.',
             voutcm = 'Output common mode target voltage.',
             ibias = 'Maximum bias current, in amperes.',
-            cload = 'Output load capacitance in farads.'
+            cload = 'Output load capacitance in farads.',
+            optional_params = 'vstar_min'
         ))
         return ans
 
@@ -72,7 +73,10 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
         ibias_max = params['ibias']
 
         # Somewhat arbitrary vstar_min in this case
-        vstar_min = 0.2
+        optional_params = params['optional_params']
+        vstar_min = optional_params.get('vstar_min', 0.2)
+        res_vstep = optional_params.get('res_vstep', 10e-3)
+        error_tol = optional_params.get('error_tol', 0.01)
 
         n_in = in_type == 'n'
         vtest_in = vdd/2 if n_in else -vdd/2
@@ -94,7 +98,7 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
         # Sweep tail voltage
         vtail_min = vstar_min if n_in else vincm-vth_in
         vtail_max = vincm-vth_in if n_in else vdd-vstar_min
-        vtail_vec = np.arange(vtail_min, vtail_max, 10e-3)
+        vtail_vec = np.arange(vtail_min, vtail_max, res_vstep)
         print(f'Sweeping tail from {vtail_min} to {vtail_max}')
         for vtail in vtail_vec:
             in_op = db_dict['in'].query(vgs=vincm-vtail,
@@ -118,7 +122,7 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
                 out_match, nf_out = verify_ratio(in_op['ibias']*2,
                                                  out_op['ibias'],
                                                  nf_in,
-                                                 0.05)
+                                                 error_tol)
 
                 if not out_match:
                     print("out match")
@@ -164,7 +168,7 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
                 # Design matching tail
                 vgtail_min = vtail + vth_tail
                 vgtail_max = vdd + vth_tail - vstar_min
-                vgtail_vec = np.arange(vgtail_min, vgtail_max, 10e-3)
+                vgtail_vec = np.arange(vgtail_min, vgtail_max, res_vstep)
                 print(f"Tail gate from {vgtail_min} to {vgtail_max}")
                 for vgtail in vgtail_vec:
                     tail_op = db_dict['tail'].query(vgs=vgtail-vb_tail,
@@ -173,7 +177,7 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
                     tail_match, nf_tail = verify_ratio(in_op['ibias']*4,
                                                        tail_op['ibias'],
                                                        nf_in,
-                                                       0.01)
+                                                       error_tol)
 
                     if not tail_match:
                         print("tail match")
