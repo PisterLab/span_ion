@@ -183,10 +183,10 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
                     fbw = wbw/(2*np.pi)
                     
                     if fbw < fbw_min:
-                        # print(f"fbw: {fbw}")
+                        print(f"fbw: {fbw}")
                         continue
                     if gain < gain_min:
-                        # print(f'gain: {gain}')
+                        print(f'gain: {gain}')
                         break
 
                     # Design tail to current match
