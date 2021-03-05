@@ -166,8 +166,8 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
                     break
 
                 # Design matching tail
-                vgtail_min = vtail + vth_tail
-                vgtail_max = vdd + vth_tail - vstar_min
+                vgtail_min = vth_tail+vstar_min if n_in vdd+vth_tail
+                vgtail_max = vtail+vth_tail if n_in else vdd+vth_tail-vstar_min
                 vgtail_vec = np.arange(vgtail_min, vgtail_max, res_vstep)
                 print(f"Tail gate from {vgtail_min} to {vgtail_max}")
                 for vgtail in vgtail_vec:
@@ -188,6 +188,7 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
                                      nf_out=nf_out,
                                      nf_tail=nf_tail,
                                      vgtail=vgtail,
+                                     gain=gain,
                                      fbw=fbw,
                                      ugf=ugf,
                                      vtail=vtail,
