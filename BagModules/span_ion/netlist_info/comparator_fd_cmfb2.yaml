@@ -178,30 +178,6 @@ instances:
     lib_name: basic
     cell_name: iopin
     instpins: {}
-  XOUT1P:
-    lib_name: bag2_analog
-    cell_name: mirror_n
-    instpins:
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      out:
-        direction: output
-        net_name: "VOUTN"
-        num_bits: 1
-      s_out:
-        direction: input
-        net_name: "VSS"
-        num_bits: 1
-      in:
-        direction: input
-        net_name: "VOUT1P"
-        num_bits: 1
-      s_in:
-        direction: input
-        net_name: "VSS"
-        num_bits: 1
   XOUT1N:
     lib_name: bag2_analog
     cell_name: mirror_n
@@ -221,6 +197,30 @@ instances:
       in:
         direction: input
         net_name: "VOUT1N"
+        num_bits: 1
+      s_in:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+  XOUT1P:
+    lib_name: bag2_analog
+    cell_name: mirror_n
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "VOUTN"
+        num_bits: 1
+      s_out:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "VOUT1P"
         num_bits: 1
       s_in:
         direction: input

@@ -5,6 +5,7 @@ from typing import Mapping, Tuple, Any, List
 import os
 import pkg_resources
 import numpy as np
+import warnings
 
 from bag.design.module import Module
 from . import DesignModule, get_mos_db, estimate_vth, parallel, verify_ratio
@@ -107,12 +108,12 @@ class span_ion__comparator_fd_cmfb2_dsn(DesignModule):
         # Get out1 common mode range
         vout1_min = vincm-vth_in if n_in else vth_load+vstar_min
         vout1_max = vdd+vth_load-vstar_min if n_in else vincm-vth_in
-        if vout1 == None:
+        if vout1_opt == None:
             vout1_vec = np.arange(vout1_min, vout1_max, res_vstep)
         else:
             vout1_vec = [vout1_opt]
-            if vout1 < vout1_min or vout1 > vout1_max:
-                warnings.warn(f'vout11 {vout1} falls outside recommended range ({vout1_min}, {vout1_max})')
+            if vout1_opt < vout1_min or vout1_opt > vout1_max:
+                warnings.warn(f'vout11 {vout1_opt} falls outside recommended range ({vout1_min}, {vout1_max})')
 
         # Sweep tail voltage
         for vtail in vtail_vec:
@@ -136,7 +137,9 @@ class span_ion__comparator_fd_cmfb2_dsn(DesignModule):
                 # Step input device size (integer steps)
                 nf_in_max = int(round(ibias_max/itail_min))
                 nf_in_vec = np.arange(1, nf_in_max, 1)
-                print(f'Number of input devices from 1 to {nf_in_max}')
+                if len(nf_in_vec) > 0:
+                    print(f'Number of input devices {min(nf_in_vec)} to {max(nf_in_vec)}')
+
                 for nf_in in nf_in_vec:
                     itail = itail_min * nf_in
 
@@ -147,12 +150,15 @@ class span_ion__comparator_fd_cmfb2_dsn(DesignModule):
                                                        error_tol)
 
                     if not load_match:
-                        print("load match")
+                        print(f"load match {nf_load}")
                         continue
 
                     iflip_max = (ibias_max - itail)/2
-                    nf_out_max = int(round(iflip_max)/out_op['ibias'])
-                    nf_out_vec = np.arange(1, nf_out_max, 1)
+                    nf_out_max = int(round(iflip_max/out_op['ibias']))
+                    nf_out_vec = [1] if nf_out_max == 1 else np.arange(1, nf_out_max, 1)
+                    if len(nf_out_vec) > 0:
+                        print(f'Number of output devices {min(nf_out_vec)} to {max(nf_out_vec)}')
+
                     # Step output device size
                     for nf_out in nf_out_vec:
                         iflip_branch = out_op['ibias']*nf_out
@@ -205,7 +211,7 @@ class span_ion__comparator_fd_cmfb2_dsn(DesignModule):
                             break
 
                         # Design matching tail
-                        vgtail_min = vth_tail+vstar_min if n_in vdd+vth_tail
+                        vgtail_min = vth_tail+vstar_min if n_in else vdd+vth_tail
                         vgtail_max = vtail+vth_tail if n_in else vdd+vth_tail-vstar_min
                         vgtail_vec = np.arange(vgtail_min, vgtail_max, res_vstep)
                         print(f"Tail gate from {vgtail_min} to {vgtail_max}")
@@ -235,8 +241,8 @@ class span_ion__comparator_fd_cmfb2_dsn(DesignModule):
                                              vtail=vtail,
                                              vout1=vout1,
                                              itail=itail,
-                                             iflip_branch=nf_out*op_out['out'],
-                                             ibias=itail+2*nf_out*op_out['out'])
+                                             iflip_branch=nf_out*out_op['ibias'],
+                                             ibias=itail+2*nf_out*out_op['ibias'])
                             print(viable_op)
                             viable_op_list.append(viable_op)
         self.other_params = dict(in_type=in_type,

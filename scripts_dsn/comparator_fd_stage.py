@@ -12,7 +12,7 @@ from bag.data.lti import LTICircuit, get_w_3db, get_stability_margins, get_w_cro
 
 from . import DesignModule, get_mos_db, estimate_vth, parallel, verify_ratio, num_den_add, enable_print, disable_print
 from .comparator_fd_main import span_ion__comparator_fd_main_dsn
-from .comparator_fd_cmfb import span_ion__comparator_fd_cmfb_dsn
+from .comparator_fd_cmfb2 import span_ion__comparator_fd_cmfb2_dsn
 from .constant_gm import bag2_analog__constant_gm_dsn
 
 # noinspection PyPep8Naming
@@ -105,12 +105,13 @@ class span_ion__comparator_fd_stage_dsn(DesignModule):
         cmfb_specfile_dict = dict()
         cmfb_th_dict = dict()
         cmfb_l_dict = dict()
-        for k in ('in', 'tail', 'out'):
+        for k in ('in', 'tail', 'load', 'out'):
             cmfb_specfile_dict[k] = specfile_dict[f'cmfb_{k}']
             cmfb_th_dict[k] = th_dict[f'cmfb_{k}']
             cmfb_l_dict[k] = l_dict[f'cmfb_{k}']
         cmfb_dsn_params = dict(params['cmfb_dsn_params'])
-        cmfb_dsn_params.update(dict(in_type='p' if n_in else 'n',
+        # cmfb_dsn_params.update(dict(in_type='p' if n_in else 'n',
+        cmfb_dsn_params.update(dict(in_type=in_type,
                                     specfile_dict=cmfb_specfile_dict,
                                     th_dict=cmfb_th_dict,
                                     l_dict=cmfb_l_dict,
@@ -133,7 +134,7 @@ class span_ion__comparator_fd_stage_dsn(DesignModule):
 
         # Design blocks
         main_dsn_mod = span_ion__comparator_fd_main_dsn()
-        cmfb_dsn_mod = span_ion__comparator_fd_cmfb_dsn()
+        cmfb_dsn_mod = span_ion__comparator_fd_cmfb2_dsn()
         constgm_dsn_mod = bag2_analog__constant_gm_dsn()
 
         self.other_params = dict(in_type=in_type,
@@ -178,9 +179,10 @@ class span_ion__comparator_fd_stage_dsn(DesignModule):
                 vtail_main = main_dsn_info['vtail']
                 voutcm_main = main_dsn_info['voutcm']
                 vgtail_main = main_dsn_info['vgtail']
+                vout1_cmfb = cmfb_dsn_info['vout1']
 
-                vb_main = 0 if in_type=='n' else vdd
-                vb_cmfb = 0 if in_type=='p' else vdd
+                vb_in = 0 if in_type=='n' else vdd
+                vb_load = vdd if in_type == 'n' else 0
 
                 vtail_cmfb = cmfb_dsn_info['vtail']
                 voutcm_cmfb = vgtail_main
@@ -188,23 +190,31 @@ class span_ion__comparator_fd_stage_dsn(DesignModule):
 
                 op_dict = dict(main_in = db_dict['main_in'].query(vgs=vincm-vtail_main, 
                                                                     vds=voutcm_main-vtail_main, 
-                                                                    vbs=vb_main-vtail_main),
-                               main_tail = db_dict['main_tail'].query(vgs=vgtail_main-vb_main,
-                                                                        vds=vtail_main-vb_main,
+                                                                    vbs=vb_in-vtail_main),
+                               main_tail = db_dict['main_tail'].query(vgs=vgtail_main-vb_in,
+                                                                        vds=vtail_main-vb_in,
                                                                         vbs=0),
                                cmfb_in = db_dict['cmfb_in'].query(vgs=voutcm_main-vtail_cmfb,
-                                                                    vds=voutcm_cmfb-vtail_cmfb,
-                                                                    vbs=vb_cmfb-vtail_cmfb),
-                               cmfb_tail = db_dict['cmfb_tail'].query(vgs=vgtail_cmfb-vb_cmfb,
-                                                                        vds=vtail_cmfb-vb_cmfb,
+                                                                    vds=vout1_cmfb-vtail_cmfb,
+                                                                    vbs=vb_in-vtail_cmfb),
+                               cmfb_load = db_dict['cmfb_load'].query(vgs=vout1_cmfb-vb_load,
+                                                                      vds=vout1_cmfb-vb_load,
+                                                                      vbs=0),
+                               cmfb_tail = db_dict['cmfb_tail'].query(vgs=vgtail_cmfb-vb_in,
+                                                                        vds=vtail_cmfb-vb_in,
                                                                         vbs=0),
-                               cmfb_out = db_dict['cmfb_out'].query(vgs=voutcm_cmfb-vb_main,
-                                                                      vds=voutcm_cmfb-vb_main,
+                               cmfb_load_copy = db_dict['cmfb_load'].query(vgs=vout1_cmfb-vb_load,
+                                                                           vds=voutcm_cmfb-vb_load,
+                                                                           vbs=0),
+                               cmfb_out = db_dict['cmfb_out'].query(vgs=voutcm_cmfb-vb_in,
+                                                                      vds=voutcm_cmfb-vb_in,
                                                                       vbs=0))
 
                 nf_dict = dict(main_in = main_dsn_info['nf_in'],
                                main_tail = main_dsn_info['nf_tail'],
                                cmfb_in = cmfb_dsn_info['nf_in'],
+                               cmfb_load = cmfb_dsn_info['nf_load'],
+                               cmfb_load_copy = cmfb_dsn_info['nf_load_copy'],
                                cmfb_tail = cmfb_dsn_info['nf_tail'],
                                cmfb_out = cmfb_dsn_info['nf_out'])
                 gain_lti, fbw_lti = self._get_ss_lti(op_dict=op_dict, nf_dict=nf_dict, cload=cload, rload=main_dsn_info['res_val'])
@@ -220,7 +230,7 @@ class span_ion__comparator_fd_stage_dsn(DesignModule):
                 # Design constant gm
                 print("Designing the constant gm...")
                 constgm_dsn_params['ibias'] = ibias_max - main_dsn_info['ibias'] - cmfb_dsn_info['ibias']
-                if n_in:
+                if not n_in:
                     constgm_dsn_params.update(dict(res_side='p',
                                                    vref=dict(p=cmfb_dsn_info['vgtail'])))
                 else:
@@ -230,7 +240,7 @@ class span_ion__comparator_fd_stage_dsn(DesignModule):
                 try:
                     disable_print()
                     _, constgm_dsn_info = constgm_dsn_mod.design(**constgm_dsn_params)
-                except ValueError as e:
+                except ValueError:
                     continue
                 finally:
                     enable_print()
@@ -292,17 +302,29 @@ class span_ion__comparator_fd_stage_dsn(DesignModule):
         ckt.add_transistor(op_dict['main_in'], 'main_outn', inp_conn, 'main_tail', fg=nf_dict['main_in'], neg_cap=False)
         ckt.add_transistor(op_dict['main_in'], 'main_outp', inn_conn, 'main_tail', fg=nf_dict['main_in'], neg_cap=False)
         ckt.add_transistor(op_dict['main_tail'], 'main_tail', 'cmfb_outp', 'gnd', fg=nf_dict['main_tail'], neg_cap=False)
+        
         ckt.add_res(rload, 'main_outn', 'gnd')
         ckt.add_res(rload, 'main_outp', 'gnd')
         ckt.add_cap(cload, 'main_outn', 'gnd')
         ckt.add_cap(cload, 'main_outp', 'gnd')
 
-        ckt.add_transistor(op_dict['cmfb_in'], 'cmfb_outn', 'gnd', 'cmfb_tail', fg=nf_dict['cmfb_in']*2, neg_cap=False)
-        ckt.add_transistor(op_dict['cmfb_in'], 'cmfb_outp', 'main_outn', 'cmfb_tail', fg=nf_dict['cmfb_in'], neg_cap=False)
-        ckt.add_transistor(op_dict['cmfb_in'], 'cmfb_outp', 'main_outp', 'cmfb_tail', fg=nf_dict['cmfb_in'], neg_cap=False)
+        ckt.add_transistor(op_dict['cmfb_in'], 'cmfb_out1n', 'gnd', 'cmfb_tail', fg=nf_dict['cmfb_in']*2, neg_cap=False)
+        ckt.add_transistor(op_dict['cmfb_in'], 'cmfb_out1p', 'main_outn', 'cmfb_tail', fg=nf_dict['cmfb_in'], neg_cap=False)
+        ckt.add_transistor(op_dict['cmfb_in'], 'cmfb_out1p', 'main_outp', 'cmfb_tail', fg=nf_dict['cmfb_in'], neg_cap=False)
         ckt.add_transistor(op_dict['cmfb_tail'], 'cmfb_tail', 'gnd', 'gnd', fg=nf_dict['cmfb_tail'], neg_cap=False)
-        ckt.add_transistor(op_dict['cmfb_out'], 'cmfb_outn', 'cmfb_outn', 'gnd', fg=nf_dict['cmfb_out'], neg_cap=False)
+        ckt.add_transistor(op_dict['cmfb_load'], 'cmfb_out1n', 'cmfb_out1n', 'gnd', fg=nf_dict['cmfb_load'], neg_cap=False)
+        ckt.add_transistor(op_dict['cmfb_load'], 'cmfb_out1p', 'cmfb_out1p', 'gnd', fg=nf_dict['cmfb_load'], neg_cap=False)
+        ckt.add_transistor(op_dict['cmfb_load_copy'], 'cmfb_outp', 'cmfb_out1n', 'gnd', fg=nf_dict['cmfb_load_copy'], neg_cap=False)
+        ckt.add_transistor(op_dict['cmfb_load_copy'], 'cmfb_outn', 'cmfb_out1p', 'gnd', fg=nf_dict['cmfb_load_copy'], neg_cap=False)
         ckt.add_transistor(op_dict['cmfb_out'], 'cmfb_outp', 'cmfb_outp', 'gnd', fg=nf_dict['cmfb_out'], neg_cap=False)
+        ckt.add_transistor(op_dict['cmfb_out'], 'cmfb_outn', 'cmfb_outn', 'gnd', fg=nf_dict['cmfb_out'], neg_cap=False)
+
+        # ckt.add_transistor(op_dict['cmfb_in'], 'cmfb_outn', 'gnd', 'cmfb_tail', fg=nf_dict['cmfb_in']*2, neg_cap=False)
+        # ckt.add_transistor(op_dict['cmfb_in'], 'cmfb_outp', 'main_outn', 'cmfb_tail', fg=nf_dict['cmfb_in'], neg_cap=False)
+        # ckt.add_transistor(op_dict['cmfb_in'], 'cmfb_outp', 'main_outp', 'cmfb_tail', fg=nf_dict['cmfb_in'], neg_cap=False)
+        # ckt.add_transistor(op_dict['cmfb_tail'], 'cmfb_tail', 'gnd', 'gnd', fg=nf_dict['cmfb_tail'], neg_cap=False)
+        # ckt.add_transistor(op_dict['cmfb_out'], 'cmfb_outn', 'cmfb_outn', 'gnd', fg=nf_dict['cmfb_out'], neg_cap=False)
+        # ckt.add_transistor(op_dict['cmfb_out'], 'cmfb_outp', 'cmfb_outp', 'gnd', fg=nf_dict['cmfb_out'], neg_cap=False)
 
         return ckt
 

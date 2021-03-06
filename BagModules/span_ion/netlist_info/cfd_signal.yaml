@@ -22,10 +22,6 @@ instances:
         direction: output
         net_name: "VOUT_ATTEN"
         num_bits: 1
-      CTRL:
-        direction: 
-        net_name: "B_ATTEN"
-        num_bits: 1
       CTRLb:
         direction: input
         net_name: "Bb_ATTEN"

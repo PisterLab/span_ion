@@ -34,46 +34,6 @@ instances:
         direction: input
         net_name: "VINP"
         num_bits: 1
-  XCMFB:
-    lib_name: span_ion
-    cell_name: comparator_fd_cmfb
-    instpins:
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      VOUTN:
-        direction: output
-        net_name: "net7"
-        num_bits: 1
-      VOUTP:
-        direction: output
-        net_name: "VCMFB"
-        num_bits: 1
-      VGTAIL:
-        direction: input
-        net_name: "VGTAIL_CMFB"
-        num_bits: 1
-      VINNA:
-        direction: input
-        net_name: "VOUTCM"
-        num_bits: 1
-      VINNB:
-        direction: input
-        net_name: "VOUTCM"
-        num_bits: 1
-      VINPA:
-        direction: input
-        net_name: "VOUTN"
-        num_bits: 1
-      VINPB:
-        direction: input
-        net_name: "VOUTP"
-        num_bits: 1
   PIN2:
     lib_name: basic
     cell_name: ipin
@@ -129,4 +89,44 @@ instances:
       noConn:
         direction: inputOutput
         net_name: "net7"
+        num_bits: 1
+  XCMFB:
+    lib_name: span_ion
+    cell_name: comparator_fd_cmfb2
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUTN:
+        direction: output
+        net_name: "net7"
+        num_bits: 1
+      VOUTP:
+        direction: output
+        net_name: "VCMFB"
+        num_bits: 1
+      VGTAIL:
+        direction: input
+        net_name: "VGTAIL_CMFB"
+        num_bits: 1
+      VINNA:
+        direction: input
+        net_name: "VOUTCM"
+        num_bits: 1
+      VINNB:
+        direction: input
+        net_name: "VOUTCM"
+        num_bits: 1
+      VINPA:
+        direction: input
+        net_name: "VOUTN"
+        num_bits: 1
+      VINPB:
+        direction: input
+        net_name: "VOUTP"
         num_bits: 1

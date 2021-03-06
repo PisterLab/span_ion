@@ -122,7 +122,7 @@ class bag2_analog__constant_gm_dsn(DesignModule):
                             match_side, nf_side_nondiode = verify_ratio(side_diode_op['ibias'],
                                                                         side_nondiode_op['ibias'],
                                                                         nf_side_diode,
-                                                                        0.05)
+                                                                        error_tol)
                             if not match_side:
                                 print("side match")
                                 continue
