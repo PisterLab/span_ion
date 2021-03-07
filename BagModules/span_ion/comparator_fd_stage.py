@@ -35,6 +35,7 @@ class span_ion__comparator_fd_stage(Module):
         return dict(
             in_type = 'n or p for PMOS or NMOS input pair',
             main_params = 'Main amplifier parameters',
+            cmfb_idx = '1 for switch-side input, 2 for same-side input',
             cmfb_params = 'Common mode feedback parameters',
             constgm_params = 'CMFB constant gm parameters'
         )
@@ -56,20 +57,30 @@ class span_ion__comparator_fd_stage(Module):
         array_instance()
         """
         in_type = params['in_type']
-        cmfb_in = 'p' if in_type=='n' else 'n'
-        
+        cmfb_idx = params['cmfb_idx']
+
+        opp_type = 'n' if in_type=='p' else 'n'
+        cmfb_in_type = in_type if cmfb_idx == 2 else opp_type
+
         main_params = params['main_params']
         cmfb_params = params['cmfb_params']
+        
         constgm_params = params['constgm_params']
 
         self.instances['XMAIN'].design(in_type=in_type, **main_params)
-        self.instances['XCMFB'].design(in_type=cmfb_in, **cmfb_params)
-        self.instances['XCONSTGM'].design(res_side=cmfb_in,
+
+        if cmfb_idx == 1:
+            self.replace_instance_master(inst_name='XCMFB',
+                                         lib_name='span_ion',
+                                         cell_name='comparator_fd_cmfb')
+
+        self.instances['XCMFB'].design(in_type=cmfb_in_type, **cmfb_params)
+        self.instances['XCONSTGM'].design(res_side=cmfb_in_type,
                                           **constgm_params)
 
-        if in_type == 'n':
-            self.reconnect_instance_terminal('XCONSTGM', 'VP', 'VGTAIL_CMFB')
-        elif in_type == 'p':
+        if cmfb_in_type == 'n':
             self.reconnect_instance_terminal('XCONSTGM', 'VN', 'VGTAIL_CMFB')
+        elif cmfb_in_type == 'p':
+            self.reconnect_instance_terminal('XCONSTGM', 'VP', 'VGTAIL_CMFB')
         else:
             raise ValueError(f"input type should be n or p, not {in_type}")

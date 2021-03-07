@@ -130,6 +130,9 @@ def num_den_add(num1, num2, den1, den2):
 
     num_new = np.add(num1_new, num2_new)
 
+    num_new = np.nan_to_num(num_new)
+    den_new = np.nan_to_num(den_new)
+
     return num_new, den_new
 
 class DesignModule(object):

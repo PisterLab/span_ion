@@ -197,18 +197,18 @@ class span_ion__comparator_fd_stage_dsn(DesignModule):
                                cmfb_in = db_dict['cmfb_in'].query(vgs=voutcm_main-vtail_cmfb,
                                                                     vds=vout1_cmfb-vtail_cmfb,
                                                                     vbs=vb_in-vtail_cmfb),
-                               cmfb_load = db_dict['cmfb_load'].query(vgs=vout1_cmfb-vb_load,
-                                                                      vds=vout1_cmfb-vb_load,
-                                                                      vbs=0),
                                cmfb_tail = db_dict['cmfb_tail'].query(vgs=vgtail_cmfb-vb_in,
                                                                         vds=vtail_cmfb-vb_in,
                                                                         vbs=0),
+                               cmfb_load = db_dict['cmfb_load'].query(vgs=vout1_cmfb-vb_load,
+                                                                      vds=vout1_cmfb-vb_load,
+                                                                      vbs=0),
                                cmfb_load_copy = db_dict['cmfb_load'].query(vgs=vout1_cmfb-vb_load,
                                                                            vds=voutcm_cmfb-vb_load,
                                                                            vbs=0),
                                cmfb_out = db_dict['cmfb_out'].query(vgs=voutcm_cmfb-vb_in,
-                                                                      vds=voutcm_cmfb-vb_in,
-                                                                      vbs=0))
+                                                                    vds=voutcm_cmfb-vb_in,
+                                                                    vbs=0))
 
                 nf_dict = dict(main_in = main_dsn_info['nf_in'],
                                main_tail = main_dsn_info['nf_tail'],
@@ -286,7 +286,7 @@ class span_ion__comparator_fd_stage_dsn(DesignModule):
 
         # Calculate FoM using transfer function
         gain = num[-1]/den[-1]
-        wbw = get_w_3db(p_num, p_den)
+        wbw = get_w_3db(num, den)
         
         if wbw == None:
             wbw = 0
@@ -299,25 +299,28 @@ class span_ion__comparator_fd_stage_dsn(DesignModule):
         inp_conn = 'gnd' if meas_side=='n' else 'inp'
         inn_conn = 'gnd' if meas_side=='p' else 'inn'
 
-        ckt.add_transistor(op_dict['main_in'], 'main_outn', inp_conn, 'main_tail', fg=nf_dict['main_in'], neg_cap=False)
-        ckt.add_transistor(op_dict['main_in'], 'main_outp', inn_conn, 'main_tail', fg=nf_dict['main_in'], neg_cap=False)
-        ckt.add_transistor(op_dict['main_tail'], 'main_tail', 'cmfb_outp', 'gnd', fg=nf_dict['main_tail'], neg_cap=False)
-        
+        ckt.add_transistor(op_dict['main_in'], 'main_outn', inp_conn, 'main_tail', fg=nf_dict['main_in'])
+        ckt.add_transistor(op_dict['main_in'], 'main_outp', inn_conn, 'main_tail', fg=nf_dict['main_in'])
+        # ckt.add_transistor(op_dict['main_tail'], 'main_tail', 'cmfb_outp', 'gnd', fg=nf_dict['main_tail'])
+        ckt.add_transistor(op_dict['main_tail'], 'main_tail', 'gnd', 'gnd', fg=nf_dict['main_tail'])
         ckt.add_res(rload, 'main_outn', 'gnd')
         ckt.add_res(rload, 'main_outp', 'gnd')
+
         ckt.add_cap(cload, 'main_outn', 'gnd')
         ckt.add_cap(cload, 'main_outp', 'gnd')
 
-        ckt.add_transistor(op_dict['cmfb_in'], 'cmfb_out1n', 'gnd', 'cmfb_tail', fg=nf_dict['cmfb_in']*2, neg_cap=False)
-        ckt.add_transistor(op_dict['cmfb_in'], 'cmfb_out1p', 'main_outn', 'cmfb_tail', fg=nf_dict['cmfb_in'], neg_cap=False)
-        ckt.add_transistor(op_dict['cmfb_in'], 'cmfb_out1p', 'main_outp', 'cmfb_tail', fg=nf_dict['cmfb_in'], neg_cap=False)
-        ckt.add_transistor(op_dict['cmfb_tail'], 'cmfb_tail', 'gnd', 'gnd', fg=nf_dict['cmfb_tail'], neg_cap=False)
-        ckt.add_transistor(op_dict['cmfb_load'], 'cmfb_out1n', 'cmfb_out1n', 'gnd', fg=nf_dict['cmfb_load'], neg_cap=False)
-        ckt.add_transistor(op_dict['cmfb_load'], 'cmfb_out1p', 'cmfb_out1p', 'gnd', fg=nf_dict['cmfb_load'], neg_cap=False)
-        ckt.add_transistor(op_dict['cmfb_load_copy'], 'cmfb_outp', 'cmfb_out1n', 'gnd', fg=nf_dict['cmfb_load_copy'], neg_cap=False)
-        ckt.add_transistor(op_dict['cmfb_load_copy'], 'cmfb_outn', 'cmfb_out1p', 'gnd', fg=nf_dict['cmfb_load_copy'], neg_cap=False)
-        ckt.add_transistor(op_dict['cmfb_out'], 'cmfb_outp', 'cmfb_outp', 'gnd', fg=nf_dict['cmfb_out'], neg_cap=False)
-        ckt.add_transistor(op_dict['cmfb_out'], 'cmfb_outn', 'cmfb_outn', 'gnd', fg=nf_dict['cmfb_out'], neg_cap=False)
+        # ckt.add_transistor(op_dict['cmfb_in'], 'cmfb_out1n', 'gnd', 'cmfb_tail', fg=nf_dict['cmfb_in']*2)
+        # ckt.add_transistor(op_dict['cmfb_in'], 'cmfb_out1p', 'main_outn', 'cmfb_tail', fg=nf_dict['cmfb_in'])
+        # ckt.add_transistor(op_dict['cmfb_in'], 'cmfb_out1p', 'main_outp', 'cmfb_tail', fg=nf_dict['cmfb_in'])
+        # ckt.add_transistor(op_dict['cmfb_tail'], 'cmfb_tail', 'gnd', 'gnd', fg=nf_dict['cmfb_tail'])
+        # ckt.add_transistor(op_dict['cmfb_load'], 'cmfb_out1n', 'cmfb_out1n', 'gnd', fg=nf_dict['cmfb_load'])
+        # ckt.add_transistor(op_dict['cmfb_load'], 'cmfb_out1p', 'cmfb_out1p', 'gnd', fg=nf_dict['cmfb_load'])
+        # ckt.add_transistor(op_dict['cmfb_load_copy'], 'cmfb_outp', 'cmfb_out1n', 'gnd', fg=nf_dict['cmfb_load_copy'])
+        # ckt.add_transistor(op_dict['cmfb_load_copy'], 'cmfb_outn', 'cmfb_out1p', 'gnd', fg=nf_dict['cmfb_load_copy'])
+        # ckt.add_transistor(op_dict['cmfb_out'], 'cmfb_outp', 'cmfb_outp', 'gnd', fg=nf_dict['cmfb_out'])
+        # ckt.add_transistor(op_dict['cmfb_out'], 'cmfb_outn', 'cmfb_outn', 'gnd', fg=nf_dict['cmfb_out'])
+
+        # assert False, 'blep'
 
         # ckt.add_transistor(op_dict['cmfb_in'], 'cmfb_outn', 'gnd', 'cmfb_tail', fg=nf_dict['cmfb_in']*2, neg_cap=False)
         # ckt.add_transistor(op_dict['cmfb_in'], 'cmfb_outp', 'main_outn', 'cmfb_tail', fg=nf_dict['cmfb_in'], neg_cap=False)
