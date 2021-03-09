@@ -82,6 +82,7 @@ class bag2_analog__amp_gm_mirr_dsn(DesignModule):
         ibias_max = params['ibias']
 
         vstar_min = optional_params.get('vstar_min', 0.2)
+        vstar_in_min = optional_params.get('vstar_in_min', 0.0)
         vout_opt = optional_params.get('voutcm', None)
         error_tol = optional_params.get('error_tol', 0.1)
         res_vstep = optional_params.get('res_vstep', 10e-3)
@@ -108,8 +109,8 @@ class bag2_analog__amp_gm_mirr_dsn(DesignModule):
         viable_op_list = []
 
         ### 1. Sweep tail voltage
-        vtail_min = vstar_min if n_in else vincm-vth_in
-        vtail_max = vincm-vth_in if n_in else vdd-vstar_min
+        vtail_min = vstar_min if n_in else vincm-vth_in+vstar_in_min
+        vtail_max = vincm-vth_in-vstar_in_min if n_in else vdd-vstar_min
         vtail_vec = np.arange(vtail_min, vtail_max, res_vstep)
         for vtail in vtail_vec:
             ### 2. Sweep out1 common mode

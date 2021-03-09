@@ -12,7 +12,7 @@ instances:
         num_bits: 1
       PLUS:
         direction: inputOutput
-        net_name: "net2"
+        net_name: "VOUT"
         num_bits: 1
   D0:
     lib_name: PRIMLIB
@@ -20,7 +20,7 @@ instances:
     instpins:
       MINUS:
         direction: inputOutput
-        net_name: "net8"
+        net_name: "VIN1"
         num_bits: 1
       PLUS:
         direction: inputOutput
@@ -176,7 +176,7 @@ instances:
         num_bits: 1
       VINN:
         direction: input
-        net_name: "net2"
+        net_name: "VOUT"
         num_bits: 1
       VINP:
         direction: input
@@ -208,37 +208,5 @@ instances:
         num_bits: 1
       VINP:
         direction: input
-        net_name: "VIN1"
-        num_bits: 1
-  XRES_FB:
-    lib_name: bag2_analog
-    cell_name: res_multistrip
-    instpins:
-      BULK:
-        direction: inputOutput
-        net_name: "BULK"
-        num_bits: 1
-      PLUS:
-        direction: inputOutput
-        net_name: "net2"
-        num_bits: 1
-      MINUS:
-        direction: inputOutput
-        net_name: "VOUT"
-        num_bits: 1
-  XRES_RC:
-    lib_name: bag2_analog
-    cell_name: res_multistrip
-    instpins:
-      BULK:
-        direction: inputOutput
-        net_name: "BULK"
-        num_bits: 1
-      PLUS:
-        direction: inputOutput
-        net_name: "net8"
-        num_bits: 1
-      MINUS:
-        direction: inputOutput
         net_name: "VIN1"
         num_bits: 1

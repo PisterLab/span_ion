@@ -35,7 +35,7 @@ class span_ion__peak_detector_basic1(Module):
         return dict(
             amp_params_list = 'List of parameters for the amplifiers',
             constgm_params_list = 'List of parameters for the constant gm',
-            res_params_dict = 'Dictionary with keys of "l_dict" and "w_dict", "num_dict", and "th_dict" values the resistor parameters.',
+            # res_params_dict = 'Dictionary with keys of "l_dict" and "w_dict", "num_dict", and "th_dict" values the resistor parameters.',
             cap_params = 'Capacitor parameters',
             rst_params_dict = 'Parameters for the reset switches'
         )
@@ -43,20 +43,20 @@ class span_ion__peak_detector_basic1(Module):
     def design(self, **params):
         amp_params_list = params['amp_params_list']
         constgm_params_list = params['constgm_params_list']
-        res_params_dict = params['res_params_dict']
+        # res_params_dict = params['res_params_dict']
         cap_params = params['cap_params']
         rst_params_dict = params['rst_params_dict']
 
         # Design instances
-        res_map = {'XRES_RC' : 'rc',
-                   'XRES_FB' : 'fb'}
+        # res_map = {'XRES_RC' : 'rc',
+        #            'XRES_FB' : 'fb'}
 
-        for inst_name,k in res_map.items():
-            res_params = dict(l=res_params_dict['l_dict'][k],
-                              w=res_params_dict['w_dict'][k],
-                              intent=res_params_dict['th_dict'][k],
-                              num_unit=res_params_dict['num_dict'][k])
-            self.instances[inst_name].design(**res_params)
+        # for inst_name,k in res_map.items():
+        #     res_params = dict(l=res_params_dict['l_dict'][k],
+        #                       w=res_params_dict['w_dict'][k],
+        #                       intent=res_params_dict['th_dict'][k],
+        #                       num_unit=res_params_dict['num_dict'][k])
+        #     self.instances[inst_name].design(**res_params)
 
         self.instances['XCAP'].parameters = cap_params
 
