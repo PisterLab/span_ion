@@ -12,6 +12,7 @@ from bag.design.module import Module
 from bag.core import BagProject
 from . import DesignModule, get_mos_db, estimate_vth, parallel, verify_ratio, num_den_add, enable_print, disable_print
 from bag.data.lti import LTICircuit, get_w_3db, get_stability_margins
+from bag.io import load_sim_results, save_sim_results, load_sim_file
 
 from .amp_diff_mirr import bag2_analog__amp_diff_mirr_dsn
 from .constant_gm import bag2_analog__constant_gm_dsn
@@ -154,9 +155,10 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
 
         self.other_params = dict(l_dict=l_dict,
                                  w_dict={k:db.width_list[0] for k,db in db_dict.items()},
+                                 th_dict=th_dict,
                                  rload=rload,
                                  cload=cload,
-                                 series_type=series_type)
+                                 series_type=ser_type)
 
         amp_dsn_mod = bag2_analog__amp_diff_mirr_dsn()
         bias_dsn_mod = bag2_analog__constant_gm_dsn()
@@ -265,7 +267,11 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
                          psrr=psrr_lti,
                          psrr_fbw=psrr_fbw_lti,
                          loadreg=loadreg_eqn,
-                         vg=vg)
+                         vg=vg,
+                         amp_dsn=amp_dsn_params,
+                         bias_dsn=bias_dsn_params,
+                         amp_mod=amp_dsn_mod,
+                         bias_mod=bias_dsn_mod,)
 
                 ### Run simulations if desired
                 if run_sim:
@@ -525,17 +531,45 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
         return op1 if op1['ibias'] < op2['ibias'] else op2
 
     def get_sch_params(self, op):
+        amp_dsn_info = op['amp_params']
+        bias_dsn_info = op['bias_params']
+        ser_dsn_info = op['ser_params']
         series_params = {'type' : self.other_params['series_type'],
-                         'l' : ,
-                         'w' : ,
-                         'intent' : ,
-                         'nf' : }
+                         'l' : self.other_params['l_dict']['ser'],
+                         'w' : self.other_params['w_dict']['ser'],
+                         'intent' : self.other_params['th_dict']['ser'],
+                         'nf' : ser_dsn_info['nf']}
 
-        amp_params = dict()
-        biasing_params = dict()
+        amp_params = op['amp_mod'].get_sch_params(amp_dsn_info)
+        biasing_params = op['bias_mod'].get_sch_params(bias_dsn_info)
+
+        biasing_params.pop('res_side', None)
+
+        # TODO real resistor
+        biasing_params['th_dict'].update(dict(res='ideal'))
+
+        # amp_params = dict(in_type=amp_dsn_info['in_type'],
+        #                   l_dict=op['amp_dsn']['l_dict'],
+        #                   w_dict=op['amp_dsn']['w_dict'],
+        #                   th_dict=op['amp_dsn']['th_dict'],
+        #                   seg_dict={'in' : amp_dsn_info['nf_in'],
+        #                            'tail' : amp_dsn_info['nf_tail'],
+        #                            'load' : amp_dsn_info['nf_load']})
+
+        # biasing_params = dict(bulk_conn='VDD',
+        #                       l_dict=op['bias_dsn']['l_dict'],
+        #                       w_dict=op['bias_dsn']['w_dict'],
+        #                       th_dict=op['bias_dsn']['th_dict'],
+        #                       device_mult=)
         cap_conn_list = []
         cap_param_list = []
         res_conn_list = []
         res_param_list = []
 
-        return dict()
+        return dict(series_params=series_params,
+                    amp_params=amp_params,
+                    biasing_params=biasing_params,
+                    cap_conn_list=cap_conn_list,
+                    cap_param_list=cap_param_list,
+                    res_conn_list=res_conn_list,
+                    res_param_list=res_param_list)
