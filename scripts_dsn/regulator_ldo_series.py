@@ -311,6 +311,7 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
                     ## Check load regulation
                     tb_loadreg_params = dict(tb_loadreg_params)
                     # Default values
+                    tb_loadreg_vars_init = tb_loadreg_params['tb_vars']
                     tb_loadreg_vars = dict(DUTYCYCLE=0.5,
                                            IHIGH=vout/rload*1.1,
                                            ILOW=vout/rload*0.9,
@@ -332,11 +333,14 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
                         print(f'load reg {loadreg_sim}')
                         tb_num = tb_num + 1
                         continue
+                        
+                    tb_num = tb_num + 1
 
                     op.update(pm=pm_sim,
                               psrr=psrr_sim,
                               psrr_fbw=psrr_fbw_sim,
                               loadreg=loadreg_sim)
+
 
                 pprint(op)
                 viable_op_list.append(op)
