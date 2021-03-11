@@ -9,6 +9,7 @@ import warnings
 from pprint import pprint
 
 from bag.design.module import Module
+from bag.core import BagProject
 from . import DesignModule, get_mos_db, estimate_vth, parallel, verify_ratio, num_den_add, enable_print, disable_print
 from bag.data.lti import LTICircuit, get_w_3db, get_stability_margins
 
@@ -42,16 +43,18 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
             sim_env = 'Simulation environment',
             vdd = 'Supply voltage in volts.',
             vout = 'Reference voltage to regulate the output to',
-            loadreg = 'Maximum fractional change in output voltage given change in output current',
+            loadreg = 'Maximum absolute change in output voltage given change in output current',
             ibias = 'Maximum bias current of amp and biasing, in amperes.',
             rload = 'Load resistance from the output of the LDO to ground',
             cload = 'Load capacitance from the output of the LDO to ground',
             psrr = 'Minimum power supply rejection ratio (dB, 20*log10(dVdd/dVout))',
+            psrr_fbw = 'Minimum bandwidth for power supply rejection roll-off',
             pm = 'Minimum phase margin for the large feedback loop',
             amp_dsn_params = "Amplifier design parameters that aren't either calculated or handled above",
             bias_dsn_params = "Design parameters for the biasing that aren't calculated or handled above.",
             tb_stb_params = '',
-            tb_iload_params = ''
+            tb_loadreg_params = '',
+            run_sim = 'True to check figures of merit against simulation rather than just LTI',
         ))
         return ans
 
@@ -85,10 +88,12 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
         th_dict = params['th_dict']
         l_dict = params['l_dict']
         sim_env = params['sim_env']
+        run_sim = params['run_sim']
 
         # TODO simulating
-        tb_iload_params = params['tb_iload_params']
         tb_stb_params = params['tb_stb_params']
+        tb_loadreg_params = params['tb_loadreg_params']
+        tb_num = 0
 
         db_dict = {k:get_mos_db(spec_file=specfile_dict[k],
                                 intent=th_dict[k],
@@ -99,10 +104,12 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
         vout = params['vout']
         loadreg = params['loadreg'] # TODO load regulation
         ibias_max = params['ibias']
-        psrr_min = params['psrr']
         rload = params['rload']
         cload = params['cload']
+        psrr_min = params['psrr']
+        psrr_fbw_min = params['psrr_fbw']
         pm_min = params['pm']
+        loadreg_max = params['loadreg']
 
         vth_ser = estimate_vth(db=db_dict['ser'],
                                is_nch=ser_type=='n',
@@ -144,6 +151,12 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
 
         # Keep track of viable ops
         viable_op_list = []
+
+        self.other_params = dict(l_dict=l_dict,
+                                 w_dict={k:db.width_list[0] for k,db in db_dict.items()},
+                                 rload=rload,
+                                 cload=cload,
+                                 series_type=series_type)
 
         amp_dsn_mod = bag2_analog__amp_diff_mirr_dsn()
         bias_dsn_mod = bag2_analog__constant_gm_dsn()
@@ -209,10 +222,8 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
                            'load' : amp_dsn_info['nf_load'],
                            'ser' : ser_info['nf']}
 
-                # TODO Check against transient load - use Jackson's (likely need to modify)
-
-                # Check PSRR
-                psrr_lti = self._get_psrr_lti(op_dict=op_dict,
+                ## Check PSRR
+                psrr_lti, psrr_fbw_lti, = self._get_psrr_lti(op_dict=op_dict,
                                               nf_dict=nf_dict,
                                               series_type=ser_type,
                                               amp_in=amp_dsn_params['in_type'],
@@ -223,7 +234,11 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
                     print(f'psrr {psrr_lti}')
                     continue
 
-                # TODO Check STB against simulation
+                if psrr_fbw_lti < psrr_fbw_min:
+                    print(f'psrr fbw {psrr_fbw_lti}')
+                    continue
+
+                ## Check phase margin
                 pm_lti = self._get_stb_lti(op_dict=op_dict, 
                                        nf_dict=nf_dict, 
                                        series_type=ser_type,
@@ -237,26 +252,97 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
                     print(f'pm {pm_lti}')
                     continue
 
-                viable_op = dict(amp_params=amp_dsn_info,
-                                 bias_params=bias_dsn_info,
-                                 ser_params=ser_info, 
-                                 pm=pm_lti,
-                                 psrr=psrr_lti,
-                                 vg=vg)
+                ## Check load regulation
+                loadreg_eqn = self._get_loadreg_eqn()
+                if loadreg_eqn > loadreg_max:
+                    print(f'loadreg {loadreg_eqn}')
+                    continue
 
-                pprint(viable_op)
-                viable_op_list.append(viable_op)
+                op = dict(amp_params=amp_dsn_info,
+                         bias_params=bias_dsn_info,
+                         ser_params=ser_info, 
+                         pm=pm_lti,
+                         psrr=psrr_lti,
+                         psrr_fbw=psrr_fbw_lti,
+                         loadreg=loadreg_eqn,
+                         vg=vg)
 
+                ### Run simulations if desired
+                if run_sim:
+                    prj = BagProject()
+                    tb_sch_params = self.get_sch_params(op)
+                    ## Check PSRR
+                    psrr_sim, psrr_fbw_sim = self._get_psrr_sim()
+                    if psrr_sim < psrr_min:
+                        print(f'psrr {psrr_sim}')
+                        continue
+                    
+                    if psrr_fbw_sim < psrr_fbw_min:
+                        print(f'psrr fbw {psrr_fbw_sim}')
+                        continue
 
-        self.other_params = dict(l_dict=l_dict,
-                                 w_dict={k:db.width_list[0] for k,db in db_dict.items()},
-                                 rload=rload,
-                                 cload=cload)
+                    ## Check phase margin
+                    tb_stb_vars = dict(CLOAD=cload,
+                                       RLOAD=rload,
+                                       VDD=vdd,
+                                       VGTAIL=amp_dsn_info['vgtail'],
+                                       VREF=vout)
+                    tb_stb_params = dict(tb_stb_params)
+                    tb_stb_params.update(dict(prj=prj,
+                                              params=tb_sch_params,
+                                              tb_vars=tb_stb_vars,
+                                              num=tb_num))
+
+                    print('Simulating stability...')
+                    pm_sim = self._get_stb_sim(**tb_stb_params)
+                    print('...done')
+
+                    if pm_sim < pm_min:
+                        print(f'pm {pm_sim}')
+                        tb_num = tb_num + 1
+                        continue
+
+                    ## Check load regulation
+                    tb_loadreg_params = dict(tb_loadreg_params)
+                    # Default values
+                    tb_loadreg_vars = dict(DUTYCYCLE=0.5,
+                                           IHIGH=vout/rload*1.1,
+                                           ILOW=vout/rload*0.9,
+                                           TSTART=0,
+                                           TSTOP=tb_loadreg_vars_init['TPER']*10,
+                                           VDD=vdd,
+                                           vref=vout)
+                    tb_loadreg_vars.update(tb_loadreg_params['tb_vars'])
+                    tb_loadreg_params.update(dict(prj=prj,
+                                                  params=tb_sch_params,
+                                                  tb_vars=tb_loadreg_vars,
+                                                  num=tb_num))
+
+                    print('Simulating load regulation...')
+                    loadreg_sim = self._get_loadreg_sim(**tb_loadreg_params)
+                    print('...done')
+
+                    if loadreg_sim > loadreg_max:
+                        print(f'load reg {loadreg_sim}')
+                        tb_num = tb_num + 1
+                        continue
+
+                    op.update(pm=pm_sim,
+                              psrr=psrr_sim,
+                              psrr_fbw=psrr_fbw_sim,
+                              loadreg=loadreg_sim)
+
+                pprint(op)
+                viable_op_list.append(op)
 
         return viable_op_list
 
     def _get_psrr_lti(self, op_dict, nf_dict, series_type, amp_in, rload, cload) -> float:
-        
+        '''
+        Outputs:
+            psrr: PSRR (dB)
+            fbw: Power supply -> output 3dB bandwidth (Hz)
+        '''
         n_ser = series_type == 'n'
         n_amp = amp_in == 'n'
 
@@ -279,6 +365,7 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
 
         num_sup, den_sup = ckt_sup.get_num_den(in_name='vdd', out_name='reg', in_type='v')
         gain_sup = num_sup[-1]/den_sup[-1]
+        wbw_sup = get_w_3db(num_sup, den_sup)
 
         # Reference -> output gain
         # ckt_norm = LTICircuit()
@@ -300,8 +387,13 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
 
         if gain_sup == 0:
             return float('inf')
+        if wbw_sup == None:
+            wbw_sup = 0
+        fbw_sup = wbw_sup / (2*np.pi)
 
-        return 10*np.log10((1/gain_sup)**2)
+        psrr = 10*np.log10((1/gain_sup)**2)
+
+        return psrr, fbw_sup
 
     def _get_stb_lti(self, op_dict, nf_dict, series_type, rload, cload) -> float:
         '''
@@ -337,20 +429,67 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
 
         return pm
 
-    def _get_stb_sim(self, **spec):
-        pass
-        # return pm
+    def _get_loadreg_eqn(self) -> float:
+        # TODO
+        return 0.0
 
     def _get_psrr_sim(self, **spec):
-        pass
+        # TODO
+        return np.inf, np.inf
 
-    def _get_iload_bounce_sim(self, **spec):
+    def _get_stb_sim(self, **spec):
+        '''
+        Inputs:
+            prj: BagProject
+            tb_vars: Testbench variables to set in ADE testbench
+            tb_lib: The template testbench library.
+            tb_cell: The template testbench cell.
+            impl_lib: The implemented testbench library.
+            tb_gen_name: The generated testbench base name.
+            num: The generated testbench number.
+        Outputs:
+            pm: Simultaed phase margin in degrees
+        '''
         prj = spec['prj']
         tb_vars = spec['tb_vars']
         tb_lib = spec['tb_lib']
         tb_cell = spec['tb_cell']
         impl_lib = spec['impl_lib']
-        impl_cell = spec['impl_cell']
+        # impl_cell = spec['impl_cell']
+        tb_gen_name = self._get_tb_gen_name(spec['tb_gen_name'], spec['num'])
+
+        # generate testbench schematic
+        tb_dsn = prj.create_design_module(tb_lib, tb_cell)
+        tb_dsn.design(**spec['params'])
+        tb_dsn.implement_design(impl_lib, top_cell_name=tb_gen_name)
+
+        # copy and load ADEXL state of generated testbench
+        tb_obj = prj.configure_testbench(impl_lib, tb_gen_name)
+
+        # Assign testbench design variables (the ones that show in ADE)
+        for param_name, param_val in tb_vars.items():
+            tb_obj.set_parameter(param_name, param_val)
+
+        # Update testbench changes and run simulation
+        tb_obj.update_testbench()
+        print(f'Simulating testbench {tb_gen_name}')
+        save_dir = tb_obj.run_simulation()
+
+        # Load simulation results into Python
+        print('Simulation done, loading results')
+        results = load_sim_results(save_dir)
+
+        pm = results.get('stb_pm', np.inf)
+
+        return pm
+
+    def _get_loadreg_sim(self, **spec):
+        prj = spec['prj']
+        tb_vars = spec['tb_vars']
+        tb_lib = spec['tb_lib']
+        tb_cell = spec['tb_cell']
+        impl_lib = spec['impl_lib']
+        # impl_cell = spec['impl_cell']
         tb_gen_name = self._get_tb_gen_name(spec['tb_gen_name'], spec['num'])
 
         # Generate testbench schematic
@@ -375,12 +514,28 @@ class bag2_analog__regulator_ldo_series_dsn(DesignModule):
         results = load_sim_results(save_dir)
 
         vreg = results['tran_vreg']
+        return abs(min(vreg)-max(vreg))
+        # return min(vreg), max(vreg)
 
-        return min(vreg), max(vreg)
+    def _get_tb_gen_name(self, base, num):
+        return f'{base}_{num}'
 
 
     def op_compare(self, op1:Mapping[str,Any], op2:Mapping[str,Any]):
         return op1 if op1['ibias'] < op2['ibias'] else op2
 
     def get_sch_params(self, op):
+        series_params = {'type' : self.other_params['series_type'],
+                         'l' : ,
+                         'w' : ,
+                         'intent' : ,
+                         'nf' : }
+
+        amp_params = dict()
+        biasing_params = dict()
+        cap_conn_list = []
+        cap_param_list = []
+        res_conn_list = []
+        res_param_list = []
+
         return dict()

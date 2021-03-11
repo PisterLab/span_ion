@@ -59,5 +59,5 @@ class span_ion__zz_regulator_ldo_series_tranLoad(Module):
         restore_instance()
         array_instance()
         """
-        bag2_analog__regulator_ldo_series.design(**params)
+        self.instances['XREG'].design(**params)
 

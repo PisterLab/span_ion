@@ -91,7 +91,6 @@
 				<value>1</value>
 				<dependentTests>
 					<dependentTest omitted="0">span_ion:zz_regulator_ldo_series_transient:1</dependentTest>
-					<dependentTest omitted="0">span_ion:zz_regulator_ldo_series_tranLoad:1</dependentTest>
 				</dependentTests>
 			</var>
 			<var>TPER
