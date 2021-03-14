@@ -1,0 +1,168 @@
+lib_name: span_ion
+cell_name: scanchain
+pins: [ "SCAN_CLKb", "SCAN_INb", "SCAN_LOADb", "VDD", "VSS", "SCAN_DATA", "SCAN_OUTb" ]
+instances:
+  XCHAIN<2>:
+    lib_name: span_ion
+    cell_name: scanchain_single
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      SCAN_DATA:
+        direction: output
+        net_name: "SCAN_DATA2"
+        num_bits: 1
+      SCAN_OUTb:
+        direction: output
+        net_name: "SCAN_OUTb2"
+        num_bits: 1
+      SCAN_CLKb:
+        direction: input
+        net_name: "SCAN_CLKb"
+        num_bits: 1
+      SCAN_INb:
+        direction: input
+        net_name: "SCAN_INb"
+        num_bits: 1
+      SCAN_LOADb:
+        direction: input
+        net_name: "SCAN_LOADb"
+        num_bits: 1
+  XCHAIN<1>:
+    lib_name: span_ion
+    cell_name: scanchain_single
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      SCAN_DATA:
+        direction: output
+        net_name: "SCAN_DATA1"
+        num_bits: 1
+      SCAN_OUTb:
+        direction: output
+        net_name: "SCAN_OUTb1"
+        num_bits: 1
+      SCAN_CLKb:
+        direction: input
+        net_name: "SCAN_CLKb"
+        num_bits: 1
+      SCAN_INb:
+        direction: input
+        net_name: "SCAN_INb"
+        num_bits: 1
+      SCAN_LOADb:
+        direction: input
+        net_name: "SCAN_LOADb"
+        num_bits: 1
+  XCHAIN<0>:
+    lib_name: span_ion
+    cell_name: scanchain_single
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      SCAN_DATA:
+        direction: output
+        net_name: "SCAN_DATA0"
+        num_bits: 1
+      SCAN_OUTb:
+        direction: output
+        net_name: "SCAN_OUTb0"
+        num_bits: 1
+      SCAN_CLKb:
+        direction: input
+        net_name: "SCAN_CLKb"
+        num_bits: 1
+      SCAN_INb:
+        direction: input
+        net_name: "SCAN_INb"
+        num_bits: 1
+      SCAN_LOADb:
+        direction: input
+        net_name: "SCAN_LOADb"
+        num_bits: 1
+  XVOTE_OUTb:
+    lib_name: span_ion
+    cell_name: voter_3
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "SCAN_OUTb"
+        num_bits: 1
+      in<2:0>:
+        direction: input
+        net_name: "SCAN_OUTb2,SCAN_OUTb1,SCAN_OUTb0"
+        num_bits: 3
+  XVOTE_DATA:
+    lib_name: span_ion
+    cell_name: voter_3
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "SCAN_DATA"
+        num_bits: 1
+      in<2:0>:
+        direction: input
+        net_name: "SCAN_DATA2,SCAN_DATA1,SCAN_DATA0"
+        num_bits: 3
+  PIN2:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN1:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN0:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN4:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN6:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN5:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}

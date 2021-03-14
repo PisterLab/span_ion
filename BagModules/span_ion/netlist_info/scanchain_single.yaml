@@ -1,0 +1,88 @@
+lib_name: span_ion
+cell_name: scanchain_single
+pins: [ "VDD", "VSS", "SCAN_LOADb", "SCAN_INb", "SCAN_CLKb", "SCAN_DATA", "SCAN_OUTb" ]
+instances:
+  XCELL:
+    lib_name: span_ion
+    cell_name: scanchain_cell
+    instpins:
+      DATA_INb:
+        direction: input
+        net_name: "SCAN_INb"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      DATA_NEXTb:
+        direction: output
+        net_name: "SCAN_OUTb"
+        num_bits: 1
+      DATA_OUT:
+        direction: output
+        net_name: "SCAN_DATA"
+        num_bits: 1
+      LOAD_NEXTb:
+        direction: output
+        net_name: "LOAD_NEXTb"
+        num_bits: 1
+      CLK_IN:
+        direction: input
+        net_name: "SCAN_CLKb"
+        num_bits: 1
+      CLK_NEXT:
+        direction: output
+        net_name: "CLK_NEXT"
+        num_bits: 1
+      LOAD_INb:
+        direction: input
+        net_name: "SCAN_LOADb"
+        num_bits: 1
+  PIN1:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN0:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN4:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN2:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN6:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN5:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  XNOCONN_CLK:
+    lib_name: basic
+    cell_name: noConn
+    instpins:
+      noConn:
+        direction: inputOutput
+        net_name: "CLK_NEXT"
+        num_bits: 1
+  XNOCONN_LOAD:
+    lib_name: basic
+    cell_name: noConn
+    instpins:
+      noConn:
+        direction: inputOutput
+        net_name: "LOAD_NEXTb"
+        num_bits: 1
