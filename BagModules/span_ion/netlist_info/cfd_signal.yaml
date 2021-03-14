@@ -34,14 +34,10 @@ instances:
         direction: input
         net_name: "VREF_ATTEN"
         num_bits: 1
-  XPEAK:
+  XVOTE:
     lib_name: span_ion
-    cell_name: peak_detector_basic3
+    cell_name: voter_3
     instpins:
-      RST:
-        direction: input
-        net_name: "RST_PEAK"
-        num_bits: 1
       VSS:
         direction: inputOutput
         net_name: "VSS"
@@ -50,14 +46,14 @@ instances:
         direction: inputOutput
         net_name: "VDD"
         num_bits: 1
-      VOUT:
+      out:
         direction: output
-        net_name: "VOUT_PEAK"
+        net_name: "OUT"
         num_bits: 1
-      VIN:
+      in<2:0>:
         direction: input
-        net_name: "VOUT_PREAMP"
-        num_bits: 1
+        net_name: "ONESHOT_OUT<2:0>"
+        num_bits: 3
   XCOMP_LED:
     lib_name: span_ion
     cell_name: comparator_fd_az
@@ -162,7 +158,7 @@ instances:
         direction: input
         net_name: "VOUTCM_ZCD"
         num_bits: 1
-  XMEGANOR:
+  XMEGANOR<2>:
     lib_name: bag2_digital
     cell_name: nor
     instpins:
@@ -176,13 +172,53 @@ instances:
         num_bits: 1
       out:
         direction: output
-        net_name: "OUT_LOGIC"
+        net_name: "OUT_LOGIC<2>"
         num_bits: 1
       in:
         direction: input
-        net_name: "net1"
+        net_name: "net014"
         num_bits: 1
-  XONESHOT:
+  XMEGANOR<1>:
+    lib_name: bag2_digital
+    cell_name: nor
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "OUT_LOGIC<1>"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "net010"
+        num_bits: 1
+  XMEGANOR<0>:
+    lib_name: bag2_digital
+    cell_name: nor
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "OUT_LOGIC<0>"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "net011"
+        num_bits: 1
+  XONESHOT<0>:
     lib_name: span_ion
     cell_name: one_shot_nand
     instpins:
@@ -200,15 +236,71 @@ instances:
         num_bits: 1
       out:
         direction: output
-        net_name: "OUT"
+        net_name: "ONESHOT_OUT<0>"
         num_bits: 1
       outb:
         direction: output
-        net_name: "OUTb"
+        net_name: "ONESHOT_OUTb<0>"
         num_bits: 1
       in:
         direction: input
-        net_name: "OUT_LOGIC"
+        net_name: "OUT_LOGIC<0>"
+        num_bits: 1
+  XONESHOT<2>:
+    lib_name: span_ion
+    cell_name: one_shot_nand
+    instpins:
+      CTRLb:
+        direction: input
+        net_name: "Bb_ONESHOT"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "ONESHOT_OUT<2>"
+        num_bits: 1
+      outb:
+        direction: output
+        net_name: "ONESHOT_OUTb<2>"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "OUT_LOGIC<2>"
+        num_bits: 1
+  XONESHOT<1>:
+    lib_name: span_ion
+    cell_name: one_shot_nand
+    instpins:
+      CTRLb:
+        direction: input
+        net_name: "Bb_ONESHOT"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "ONESHOT_OUT<1>"
+        num_bits: 1
+      outb:
+        direction: output
+        net_name: "ONESHOT_OUTb<1>"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "OUT_LOGIC<1>"
         num_bits: 1
   XDELAY:
     lib_name: span_ion
@@ -233,6 +325,30 @@ instances:
       VOUT:
         direction: output
         net_name: "VOUT_DELAY"
+        num_bits: 1
+      VIN:
+        direction: input
+        net_name: "VOUT_PREAMP"
+        num_bits: 1
+  XPEAK:
+    lib_name: span_ion
+    cell_name: peak_detector_basic1
+    instpins:
+      RST:
+        direction: input
+        net_name: "RST_PEAK"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUT:
+        direction: output
+        net_name: "VOUT_PEAK"
         num_bits: 1
       VIN:
         direction: input

@@ -1,0 +1,204 @@
+lib_name: span_ion
+cell_name: scanchain_cell
+pins: [ "CLK_IN", "DATA_INb", "LOAD_INb", "VDD", "VSS", "LOAD_NEXTb", "DATA_NEXTb", "DATA_OUT", "CLK_NEXT" ]
+instances:
+  XDFF<0>:
+    lib_name: bag2_digital
+    cell_name: flipflop_D_inv
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      Q:
+        direction: output
+        net_name: "net2"
+        num_bits: 1
+      CLK:
+        direction: input
+        net_name: "CLKb"
+        num_bits: 1
+      D:
+        direction: input
+        net_name: "DATA_INb"
+        num_bits: 1
+  XDFF<2>:
+    lib_name: bag2_digital
+    cell_name: flipflop_D_inv
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      Q:
+        direction: output
+        net_name: "net03"
+        num_bits: 1
+      CLK:
+        direction: input
+        net_name: "net02"
+        num_bits: 1
+      D:
+        direction: input
+        net_name: "net1"
+        num_bits: 1
+  XDFF<1>:
+    lib_name: bag2_digital
+    cell_name: flipflop_D_inv
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      Q:
+        direction: output
+        net_name: "net1"
+        num_bits: 1
+      CLK:
+        direction: input
+        net_name: "CLK_NEXT"
+        num_bits: 1
+      D:
+        direction: input
+        net_name: "net2"
+        num_bits: 1
+  XBUF_LOAD:
+    lib_name: bag2_digital
+    cell_name: inv_chain
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "LOAD_NEXTb"
+        num_bits: 1
+      outb:
+        direction: output
+        net_name: "net02"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "LOAD_INb"
+        num_bits: 1
+  XBUF_DATA:
+    lib_name: bag2_digital
+    cell_name: inv_chain
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "DATA_NEXTb"
+        num_bits: 1
+      outb:
+        direction: output
+        net_name: "net06"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "net1"
+        num_bits: 1
+  XBUF_CLK:
+    lib_name: bag2_digital
+    cell_name: inv_chain
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "CLK_NEXT"
+        num_bits: 1
+      outb:
+        direction: output
+        net_name: "CLKb"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "CLK_IN"
+        num_bits: 1
+  XINV_DATA:
+    lib_name: bag2_digital
+    cell_name: inv
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "DATA_OUT"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "net03"
+        num_bits: 1
+  PIN2:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN1:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN0:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN4:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN7:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN6:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN5:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN8:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
