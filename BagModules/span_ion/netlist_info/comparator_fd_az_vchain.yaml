@@ -1,5 +1,5 @@
 lib_name: span_ion
-cell_name: comparator_fd_az
+cell_name: comparator_fd_az_vchain
 pins: [ "PHI_EARLYb", "PHI_EARLY", "PHIb", "PHI", "VOUTCM", "VREFP", "VSS", "VINN", "VDD", "VINP", "OUT", "VREFN" ]
 instances:
   XCHAIN_AZ:

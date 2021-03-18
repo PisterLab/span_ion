@@ -69,20 +69,21 @@ class span_ion__comparator_fd_az(Module):
                 # Getting indices of VOUTCM connection
                 az_params = az_params_list[i]
                 num_amps = len(az_params['stage_params_list'])
-                suffix_voutcm = f'<{voutcm_start+num_amps-1}:{voutcm_start}>' if num_amps > 1 else f'<{voutcm_start}>'
+                voutcm_stop = voutcm_start+num_amps-1
+                suffix_voutcm = f'<{voutcm_stop}:{voutcm_start}>' if num_amps > 1 else f'<{voutcm_start}>'
                 voutcm_start = voutcm_start + num_amps
 
                 # Getting instances and their connections
                 inst_list.append(f'XCHAIN_AZ<{i}>')
                 conn_dict = {'VDD' : 'VDD',
                              'VSS' : 'VSS',
-                             'VINP' : 'VINP' if i==0 else f'VMID<{i-1}>',
-                             'VINN' : 'VINN' if i==0 else f'VMID<{i-1}>',
-                             'VOUTP' : 'VOUTP' if i==num_az_chunks-1 else f'VMID<{i}>',
-                             'VOUTN' : 'VOUTN' if i==num_az_chunks-1 else f'VMID<{i}>',
+                             'VINP' : 'VINP' if i==0 else f'VMIDP<{i-1}>',
+                             'VINN' : 'VINN' if i==0 else f'VMIDN<{i-1}>',
+                             'VOUTP' : 'VOUTP' if i==num_az_chunks-1 else f'VMIDP<{i}>',
+                             'VOUTN' : 'VOUTN' if i==num_az_chunks-1 else f'VMIDN<{i}>',
                              'VREFP' : f'VREFP<{i}>',
                              'VREFN' : f'VREFN<{i}>',
-                             'VOUTCM' : f'VOUTCM<{suffix_voutcm}>',
+                             'VOUTCM' : f'VOUTCM{suffix_voutcm}',
                              'PHI' : f'PHI<{i}>',
                              'PHIb' : f'PHIb<{i}>',
                              'PHI_EARLY' : f'PHI_EARLY<{i}>',

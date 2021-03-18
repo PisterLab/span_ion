@@ -1,19 +1,11 @@
 lib_name: span_ion
-cell_name: comparator_fd_az
-pins: [ "PHI_EARLYb", "PHI_EARLY", "PHIb", "PHI", "VOUTCM", "VREFP", "VSS", "VINN", "VDD", "VINP", "OUT", "VREFN" ]
+cell_name: comparator_fd_az_vstage
+pins: [ "VREFP", "VINP", "VINN", "VREFN", "VOUTCM", "PHI", "PHIb", "PHI_EARLY", "PHI_EARLYb", "VDD", "VSS", "OUT" ]
 instances:
-  XCHAIN_AZ:
+  XSTAGE:
     lib_name: span_ion
-    cell_name: comparator_fd_chain_az
+    cell_name: comparator_fd_stage_az
     instpins:
-      VINP:
-        direction: input
-        net_name: "VINP"
-        num_bits: 1
-      VREFP:
-        direction: input
-        net_name: "VREFP"
-        num_bits: 1
       VREFN:
         direction: input
         net_name: "VREFN"
@@ -50,39 +42,23 @@ instances:
         direction: input
         net_name: "PHIb"
         num_bits: 1
+      VREFP:
+        direction: input
+        net_name: "VREFP"
+        num_bits: 1
       VINN:
         direction: input
         net_name: "VINN"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VINP"
         num_bits: 1
       VOUTCM:
         direction: input
         net_name: "VOUTCM"
         num_bits: 1
-  PIN12:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
-  PIN0:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
-  PIN1:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
-  PIN2:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
-  PIN3:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
-  PIN8:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
-  PIN9:
+  PIN11:
     lib_name: basic
     cell_name: ipin
     instpins: {}
@@ -90,15 +66,39 @@ instances:
     lib_name: basic
     cell_name: ipin
     instpins: {}
-  PIN11:
+  PIN9:
     lib_name: basic
     cell_name: ipin
     instpins: {}
-  PIN4:
+  PIN8:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN2:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN1:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN0:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN12:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN5:
     lib_name: basic
     cell_name: iopin
     instpins: {}
-  PIN5:
+  PIN4:
     lib_name: basic
     cell_name: iopin
     instpins: {}

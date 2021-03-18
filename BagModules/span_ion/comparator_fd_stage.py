@@ -59,7 +59,7 @@ class span_ion__comparator_fd_stage(Module):
         in_type = params['in_type']
         cmfb_idx = params['cmfb_idx']
 
-        opp_type = 'n' if in_type=='p' else 'n'
+        opp_type = 'n' if in_type=='p' else 'p'
         cmfb_in_type = in_type if cmfb_idx == 2 else opp_type
 
         main_params = params['main_params']
@@ -84,3 +84,4 @@ class span_ion__comparator_fd_stage(Module):
             self.reconnect_instance_terminal('XCONSTGM', 'VP', 'VGTAIL_CMFB')
         else:
             raise ValueError(f"input type should be n or p, not {in_type}")
+

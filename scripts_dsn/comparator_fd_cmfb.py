@@ -35,6 +35,7 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
             th_dict = 'Transistor flavor dictionary.',
             l_dict = 'Transistor channel length dictionary',
             sim_env = 'Simulation environment',
+            gain = 'Minimum gain',
             fbw = 'Minimum bandwidth in Hz',
             ugf = 'Minimum unity gain frequency in Hz',
             vdd = 'Supply voltage in volts.',
@@ -69,6 +70,7 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
         voutcm = params['voutcm']
         cload = params['cload']
         fbw_min = params['fbw']
+        gain_min = params['gain']
         ugf_min = params['ugf']
         ibias_max = params['ibias']
 
@@ -157,6 +159,10 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
                 # ugf = Gm / Cout * (1/2*np.pi)
                 gain = -num[-1]/den[-1]
                 ugf = fbw * gain
+                if gain < gain_min:
+                    print(f'gain {gain}')
+                    break
+
                 if fbw < fbw_min:
                     print(f"fbw {fbw}")
                     continue
