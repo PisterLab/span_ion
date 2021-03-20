@@ -9,14 +9,14 @@ from bag.design.module import Module
 
 
 # noinspection PyPep8Naming
-class span_ion__comparator_fd_chain_az(Module):
-    """Module for library span_ion cell comparator_fd_chain_az.
+class span_ion__comparator_az_sample(Module):
+    """Module for library span_ion cell comparator_az_sample.
 
     Fill in high level description here.
     """
     yaml_file = pkg_resources.resource_filename(__name__,
                                                 os.path.join('netlist_info',
-                                                             'comparator_fd_chain_az.yaml'))
+                                                             'comparator_az_sample.yaml'))
 
 
     def __init__(self, database, parent=None, prj=None, **kwargs):
@@ -33,8 +33,8 @@ class span_ion__comparator_fd_chain_az(Module):
             dictionary from parameter names to descriptions.
         """
         return dict(
-            stage_params_list = 'List of comparator_fd_stage parameters, in order',
-            az_params = 'comparator_az_fb parameters'
+            sample_params = 'Sample switch parameters',
+            in_params = 'Input switch parameters',
         )
 
     def design(self, **params):
@@ -53,27 +53,9 @@ class span_ion__comparator_fd_chain_az(Module):
         restore_instance()
         array_instance()
         """
-        az_params = params['az_params']
-        stage_params_list = params['stage_params_list']
+        sample_params = params['sample_params']
+        in_params = params['in_params']
 
-        # Design instances
-        self.instances['XAZ'].design(**az_params)
-        self.instances['XAMP'].design(stage_params_list=stage_params_list)
-
-        # Remove unnecessary pins
-        sw_type = az_params['mos_type']
-        has_n = sw_type != 'p'
-        has_p = sw_type != 'n'
-
-        if not has_n:
-            self.remove_pin('PHI')
-
-        if not has_p:
-            self.remove_pin('PHIb')
-
-        # Rename pins as necessary
-        num_stages = len(stage_params_list)
-        if num_stages > 1:
-            voutcm_pin = f'VOUTCM<{num_stages-1}:0>'
-            self.reconnect_instance_terminal('XAMP', voutcm_pin, voutcm_pin)
-            self.rename_pin('VOUTCM', voutcm_pin)
+        for suffix in ('A', 'B'):
+            self.instances[f'XSAMPLE{suffix}'].design(**sample_params)
+            self.instances[f'XIN{suffix}'].design(**in_params)

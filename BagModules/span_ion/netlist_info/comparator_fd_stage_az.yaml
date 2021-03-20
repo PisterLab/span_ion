@@ -1,7 +1,51 @@
 lib_name: span_ion
 cell_name: comparator_fd_stage_az
-pins: [ "VREFN", "PHIb", "PHI_EARLYb", "VSS", "PHI", "VOUTCM", "PHI_EARLY", "VOUTN", "VREFP", "VDD", "VINN", "VOUTP", "VINP" ]
+pins: [ "PHIb", "VSS", "PHI", "VOUTCM", "VOUTN", "VDD", "VINN", "VOUTP", "VINP" ]
 instances:
+  XFB:
+    lib_name: span_ion
+    cell_name: comparator_az_fb
+    instpins:
+      VAMPINB:
+        direction: inputOutput
+        net_name: "VAMPINN"
+        num_bits: 1
+      VAMPINA:
+        direction: inputOutput
+        net_name: "VAMPINP"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUTA:
+        direction: inputOutput
+        net_name: "VOUTP"
+        num_bits: 1
+      VOUTB:
+        direction: inputOutput
+        net_name: "VOUTN"
+        num_bits: 1
+      PHI:
+        direction: input
+        net_name: "PHI"
+        num_bits: 1
+      PHIb:
+        direction: input
+        net_name: "PHIb"
+        num_bits: 1
+      VINA:
+        direction: input
+        net_name: "VINP"
+        num_bits: 1
+      VINB:
+        direction: input
+        net_name: "VINN"
+        num_bits: 1
   XAMP:
     lib_name: span_ion
     cell_name: comparator_fd_stage
@@ -42,10 +86,6 @@ instances:
     lib_name: basic
     cell_name: ipin
     instpins: {}
-  PIN10:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
   PIN3:
     lib_name: basic
     cell_name: ipin
@@ -54,19 +94,7 @@ instances:
     lib_name: basic
     cell_name: ipin
     instpins: {}
-  PIN11:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
   PIN9:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
-  PIN2:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
-  PIN12:
     lib_name: basic
     cell_name: ipin
     instpins: {}
@@ -86,63 +114,3 @@ instances:
     lib_name: basic
     cell_name: iopin
     instpins: {}
-  XAZ:
-    lib_name: span_ion
-    cell_name: comparator_az_connection
-    instpins:
-      VREFA:
-        direction: input
-        net_name: "VREFP"
-        num_bits: 1
-      VAMPINB:
-        direction: inputOutput
-        net_name: "VAMPINN"
-        num_bits: 1
-      VAMPINA:
-        direction: inputOutput
-        net_name: "VAMPINP"
-        num_bits: 1
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      VOUTA:
-        direction: inputOutput
-        net_name: "VOUTP"
-        num_bits: 1
-      VOUTB:
-        direction: inputOutput
-        net_name: "VOUTN"
-        num_bits: 1
-      PHI:
-        direction: input
-        net_name: "PHI"
-        num_bits: 1
-      PHI_EARLY:
-        direction: input
-        net_name: "PHI_EARLY"
-        num_bits: 1
-      PHI_EARLYb:
-        direction: input
-        net_name: "PHI_EARLYb"
-        num_bits: 1
-      PHIb:
-        direction: input
-        net_name: "PHIb"
-        num_bits: 1
-      VINA:
-        direction: input
-        net_name: "VINP"
-        num_bits: 1
-      VINB:
-        direction: input
-        net_name: "VINN"
-        num_bits: 1
-      VREFB:
-        direction: input
-        net_name: "VREFN"
-        num_bits: 1

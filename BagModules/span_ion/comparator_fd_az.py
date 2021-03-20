@@ -33,10 +33,11 @@ class span_ion__comparator_fd_az(Module):
             dictionary from parameter names to descriptions.
         """
         return dict(
+            inv_out = 'True to invert the output',
+            sample_params = 'comparator_az_sample parameters',
             az_params_list = 'List of comparator_fd_chain_az parameters',
             single_params = 'Differential in to single ended out parameters',
             constgm_params = 'Constant gm parameters',
-            inv_out = 'True to invert the output'
         )
 
     def design(self, **params):
@@ -55,11 +56,16 @@ class span_ion__comparator_fd_az(Module):
         restore_instance()
         array_instance()
         """
+        sample_params = params['sample_params']
         az_params_list = params['az_params_list']
 
         num_az_chunks = len(az_params_list)
         assert num_az_chunks > 0, f'Number of autozeroed stages ({num_az_chunks}) should be > 0'
 
+        ### Designing and wiring up the initial sampling switches
+        self.instances['XCHAIN_SAMPLE'].design(**sample_params)
+
+        ### Designing and wiring up the instances of the autozeroed fully differential amps
         if num_az_chunks > 1:
             inst_list = []
             conn_dict_list = []
@@ -71,23 +77,22 @@ class span_ion__comparator_fd_az(Module):
                 num_amps = len(az_params['stage_params_list'])
                 voutcm_stop = voutcm_start+num_amps-1
                 suffix_voutcm = f'<{voutcm_stop}:{voutcm_start}>' if num_amps > 1 else f'<{voutcm_start}>'
+                suffix_voutcm_pin = f'<{num_amps-1}:0>' if num_amps > 1 else ''
                 voutcm_start = voutcm_start + num_amps
 
                 # Getting instances and their connections
                 inst_list.append(f'XCHAIN_AZ<{i}>')
                 conn_dict = {'VDD' : 'VDD',
                              'VSS' : 'VSS',
-                             'VINP' : 'VINP' if i==0 else f'VMIDP<{i-1}>',
-                             'VINN' : 'VINN' if i==0 else f'VMIDN<{i-1}>',
+                             'VINP' : 'VSAMPP' if i==0 else f'VMIDP<{i-1}>',
+                             'VINN' : 'VSAMPN' if i==0 else f'VMIDN<{i-1}>',
                              'VOUTP' : 'VOUTP' if i==num_az_chunks-1 else f'VMIDP<{i}>',
                              'VOUTN' : 'VOUTN' if i==num_az_chunks-1 else f'VMIDN<{i}>',
                              'VREFP' : f'VREFP<{i}>',
                              'VREFN' : f'VREFN<{i}>',
-                             'VOUTCM' : f'VOUTCM{suffix_voutcm}',
-                             'PHI' : f'PHI<{i}>',
-                             'PHIb' : f'PHIb<{i}>',
-                             'PHI_EARLY' : f'PHI_EARLY<{i}>',
-                             'PHI_EARLYb' : f'PHI_EARLYb<{i}>'}
+                             f'VOUTCM{suffix_voutcm_pin}' : f'VOUTCM{suffix_voutcm}',
+                             'PHI' : f'PHI_EARLY<{i}>',
+                             'PHIb' : f'PHI_EARLYb<{i}>',}
                 conn_dict_list.append(conn_dict)
 
             self.array_instance('XCHAIN_AZ', inst_list, conn_dict_list)
@@ -98,7 +103,7 @@ class span_ion__comparator_fd_az(Module):
             suffix_voutcm = f'<{voutcm_start-1}:0>'
             suffix_chunks = f'<{num_az_chunks-1}:0>'
             self.rename_pin('VOUTCM', f'VOUTCM{suffix_voutcm}')
-            for p in ['PHI', 'PHIb', 'PHI_EARLY', 'PHI_EARLYb', 'VREFP', 'VREFN']:
+            for p in ['PHI_EARLY', 'PHI_EARLYb']:
                 self.rename_pin(p, f'{p}{suffix_chunks}')
 
         else:

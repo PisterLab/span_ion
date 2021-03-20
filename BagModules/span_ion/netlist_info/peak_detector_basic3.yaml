@@ -58,21 +58,9 @@ instances:
         direction: input
         net_name: "VIN"
         num_bits: 1
-  XCAP:
-    lib_name: bag2_wrappers
-    cell_name: cap_ideal
-    instpins:
-      MINUS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      PLUS:
-        direction: inputOutput
-        net_name: "VIN1"
-        num_bits: 1
   XRST:
     lib_name: bag2_analog
-    cell_name: switch
+    cell_name: switch_mos
     instpins:
       BN:
         direction: input
@@ -95,6 +83,18 @@ instances:
         net_name: "VSS"
         num_bits: 1
       D:
+        direction: inputOutput
+        net_name: "VIN1"
+        num_bits: 1
+  XCAP:
+    lib_name: bag2_wrappers
+    cell_name: cap_ideal
+    instpins:
+      MINUS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      PLUS:
         direction: inputOutput
         net_name: "VIN1"
         num_bits: 1

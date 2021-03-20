@@ -120,7 +120,7 @@ instances:
         num_bits: 1
   XSW:
     lib_name: bag2_analog
-    cell_name: switch
+    cell_name: switch_mos
     instpins:
       BN:
         direction: input

@@ -1,0 +1,156 @@
+lib_name: span_ion
+cell_name: comparator_az_sample
+pins: [ "VINA", "VINB", "PHI", "PHIb", "VOUTA", "VOUTB", "VDD", "VSS", "VREFB", "VREFA" ]
+instances:
+  PIN7:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN6:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN13:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN10:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN2:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN1:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN0:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  XSAMPLEB:
+    lib_name: bag2_analog
+    cell_name: switch_mos
+    instpins:
+      BN:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "PHIb"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "PHI"
+        num_bits: 1
+      BP:
+        direction: input
+        net_name: "VDD"
+        num_bits: 1
+      S:
+        direction: inputOutput
+        net_name: "VOUTB"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VREFB"
+        num_bits: 1
+  XSAMPLEA:
+    lib_name: bag2_analog
+    cell_name: switch_mos
+    instpins:
+      BN:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "PHIb"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "PHI"
+        num_bits: 1
+      BP:
+        direction: input
+        net_name: "VDD"
+        num_bits: 1
+      S:
+        direction: inputOutput
+        net_name: "VOUTA"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VREFA"
+        num_bits: 1
+  XINB:
+    lib_name: bag2_analog
+    cell_name: switch_mos
+    instpins:
+      BN:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "PHI"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "PHIb"
+        num_bits: 1
+      BP:
+        direction: input
+        net_name: "VDD"
+        num_bits: 1
+      S:
+        direction: inputOutput
+        net_name: "VOUTB"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VINB"
+        num_bits: 1
+  XINA:
+    lib_name: bag2_analog
+    cell_name: switch_mos
+    instpins:
+      BN:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "PHI"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "PHIb"
+        num_bits: 1
+      BP:
+        direction: input
+        net_name: "VDD"
+        num_bits: 1
+      S:
+        direction: inputOutput
+        net_name: "VOUTA"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VINA"
+        num_bits: 1
+  PIN9:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN8:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}

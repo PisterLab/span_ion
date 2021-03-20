@@ -134,9 +134,29 @@ instances:
     lib_name: basic
     cell_name: ipin
     instpins: {}
+  XNOR:
+    lib_name: bag2_digital
+    cell_name: nor
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "rst_RC"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "in"
+        num_bits: 1
   XRST:
     lib_name: bag2_analog
-    cell_name: switch
+    cell_name: switch_mos
     instpins:
       BN:
         direction: input
@@ -161,24 +181,4 @@ instances:
       D:
         direction: inputOutput
         net_name: "in_filt"
-        num_bits: 1
-  XNOR:
-    lib_name: bag2_digital
-    cell_name: nor
-    instpins:
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      out:
-        direction: output
-        net_name: "rst_RC"
-        num_bits: 1
-      in:
-        direction: input
-        net_name: "in"
         num_bits: 1

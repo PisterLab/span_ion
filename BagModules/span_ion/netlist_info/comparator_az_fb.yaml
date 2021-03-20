@@ -1,0 +1,124 @@
+lib_name: span_ion
+cell_name: comparator_az_fb
+pins: [ "VINA", "VINB", "PHI", "PHIb", "VOUTA", "VOUTB", "VDD", "VSS", "VAMPINA", "VAMPINB" ]
+instances:
+  XCAPB:
+    lib_name: bag2_wrappers
+    cell_name: cap_ideal
+    instpins:
+      MINUS:
+        direction: inputOutput
+        net_name: "VINB"
+        num_bits: 1
+      PLUS:
+        direction: inputOutput
+        net_name: "VAMPINB"
+        num_bits: 1
+  XCAPA:
+    lib_name: bag2_wrappers
+    cell_name: cap_ideal
+    instpins:
+      MINUS:
+        direction: inputOutput
+        net_name: "VINA"
+        num_bits: 1
+      PLUS:
+        direction: inputOutput
+        net_name: "VAMPINA"
+        num_bits: 1
+  PIN3:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN2:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN1:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN0:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  XFBB:
+    lib_name: bag2_analog
+    cell_name: switch_mos
+    instpins:
+      BN:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "PHIb"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "PHI"
+        num_bits: 1
+      BP:
+        direction: input
+        net_name: "VDD"
+        num_bits: 1
+      S:
+        direction: inputOutput
+        net_name: "VOUTA"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VAMPINB"
+        num_bits: 1
+  XFBA:
+    lib_name: bag2_analog
+    cell_name: switch_mos
+    instpins:
+      BN:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "PHIb"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "PHI"
+        num_bits: 1
+      BP:
+        direction: input
+        net_name: "VDD"
+        num_bits: 1
+      S:
+        direction: inputOutput
+        net_name: "VOUTB"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VAMPINA"
+        num_bits: 1
+  PIN12:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN11:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN9:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN8:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN7:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN6:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}

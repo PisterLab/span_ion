@@ -4,19 +4,20 @@ from typing import Dict, Mapping
 
 import os
 import pkg_resources
+import warnings
 
 from bag.design.module import Module
 
 
 # noinspection PyPep8Naming
-class span_ion__comparator_fd_chain_az(Module):
-    """Module for library span_ion cell comparator_fd_chain_az.
+class span_ion__comparator_az_fb(Module):
+    """Module for library span_ion cell comparator_az_fb.
 
     Fill in high level description here.
     """
     yaml_file = pkg_resources.resource_filename(__name__,
                                                 os.path.join('netlist_info',
-                                                             'comparator_fd_chain_az.yaml'))
+                                                             'comparator_az_fb.yaml'))
 
 
     def __init__(self, database, parent=None, prj=None, **kwargs):
@@ -33,8 +34,9 @@ class span_ion__comparator_fd_chain_az(Module):
             dictionary from parameter names to descriptions.
         """
         return dict(
-            stage_params_list = 'List of comparator_fd_stage parameters, in order',
-            az_params = 'comparator_az_fb parameters'
+            mos_type = '"n", "p", or "both" to indicate NMOS, PMOS, or tgate, respectively',
+            mos_params_dict = 'Dictionary of transistor parameters (keys n, p)',
+            cap_params = 'Capacitor parameters',
         )
 
     def design(self, **params):
@@ -53,17 +55,12 @@ class span_ion__comparator_fd_chain_az(Module):
         restore_instance()
         array_instance()
         """
-        az_params = params['az_params']
-        stage_params_list = params['stage_params_list']
+        mos_type = params['mos_type']
+        mos_params_dict = params['mos_params_dict']
+        cap_params = params['cap_params']
 
-        # Design instances
-        self.instances['XAZ'].design(**az_params)
-        self.instances['XAMP'].design(stage_params_list=stage_params_list)
-
-        # Remove unnecessary pins
-        sw_type = az_params['mos_type']
-        has_n = sw_type != 'p'
-        has_p = sw_type != 'n'
+        has_n = mos_type != 'p'
+        has_p = mos_type != 'n'
 
         if not has_n:
             self.remove_pin('PHI')
@@ -71,9 +68,11 @@ class span_ion__comparator_fd_chain_az(Module):
         if not has_p:
             self.remove_pin('PHIb')
 
-        # Rename pins as necessary
-        num_stages = len(stage_params_list)
-        if num_stages > 1:
-            voutcm_pin = f'VOUTCM<{num_stages-1}:0>'
-            self.reconnect_instance_terminal('XAMP', voutcm_pin, voutcm_pin)
-            self.rename_pin('VOUTCM', voutcm_pin)
+        self.instances['XCAPA'].parameters = cap_params
+        self.instances['XCAPB'].parameters = cap_params
+
+        warnings.warn("(comparator_az_fb) double check passive values in generated schematic")
+
+        ### Designing instances
+        self.instances['XFBA'].design(mos_type=mos_type, mos_params_dict=mos_params_dict)
+        self.instances['XFBB'].design(mos_type=mos_type, mos_params_dict=mos_params_dict)

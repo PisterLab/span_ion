@@ -2,6 +2,62 @@ lib_name: span_ion
 cell_name: peak_detector_basic1
 pins: [ "VOUT", "VIN", "VDD", "VSS", "RST" ]
 instances:
+  XRST_OUT:
+    lib_name: bag2_analog
+    cell_name: switch_mos
+    instpins:
+      BN:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "net012"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "RST"
+        num_bits: 1
+      BP:
+        direction: input
+        net_name: "net013"
+        num_bits: 1
+      S:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VOUT"
+        num_bits: 1
+  XRST_IN1:
+    lib_name: bag2_analog
+    cell_name: switch_mos
+    instpins:
+      BN:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "net010"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "RST"
+        num_bits: 1
+      BP:
+        direction: input
+        net_name: "net011"
+        num_bits: 1
+      S:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VIN1"
+        num_bits: 1
   D1:
     lib_name: PRIMLIB
     cell_name: dn5
@@ -35,62 +91,6 @@ instances:
         net_name: "VSS"
         num_bits: 1
       PLUS:
-        direction: inputOutput
-        net_name: "VIN1"
-        num_bits: 1
-  XRST_OUT:
-    lib_name: bag2_analog
-    cell_name: switch
-    instpins:
-      BN:
-        direction: input
-        net_name: "VSS"
-        num_bits: 1
-      CTRLb:
-        direction: input
-        net_name: "net012"
-        num_bits: 1
-      CTRL:
-        direction: input
-        net_name: "RST"
-        num_bits: 1
-      BP:
-        direction: input
-        net_name: "net013"
-        num_bits: 1
-      S:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      D:
-        direction: inputOutput
-        net_name: "VOUT"
-        num_bits: 1
-  XRST_IN1:
-    lib_name: bag2_analog
-    cell_name: switch
-    instpins:
-      BN:
-        direction: input
-        net_name: "VSS"
-        num_bits: 1
-      CTRLb:
-        direction: input
-        net_name: "net010"
-        num_bits: 1
-      CTRL:
-        direction: input
-        net_name: "RST"
-        num_bits: 1
-      BP:
-        direction: input
-        net_name: "net011"
-        num_bits: 1
-      S:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      D:
         direction: inputOutput
         net_name: "VIN1"
         num_bits: 1
