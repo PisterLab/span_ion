@@ -58,18 +58,6 @@ instances:
         direction: input
         net_name: "VIN1"
         num_bits: 1
-  D0:
-    lib_name: PRIMLIB
-    cell_name: dn5
-    instpins:
-      MINUS:
-        direction: inputOutput
-        net_name: "VIN1"
-        num_bits: 1
-      PLUS:
-        direction: inputOutput
-        net_name: "VOUT0"
-        num_bits: 1
   XRST:
     lib_name: BAG_prim
     cell_name: nmos4_svt

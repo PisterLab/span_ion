@@ -158,42 +158,6 @@ instances:
         direction: output
         net_name: "VP<0>"
         num_bits: 1
-  D4:
-    lib_name: PRIMLIB
-    cell_name: dn
-    instpins:
-      MINUS:
-        direction: inputOutput
-        net_name: "net03"
-        num_bits: 1
-      PLUS:
-        direction: inputOutput
-        net_name: "VOUT0"
-        num_bits: 1
-  D3:
-    lib_name: PRIMLIB
-    cell_name: dn
-    instpins:
-      MINUS:
-        direction: inputOutput
-        net_name: "VOUT0"
-        num_bits: 1
-      PLUS:
-        direction: inputOutput
-        net_name: "net29"
-        num_bits: 1
-  D5:
-    lib_name: PRIMLIB
-    cell_name: dn
-    instpins:
-      MINUS:
-        direction: inputOutput
-        net_name: "net36"
-        num_bits: 1
-      PLUS:
-        direction: inputOutput
-        net_name: "net03"
-        num_bits: 1
   XRESFB<0>:
     lib_name: bag2_analog
     cell_name: res_multistrip
