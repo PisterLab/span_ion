@@ -67,7 +67,8 @@ class bag2_analog__amp_gm_mirr_dsn(DesignModule):
         # Databases
         db_dict = {k:get_mos_db(spec_file=specfile_dict[k],
                                 intent=th_dict[k],
-                                sim_env=sim_env) for k in specfile_dict.keys()}
+                                sim_env=sim_env,
+                                lch=l_dict[k]) for k in specfile_dict.keys()}
 
         ### Design devices
         in_type = params['in_type']

@@ -14,13 +14,17 @@ def disable_print():
 def enable_print():
     sys.stdout = sys.__stdout__
 
-def get_mos_db(spec_file, intent, interp_method='spline', sim_env='tt') -> MOSDBDiscrete:
+def get_mos_db(spec_file, intent, lch=None, interp_method='spline', sim_env='tt') -> MOSDBDiscrete:
     # Initialize transistor database from simulation data
     mos_db = MOSDBDiscrete([spec_file], interp_method=interp_method)
     # Set process corners
     mos_db.env_list = [sim_env]
     # Set layout parameters
     mos_db.set_dsn_params(intent=intent)
+    
+    if lch != None:
+        mos_db.set_dsn_params(lch=lch)
+    
     return mos_db
 
 def estimate_vth(db:MOSDBDiscrete, vgs:float, vbs:float, is_nch:bool, lch:float) -> float:
