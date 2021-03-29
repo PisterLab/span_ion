@@ -34,7 +34,9 @@ class span_ion__comparator_fd_chain_az(Module):
         """
         return dict(
             stage_params_list = 'List of comparator_fd_stage parameters, in order',
-            az_params = 'comparator_az_fb parameters'
+            az_params = 'comparator_az_fb parameters',
+            comp_params_list = 'List of compensation block parameters',
+            comp_conn_list = 'List of where to connect two ends of compensation',
         )
 
     def design(self, **params):
@@ -55,15 +57,68 @@ class span_ion__comparator_fd_chain_az(Module):
         """
         az_params = params['az_params']
         stage_params_list = params['stage_params_list']
+        comp_params_list = params['comp_params_list']
+        comp_conn_list = params['comp_conn_list']
 
-        # Design instances
+        ### Design instances
         self.instances['XAZ'].design(**az_params)
-        self.instances['XAMP'].design(stage_params_list=stage_params_list)
 
+        # Array stages and rewire as necessary
+        num_stages = len(stage_params_list)
+        if num_stages > 1:
+            conn_dict_list = []
+            for i in range(num_stages):
+                conn_dict = dict(VINP='VAMPINP' if i==0 else f'VMIDP<{i-1}>',
+                                 VINN='VAMPINN' if i==0 else f'VMIDN<{i-1}>',
+                                 VOUTCM=f'VOUTCM<{i}>',
+                                 VOUTN='VOUTN' if i==num_stages-1 else f'VMIDN<{i}>',
+                                 VOUTP='VOUTP' if i==num_stages-1 else f'VMIDP<{i}>',
+                                 VDD='VDD',
+                                 VSS='VSS')
+                conn_dict_list.append(conn_dict)
+
+            self.array_instance('XSTAGE',
+                                [f'XSTAGE<{i}>' for i in range(num_stages)],
+                                conn_dict_list)
+
+            self.rename_pin('VOUTCM', f'VOUTCM<{num_stages-1}:0>')
+
+            for i in range(num_stages):
+                self.instances['XSTAGE'][i].design(**(stage_params_list[i]))
+        else:
+            self.instances['XSTAGE'].design(**(stage_params_list[0]))
+
+        # Array compensation elements and wire up
+        assert len(comp_params_list) == len(comp_conn_list), f'comp_params and comp_conn lists should be same length'
+        num_comp = len(comp_params_list)
+        if num_comp > 1:
+            compp_inst = [f'XCOMPP<{i}>' for i in range(num_comp)]
+            compp_conn = [dict(VIN=comp_conn_list[i]['VIN'].replace('N', 'P'),
+                               VOUT=comp_conn_list[i]['VOUT'].replace('P', 'N'),) for i in range(num_comp)]
+            compn_inst = [f'XCOMPN<{i}>' for i in range(num_comp)]
+            compn_conn = [dict(VIN=comp_conn_list[i]['VIN'].replace('P', 'N'),
+                               VOUT=comp_conn_list[i]['VOUT'].replace('N', 'P'),) for i in range(num_comp)]
+            self.array_instance('XCOMPP', compp_inst, compp_conn)
+            self.array_instance('XCOMPN', compn_inst, compn_conn)
+        else:
+            for suffix in ('P', 'N'):
+                opp_suffix = 'N' if suffix == 'P' else 'P'
+                inst_name = f'XCOMP{suffix}'
+                self.instances[inst_name].design(**(comp_params_list[0]))
+                self.reconnect_instance_terminal(inst_name, 'VIN', f'VIN{suffix}')
+                self.reconnect_instance_terminal(inst_name, 'VOUT', f'VOUT{opp_suffix}')
+
+        ### Adjusting pins
         # Remove unnecessary pins
-        sw_type = az_params['mos_type']
-        has_n = sw_type != 'p'
-        has_p = sw_type != 'n'
+        comp_sw_types = [comp_params['sw_params']['mos_type'] for comp_params in comp_params_list]
+        az_sw_type = az_params['mos_type']
+        az_has_n = az_sw_type != 'p'
+        az_has_p = az_sw_type != 'n'
+        comp_has_n = 'n' in comp_sw_types or 'both' in comp_sw_types
+        comp_has_p = 'p' in comp_sw_types or 'both' in comp_sw_types
+
+        has_n = az_has_n or comp_has_n
+        has_p = az_has_p or comp_has_p
 
         if not has_n:
             self.remove_pin('PHI')
@@ -71,9 +126,9 @@ class span_ion__comparator_fd_chain_az(Module):
         if not has_p:
             self.remove_pin('PHIb')
 
-        # Rename pins as necessary
-        num_stages = len(stage_params_list)
-        if num_stages > 1:
-            voutcm_pin = f'VOUTCM<{num_stages-1}:0>'
-            self.reconnect_instance_terminal('XAMP', voutcm_pin, voutcm_pin)
-            self.rename_pin('VOUTCM', voutcm_pin)
+        # # Rename pins as necessary
+        # num_stages = len(stage_params_list)
+        # if num_stages > 1:
+        #     voutcm_pin = f'VOUTCM<{num_stages-1}:0>'
+        #     self.reconnect_instance_terminal('XSTAGE', voutcm_pin, voutcm_pin)
+        #     self.rename_pin('VOUTCM', voutcm_pin)

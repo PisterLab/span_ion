@@ -1,0 +1,164 @@
+<?xml version="1.0"?>
+<setupdb version="6">data
+	<active>Active Setup
+		<corners>
+			<corner enabled="0">_default</corner>
+			<corner enabled="1">tm</corner>
+			<corner enabled="1">tm_Thi
+				<vars>
+					<var>temperature
+						<value>125</value>
+					</var>
+				</vars>
+			</corner>
+			<corner enabled="1">tm_Tlo
+				<vars>
+					<var>temperature
+						<value>-85</value>
+					</var>
+				</vars>
+			</corner>
+		</corners>
+		<extensions>
+			<extension>Parasitics
+				<callback>_parSetupDBExtensionCB</callback>
+				<iconvalue></iconvalue>
+				<icontype></icontype>
+			</extension>
+		</extensions>
+		<currentmode>Monte Carlo Sampling</currentmode>
+		<overwritehistory>0</overwritehistory>
+		<tests>
+			<test enabled="1">span_ion:zz_one_shot_nand_pulseWidth:1
+				<tool>ADE</tool>
+				<tooloptions>
+					<option>cell
+						<value>zz_one_shot_nand_pulseWidth</value>
+					</option>
+					<option>lib
+						<value>span_ion</value>
+					</option>
+					<option>sim
+						<value>spectre</value>
+					</option>
+					<option>view
+						<value>schematic</value>
+					</option>
+					<option>path
+						<value>$AXL_SETUPDB_DIR/test_states</value>
+					</option>
+					<option>state
+						<value>span_ion:zz_one_shot_nand_pulseWidth:1_active</value>
+					</option>
+				</tooloptions>
+				<origoptions>
+					<option>cell
+						<value>zz_one_shot_nand_pulseWidth</value>
+					</option>
+					<option>lib
+						<value>span_ion</value>
+					</option>
+					<option>sim
+						<value>spectre</value>
+					</option>
+					<option>view
+						<value>schematic</value>
+					</option>
+				</origoptions>
+			</test>
+		</tests>
+		<vars>
+			<var>b0
+				<value>0</value>
+				<dependentTests>
+					<dependentTest omitted="0">span_ion:zz_one_shot_nand_pulseWidth:1</dependentTest>
+				</dependentTests>
+			</var>
+			<var>b1
+				<value>0</value>
+				<dependentTests>
+					<dependentTest omitted="0">span_ion:zz_one_shot_nand_pulseWidth:1</dependentTest>
+				</dependentTests>
+			</var>
+			<var>CAP_VAL
+				<value>1e-12</value>
+				<dependentTests>
+					<dependentTest omitted="0">span_ion:zz_one_shot_nand_pulseWidth:1</dependentTest>
+				</dependentTests>
+			</var>
+			<var>CL
+				<value>0</value>
+				<dependentTests>
+					<dependentTest omitted="0">span_ion:zz_one_shot_nand_pulseWidth:1</dependentTest>
+				</dependentTests>
+			</var>
+			<var>TD_POWER
+				<value>10n</value>
+				<dependentTests>
+					<dependentTest omitted="0">span_ion:zz_one_shot_nand_pulseWidth:1</dependentTest>
+				</dependentTests>
+			</var>
+			<var>VDD
+				<value>1.8</value>
+				<dependentTests>
+					<dependentTest omitted="0">span_ion:zz_one_shot_nand_pulseWidth:1</dependentTest>
+				</dependentTests>
+			</var>
+			<var>TSTOP
+				<value>200u</value>
+				<dependentTests>
+					<dependentTest omitted="0">span_ion:zz_one_shot_nand_pulseWidth:1</dependentTest>
+				</dependentTests>
+			</var>
+		</vars>
+		<jobpolicyname>ADE XL Default</jobpolicyname>
+		<runoptions>
+			<mode>Monte Carlo Sampling
+				<runoption>mcmethod
+					<value>all</value>
+				</runoption>
+				<runoption>mcnumpoints
+					<value>200</value>
+				</runoption>
+				<runoption>mcnumbins
+					<value></value>
+				</runoption>
+				<runoption>mcStopEarly
+					<value>0</value>
+				</runoption>
+				<runoption>mcStopMethod
+					<value>Significance Test</value>
+				</runoption>
+				<runoption>samplingmode
+					<value>lds</value>
+				</runoption>
+				<runoption>saveprocess
+					<value>1</value>
+				</runoption>
+				<runoption>savemismatch
+					<value>0</value>
+				</runoption>
+				<runoption>mcreferencepoint
+					<value>0</value>
+				</runoption>
+				<runoption>donominal
+					<value>0</value>
+				</runoption>
+				<runoption>saveallplots
+					<value>0</value>
+				</runoption>
+				<runoption>montecarloseed
+					<value></value>
+				</runoption>
+				<runoption>mcstartingrunnumber
+					<value></value>
+				</runoption>
+				<runoption>dumpParamMode
+					<value>yes</value>
+				</runoption>
+			</mode>
+		</runoptions>
+		<distributeoptions></distributeoptions>
+	</active>
+	<history>History</history>
+</setupdb>

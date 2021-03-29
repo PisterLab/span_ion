@@ -2,9 +2,65 @@ lib_name: span_ion
 cell_name: comparator_fd_chain_az
 pins: [ "VINP", "VINN", "VOUTCM", "VDD", "VSS", "VOUTP", "VOUTN", "PHI", "PHIb" ]
 instances:
-  XAMP:
+  XCOMPN:
     lib_name: span_ion
-    cell_name: comparator_fd_chain
+    cell_name: comparator_fd_chain_comp
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUT:
+        direction: inputOutput
+        net_name: "VOUTP"
+        num_bits: 1
+      PHI:
+        direction: input
+        net_name: "PHI"
+        num_bits: 1
+      PHIb:
+        direction: input
+        net_name: "PHIb"
+        num_bits: 1
+      VIN:
+        direction: input
+        net_name: "VAMPINN"
+        num_bits: 1
+  XCOMPP:
+    lib_name: span_ion
+    cell_name: comparator_fd_chain_comp
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUT:
+        direction: inputOutput
+        net_name: "VOUTN"
+        num_bits: 1
+      PHI:
+        direction: input
+        net_name: "PHI"
+        num_bits: 1
+      PHIb:
+        direction: input
+        net_name: "PHIb"
+        num_bits: 1
+      VIN:
+        direction: input
+        net_name: "VAMPINP"
+        num_bits: 1
+  XSTAGE:
+    lib_name: span_ion
+    cell_name: comparator_fd_stage
     instpins:
       VSS:
         direction: inputOutput

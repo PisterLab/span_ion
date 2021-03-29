@@ -1,0 +1,68 @@
+lib_name: span_ion
+cell_name: comparator_fd_chain_comp
+pins: [ "VOUT", "VDD", "VIN", "VSS", "PHI", "PHIb" ]
+instances:
+  XCAP:
+    lib_name: bag2_wrappers
+    cell_name: cap_ideal
+    instpins:
+      MINUS:
+        direction: inputOutput
+        net_name: "net11"
+        num_bits: 1
+      PLUS:
+        direction: inputOutput
+        net_name: "VOUT"
+        num_bits: 1
+  XSWCAP:
+    lib_name: bag2_analog
+    cell_name: switch_mos
+    instpins:
+      BN:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "PHIb"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "PHI"
+        num_bits: 1
+      BP:
+        direction: input
+        net_name: "VDD"
+        num_bits: 1
+      S:
+        direction: inputOutput
+        net_name: "net11"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VIN"
+        num_bits: 1
+  PIN5:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN4:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN0:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN6:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN2:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}

@@ -88,7 +88,7 @@ class span_ion__one_shot_nand(Module):
         self.instances['XRST'].design(mos_type='n', **rst_params)
 
         warnings.warn('(one_shot_nand) check cap values generated correctly')
-        self.instances['XC'].parameters = cap_params
+        # self.instances['XCAP'].parameters = cap_params
 
         self.reconnect_instance_terminal('XNAND', 'in<1:0>', 'inb,outb')
         self.reconnect_instance_terminal('XNOR', 'in<2:0>', 'in,in_gate,out')

@@ -42,18 +42,6 @@ instances:
         direction: input
         net_name: "inb"
         num_bits: 1
-  XC:
-    lib_name: bag2_wrappers
-    cell_name: cap_ideal
-    instpins:
-      MINUS:
-        direction: inputOutput
-        net_name: "in_gate"
-        num_bits: 1
-      PLUS:
-        direction: inputOutput
-        net_name: "in_filt"
-        num_bits: 1
   XINV_OUT:
     lib_name: bag2_digital
     cell_name: inv_chain
@@ -134,6 +122,18 @@ instances:
     lib_name: basic
     cell_name: ipin
     instpins: {}
+  XCAP:
+    lib_name: PRIMLIB
+    cell_name: cmm3
+    instpins:
+      MINUS:
+        direction: inputOutput
+        net_name: "in_gate"
+        num_bits: 1
+      PLUS:
+        direction: inputOutput
+        net_name: "in_filt"
+        num_bits: 1
   XNOR:
     lib_name: bag2_digital
     cell_name: nor
