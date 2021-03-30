@@ -188,12 +188,23 @@ class span_ion__comparator_fd_main_dsn(DesignModule):
         l_dict.update(dict(res=1e-6*op['res_val']/600))
         w_dict = dict(self.other_params['w_dict'])
         w_dict.update(dict(res=1e-6))
+        seg_dict = {'in' : op['nf_in'],
+                  'tail' : op['nf_tail'],
+                  'res' : 1} # TODO real resistor
+
+        # Cleaning up data types
+        for k, v in l_dict.items():
+            l_dict[k] = float(v)
+
+        for k, v in w_dict.items():
+            w_dict[k] = float(v)
+
+        for k, v in seg_dict.items():
+            seg_dict[k] = int(v)
 
         return dict(in_type=self.other_params['in_type'],
                     bulk_conn='VSS', # TODO real resistor
                     l_dict=l_dict,
                     w_dict=w_dict,
                     th_dict=self.other_params['th_dict'],
-                    seg_dict={'in' : op['nf_in'],
-                              'tail' : op['nf_tail'],
-                              'res' : 1}) # TODO real resistor
+                    seg_dict=seg_dict)

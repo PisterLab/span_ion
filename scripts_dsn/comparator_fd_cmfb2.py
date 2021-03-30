@@ -70,6 +70,7 @@ class span_ion__comparator_fd_cmfb2_dsn(DesignModule):
         vincm = params['vincm']
         voutcm = params['voutcm']
         cload = params['cload']
+        gain_min = params['gain']
         fbw_min = params['fbw']
         ugf_min = params['ugf']
         ibias_max = params['ibias']
@@ -211,6 +212,10 @@ class span_ion__comparator_fd_cmfb2_dsn(DesignModule):
                             print(f"ugf {ugf}")
                             break
 
+                        if gain < gain_min:
+                            print(f'gain {gain}')
+                            break
+
                         # Design matching tail
                         vgtail_min = vth_tail+vstar_min if n_in else vdd+vth_tail
                         vgtail_max = vtail+vth_tail if n_in else vdd+vth_tail-vstar_min
@@ -259,12 +264,25 @@ class span_ion__comparator_fd_cmfb2_dsn(DesignModule):
         return op2 if op1['ibias'] > op2['ibias'] else op1
 
     def get_sch_params(self, op):
+        l_dict = self.other_params['lch_dict']
+        w_dict = self.other_params['w_dict']
+        seg_dict = {'in': op['nf_in'],
+                     'load': op['nf_load'],
+                     'load_copy': op['nf_load_copy'],
+                     'tail': op['nf_tail'],
+                     'out': op['nf_out']}
+
+        for k, v in l_dict.items():
+            l_dict[k] = float(v)
+
+        for k, v in w_dict.items():
+            w_dict[k] = float(v)
+
+        for k, v in seg_dict.items():
+            seg_dict[k] = int(v)
+
         return dict(in_type=self.other_params['in_type'],
-                    lch_dict=self.other_params['lch_dict'],
-                    wch_dict=self.other_params['w_dict'],
+                    lch_dict=l_dict,
+                    wch_dict=w_dict,
                     th_dict=self.other_params['th_dict'],
-                    seg_dict={'in' : op['nf_in'],
-                              'load' : op['nf_load'],
-                              'load_copy' : op['nf_load_copy'],
-                              'tail' : op['nf_tail'],
-                              'out' : op['nf_out']})
+                    seg_dict=seg_dict)

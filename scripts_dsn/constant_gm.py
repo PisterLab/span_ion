@@ -61,6 +61,7 @@ class bag2_analog__constant_gm_dsn(DesignModule):
         # Databases
         db_dict = {k:get_mos_db(spec_file=specfile_dict[k],
                                 intent=th_dict[k],
+                                lch=l_dict[k],
                                 sim_env=sim_env) for k in specfile_dict.keys()}
         
         # Target spec
@@ -178,11 +179,24 @@ class bag2_analog__constant_gm_dsn(DesignModule):
         self.other_params['l_dict'].update(dict(res=op['res_val']*1e-6/600))  # TODO real resistor
         self.other_params['w_dict'].update(dict(res=1e-6))
 
+        l_dict = self.other_params['l_dict']
+        w_dict = self.other_params['w_dict']
+        seg_dict = dict(n=op['nf_diode_n'], p=op['nf_diode_p'], res=1) # TODO real resistor
+
+        for k, v in l_dict.items():
+            l_dict[k] = float(v)
+            
+        for k, v in w_dict.items():
+            w_dict[k] = float(v)
+
+        for k, v in seg_dict.items():
+            seg_dict[k] = int(v)
+
         return dict(bulk_conn='VDD',
                     res_side=res_side,
-                    l_dict=self.other_params['l_dict'],
-                    w_dict=self.other_params['w_dict'],
+                    l_dict=l_dict,
+                    w_dict=w_dict,
                     th_dict=self.other_params['th_dict'],
-                    seg_dict=dict(n=op['nf_diode_n'], p=op['nf_diode_p'], res=1), # TODO real resistor
-                    device_mult=op['nf_nondiode_n']/op['nf_diode_n'] if res_side=='n' else \
-                                op['nf_nondiode_p']/op['nf_diode_p'])
+                    seg_dict=seg_dict,
+                    device_mult=float(op['nf_nondiode_n']/op['nf_diode_n'] if res_side=='n' else \
+                                op['nf_nondiode_p']/op['nf_diode_p']))
