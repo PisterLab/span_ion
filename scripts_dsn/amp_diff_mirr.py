@@ -108,7 +108,7 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
         vtail_min = vstar_min if n_in else vincm-vth_in
         vtail_max = vincm-vth_in if n_in else vdd-vstar_min
         vtail_vec = np.arange(vtail_min, vtail_max, res_vstep)
-        # print(f'Sweeping tail from {vtail_min} to {vtail_max}')
+        print(f'Sweeping tail from {vtail_min} to {vtail_max}')
 
         for vtail in vtail_vec:
             # Sweep output common mode or use taken-in optional parameter
@@ -153,43 +153,6 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
                         # print(f"Load match {nf_load}")
                         continue
 
-                    # Check approximate gain, bandwidth (makes meh assumption about virtual ground)
-                    ckt_p = LTICircuit()
-                    ckt_p.add_transistor(in_op, 'out', 'gnd', 'gnd', fg=nf_in, neg_cap=False)
-                    ckt_p.add_transistor(in_op, 'outx', 'inp', 'gnd', fg=nf_in, neg_cap=False)
-                    ckt_p.add_transistor(load_op, 'outx', 'outx', 'gnd', fg=nf_load, neg_cap=False)
-                    ckt_p.add_transistor(load_op, 'out', 'outx', 'gnd', fg=nf_load, neg_cap=False)
-                    ckt_p.add_cap(cload, 'out', 'gnd')
-
-                    p_num, p_den = ckt_p.get_num_den(in_name='inp', out_name='out', in_type='v')
-                    
-                    ckt_n = LTICircuit()
-                    ckt_n.add_transistor(in_op, 'out', 'inn', 'gnd', fg=nf_in, neg_cap=False)
-                    ckt_n.add_transistor(in_op, 'outx', 'gnd', 'gnd', fg=nf_in, neg_cap=False)
-                    ckt_n.add_transistor(load_op, 'outx', 'outx', 'gnd', fg=nf_load, neg_cap=False)
-                    ckt_n.add_transistor(load_op, 'out', 'outx', 'gnd', fg=nf_load, neg_cap=False)
-                    ckt_n.add_cap(cload, 'out', 'gnd')
-                    n_num, n_den = ckt_n.get_num_den(in_name='inn', out_name='out', in_type='v')
-
-                    num, den = num_den_add(p_num, np.convolve(n_num, [-1]),
-                                           p_den, n_den)
-
-                    num = np.convolve(num, [0.5])
-
-                    gain = num[-1]/den[-1]
-                    wbw = get_w_3db(num, den)
-
-                    if wbw == None:
-                        wbw = 0
-                    fbw = wbw/(2*np.pi)
-                    
-                    if fbw < fbw_min:
-                        print(f"fbw: {fbw}")
-                        continue
-                    if gain < gain_min:
-                        print(f'gain: {gain}')
-                        break
-
                     # Design tail to current match
                     vgtail_min = vth_tail + vstar_min if n_in else vtail + vth_tail
                     vgtail_max = vtail + vth_tail if n_in else vdd + vth_tail - vstar_min
@@ -219,15 +182,19 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
                                                                               cload=cload)
                         
                         if gain_lti < gain_min:
+                            print(f'gain {gain_lti}')
                             break
 
                         if fbw_lti < fbw_min:
+                            print(f'fbw {fbw_lti}')
                             continue
 
                         if ugf_lti < ugf_min:
+                            print(f'ugf {ugf_lti}')
                             continue
 
                         if pm_lti < pm_min:
+                            print(f'pm {pm_lti}')
                             continue
 
                         viable_op = dict(nf_in=nf_in,

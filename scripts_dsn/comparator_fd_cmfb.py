@@ -61,6 +61,7 @@ class span_ion__comparator_fd_cmfb_dsn(DesignModule):
         # Databases
         db_dict = {k:get_mos_db(spec_file=specfile_dict[k],
                                 intent=th_dict[k],
+                                lch=l_dict[k],
                                 sim_env=sim_env) for k in specfile_dict.keys()}
 
         ### Design devices
