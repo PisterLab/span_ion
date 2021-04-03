@@ -313,8 +313,17 @@ class bag2_analog__amp_gm_mirr_dsn(DesignModule):
         l_dict = self.other_params['l_dict']
         th_dict = self.other_params['th_dict']
         in_type = self.other_params['in_type']
+        w_dict = {k:float(db.width_list[0]) for k,db in db_dict.items()}
+        seg_dict = op['nf_dict']
+
+        for k, v in l_dict.items():
+            l_dict[k] = float(v)
+
+        for k, v in seg_dict.items():
+            seg_dict[k] = int(v)
 
         return dict(in_type=in_type,
                     l_dict=l_dict,
-                    w_dict={k:db.width_list[0] for k,db in db_dict.items()},
-                    seg_dict=op['nf_dict'])
+                    w_dict=w_dict,
+                    seg_dict=seg_dict,
+                    th_dict=th_dict)

@@ -91,7 +91,7 @@ class span_ion__comparator_fd_chain_az(Module):
         # Array compensation elements and wire up
         assert len(comp_params_list) == len(comp_conn_list), f'comp_params and comp_conn lists should be same length'
         num_comp = len(comp_params_list)
-        if num_comp > 1:
+        if num_comp > 0:
             compp_inst = [f'XCOMPP<{i}>' for i in range(num_comp)]
             compp_conn = [dict(VIN=comp_conn_list[i]['VIN'].replace('N', 'P'),
                                VOUT=comp_conn_list[i]['VOUT'].replace('P', 'N'),) for i in range(num_comp)]
@@ -100,13 +100,19 @@ class span_ion__comparator_fd_chain_az(Module):
                                VOUT=comp_conn_list[i]['VOUT'].replace('N', 'P'),) for i in range(num_comp)]
             self.array_instance('XCOMPP', compp_inst, compp_conn)
             self.array_instance('XCOMPN', compn_inst, compn_conn)
+
+            for i in range(num_comp):
+                self.instances['XCOMPP'][i].design(**(comp_params_list[i]))
+                self.instances['XCOMPN'][i].design(**(comp_params_list[i]))
         else:
-            for suffix in ('P', 'N'):
-                opp_suffix = 'N' if suffix == 'P' else 'P'
-                inst_name = f'XCOMP{suffix}'
-                self.instances[inst_name].design(**(comp_params_list[0]))
-                self.reconnect_instance_terminal(inst_name, 'VIN', f'VIN{suffix}')
-                self.reconnect_instance_terminal(inst_name, 'VOUT', f'VOUT{opp_suffix}')
+            self.delete_instance('XCOMPP')
+            self.delete_instance('XCOMPN')
+            # for suffix in ('P', 'N'):
+            #     opp_suffix = 'N' if suffix == 'P' else 'P'
+            #     inst_name = f'XCOMP{suffix}'
+            #     self.instances[inst_name].design(**(comp_params_list[0]))
+            #     self.reconnect_instance_terminal(inst_name, 'VIN', f'VIN{suffix}')
+            #     self.reconnect_instance_terminal(inst_name, 'VOUT', f'VOUT{opp_suffix}')
 
         ### Adjusting pins
         # Remove unnecessary pins

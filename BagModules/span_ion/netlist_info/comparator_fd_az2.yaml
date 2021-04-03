@@ -1,0 +1,156 @@
+lib_name: span_ion
+cell_name: comparator_fd_az2
+pins: [ "PHI_EARLYb", "PHI_EARLY", "PHIb", "PHI", "VOUTCM", "VREFP", "VSS", "VINN", "VDD", "VINP", "OUT", "VREFN" ]
+instances:
+  PIN12:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN0:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN1:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN2:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN8:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN9:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN10:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN7:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN4:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN5:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN6:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  XCHAIN_AZ:
+    lib_name: span_ion
+    cell_name: comparator_fd_chain_az2
+    instpins:
+      VREFN:
+        direction: input
+        net_name: "VREFN"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUTN:
+        direction: output
+        net_name: "VOUTN"
+        num_bits: 1
+      VOUTP:
+        direction: output
+        net_name: "VOUTP"
+        num_bits: 1
+      PHI:
+        direction: input
+        net_name: "PHI"
+        num_bits: 1
+      PHI_EARLY:
+        direction: input
+        net_name: "PHI_EARLY"
+        num_bits: 1
+      PHI_EARLYb:
+        direction: input
+        net_name: "PHI_EARLYb"
+        num_bits: 1
+      PHIb:
+        direction: input
+        net_name: "PHIb"
+        num_bits: 1
+      VREFP:
+        direction: input
+        net_name: "VREFP"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "VINN"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VINP"
+        num_bits: 1
+      VOUTCM:
+        direction: input
+        net_name: "VOUTCM"
+        num_bits: 1
+  XCONSTGM:
+    lib_name: bag2_analog
+    cell_name: constant_gm
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VN:
+        direction: output
+        net_name: "VN"
+        num_bits: 1
+      VP:
+        direction: output
+        net_name: "VP"
+        num_bits: 1
+  XSINGLE:
+    lib_name: bag2_analog
+    cell_name: amp_gm_mirr
+    instpins:
+      VGTAIL:
+        direction: input
+        net_name: "VGTAIL"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUT:
+        direction: output
+        net_name: "OUT"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "VOUTN"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VOUTP"
+        num_bits: 1

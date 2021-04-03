@@ -1,0 +1,140 @@
+lib_name: span_ion
+cell_name: comparator_fd_chain_az2
+pins: [ "VINP", "VINN", "PHI_EARLY", "VOUTCM", "VDD", "VSS", "VOUTP", "VOUTN", "PHI", "PHIb", "VREFP", "PHI_EARLYb", "VREFN" ]
+instances:
+  XCHAIN_FB:
+    lib_name: span_ion
+    cell_name: comparator_fd_chain_az
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUTN:
+        direction: output
+        net_name: "VOUTN"
+        num_bits: 1
+      VOUTP:
+        direction: output
+        net_name: "VOUTP"
+        num_bits: 1
+      PHI:
+        direction: input
+        net_name: "PHI_EARLY"
+        num_bits: 1
+      PHIb:
+        direction: input
+        net_name: "PHI_EARLYb"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "VSAMPN"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VSAMPP"
+        num_bits: 1
+      VOUTCM:
+        direction: input
+        net_name: "VOUTCM"
+        num_bits: 1
+  PIN5:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN4:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN16:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN15:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN13:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN9:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN8:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN1:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN0:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN14:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN7:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN6:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  XSAMPLE:
+    lib_name: span_ion
+    cell_name: comparator_az_sample
+    instpins:
+      VREFA:
+        direction: input
+        net_name: "VREFP"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUTA:
+        direction: output
+        net_name: "VSAMPP"
+        num_bits: 1
+      VOUTB:
+        direction: output
+        net_name: "VSAMPN"
+        num_bits: 1
+      PHI:
+        direction: input
+        net_name: "PHI"
+        num_bits: 1
+      PHIb:
+        direction: input
+        net_name: "PHIb"
+        num_bits: 1
+      VINA:
+        direction: input
+        net_name: "VINP"
+        num_bits: 1
+      VINB:
+        direction: input
+        net_name: "VINN"
+        num_bits: 1
+      VREFB:
+        direction: input
+        net_name: "VREFN"
+        num_bits: 1

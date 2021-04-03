@@ -6,6 +6,14 @@ instances:
     lib_name: span_ion
     cell_name: delay_tt1_ord2
     instpins:
+      CTRLb:
+        direction: input
+        net_name: "net1"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "net2"
+        num_bits: 1
       VREF<2:0>:
         direction: input
         net_name: "<*3>VREF"

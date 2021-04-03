@@ -274,10 +274,23 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
         return op2 if op2['ugf'] > op1['ugf'] else op1
 
     def get_sch_params(self, op):
+        l_dict = self.other_params['l_dict']
+        w_dict = self.other_params['w_dict'] 
+        seg_dict = {'in' : op['nf_in'],
+                  'tail' : op['nf_tail'],
+                  'load' : op['nf_load']}
+
+        for k, v in l_dict.items():
+            l_dict[k] = float(v)
+            
+        for k, v in w_dict.items():
+            w_dict[k] = float(v)
+            
+        for k, v in seg_dict.items():
+            seg_dict[k] = int(v)
+        
         return dict(in_type=self.other_params['in_type'],
-                    l_dict=self.other_params['l_dict'],
-                    w_dict=self.other_params['w_dict'],
+                    l_dict=l_dict,
+                    w_dict=w_dict,
                     th_dict=self.other_params['th_dict'],
-                    seg_dict={'in' : op['nf_in'],
-                              'tail' : op['nf_tail'],
-                              'load' : op['nf_load']})
+                    seg_dict=seg_dict)
