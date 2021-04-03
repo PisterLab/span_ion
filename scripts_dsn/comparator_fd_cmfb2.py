@@ -153,6 +153,7 @@ class span_ion__comparator_fd_cmfb2_dsn(DesignModule):
 
                     if not load_match:
                         print(f"load match {nf_load}")
+                        # assert False, 'blep'
                         continue
 
                     iflip_max = (ibias_max - itail)/2
@@ -217,7 +218,7 @@ class span_ion__comparator_fd_cmfb2_dsn(DesignModule):
                             break
 
                         # Design matching tail
-                        vgtail_min = vth_tail+vstar_min if n_in else vdd+vth_tail
+                        vgtail_min = vth_tail+vstar_min if n_in else vtail+vth_tail
                         vgtail_max = vtail+vth_tail if n_in else vdd+vth_tail-vstar_min
                         vgtail_vec = np.arange(vgtail_min, vgtail_max, res_vstep)
                         print(f"Tail gate from {vgtail_min} to {vgtail_max}")
