@@ -139,8 +139,8 @@ class span_ion__comparator_fd_cmfb2_dsn(DesignModule):
                 # Step input device size (integer steps)
                 nf_in_max = int(round(ibias_max/itail_min))
                 nf_in_vec = np.arange(1, nf_in_max, 1)
-                if len(nf_in_vec) > 0:
-                    print(f'Number of input devices {min(nf_in_vec)} to {max(nf_in_vec)}')
+                # if len(nf_in_vec) > 0:
+                #     print(f'Number of input devices {min(nf_in_vec)} to {max(nf_in_vec)}')
 
                 for nf_in in nf_in_vec:
                     itail = itail_min * nf_in
@@ -159,8 +159,8 @@ class span_ion__comparator_fd_cmfb2_dsn(DesignModule):
                     iflip_max = (ibias_max - itail)/2
                     nf_out_max = int(round(iflip_max/out_op['ibias']))
                     nf_out_vec = [1] if nf_out_max == 1 else np.arange(1, nf_out_max, 1)
-                    if len(nf_out_vec) > 0:
-                        print(f'Number of output devices {min(nf_out_vec)} to {max(nf_out_vec)}')
+                    # if len(nf_out_vec) > 0:
+                    #     print(f'Number of output devices {min(nf_out_vec)} to {max(nf_out_vec)}')
 
                     # Step output device size
                     for nf_out in nf_out_vec:

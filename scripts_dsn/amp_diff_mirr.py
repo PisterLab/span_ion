@@ -45,7 +45,7 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
             vincm = 'Input common mode voltage.',
             ibias = 'Maximum bias current, in amperes.',
             cload = 'Output load capacitance in farads.',
-            optional_params = 'Optional parameters. voutcm=output bias voltage. res_vstep, vstar_min, error_tol'
+            optional_params = 'Optional parameters. voutcm=output bias voltage. res_vstep, vstar_min, error_tol, vstar_in_min'
         ))
         return ans
 
@@ -84,6 +84,7 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
         vstar_min = optional_params.get('vstar_min', 0.2)
         res_vstep = optional_params.get('res_vstep', 10e-3)
         error_tol = optional_params.get('error_tol', 0.01)
+        vstar_in_min = optional_params.get('vstar_in_min', 0.1)
 
         # Estimate threshold of each device TODO can this be more generalized?
         n_in = in_type=='n'
@@ -105,8 +106,8 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
         viable_op_list = []
 
         # Sweep tail voltage
-        vtail_min = vstar_min if n_in else vincm-vth_in
-        vtail_max = vincm-vth_in if n_in else vdd-vstar_min
+        vtail_min = vstar_min if n_in else vincm-vth_in+vstar_in_min
+        vtail_max = vincm-vth_in-vstar_in_min if n_in else vdd-vstar_min
         vtail_vec = np.arange(vtail_min, vtail_max, res_vstep)
         print(f'Sweeping tail from {vtail_min} to {vtail_max}')
 

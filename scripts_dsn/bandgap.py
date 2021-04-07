@@ -40,7 +40,8 @@ class bag2_analog__bandgap_dsn(DesignModule):
             vdd = 'Supply voltage in volts.',
             diode_mult = 'Multiplier for diodes',
             amp_dsn_params = 'Amplifier parameters excepting physical device parameters and input/output biasing',
-            constgm_dsn_params = 'Constant gm design parameters excepting physical device parameters, resistor side, and voltages'
+            constgm_dsn_params = 'Constant gm design parameters excepting physical device parameters, resistor side, and voltages',
+            optional_params = 'error_tol, vstar_min, res_vstep'
         ))
         return ans
 
@@ -50,6 +51,7 @@ class bag2_analog__bandgap_dsn(DesignModule):
         specfile_dict = params['specfile_dict']
         th_dict = params['th_dict']
         sim_env = params['sim_env']
+        l_dict = params['l_dict']
 
         vdd = params['vdd']
         diode_mult = params['diode_mult']
@@ -64,6 +66,7 @@ class bag2_analog__bandgap_dsn(DesignModule):
         # Databases
         db_dict = {k:get_mos_db(spec_file=specfile_dict[k],
                                 intent=th_dict[k],
+                                lch=l_dict[k],
                                 sim_env=sim_env) for k in specfile_dict.keys()}
 
         ### Calculate resistor values ###
@@ -84,12 +87,12 @@ class bag2_analog__bandgap_dsn(DesignModule):
                     rval_fb=rval_fb,
                     ibranch=ion)
 
-    def verify_pmos(self, db, vg:float, vdd:float, vbg:float, ibias:float):
+    def verify_pmos(self, db, vg:float, vdd:float, vbg:float, ibias:float, error_tol:float):
         p_op = db.query(vgs=vg-vdd, vds=vbg-vdd, vbs=0)
-        match_p, nf_p = verify_ratio(ibias, p_op['ibias'], 1, 0.05)
+        match_p, nf_p = verify_ratio(ibias, p_op['ibias'], 1, error_tol)
 
         if not match_p:
-            return False, 0
+            return False, nf_p
 
         else:
             return True, nf_p
@@ -109,25 +112,30 @@ class bag2_analog__bandgap_dsn(DesignModule):
         # Databases
         db_dict = {k:get_mos_db(spec_file=specfile_dict[k],
                                 intent=th_dict[k],
+                                lch=l_dict[k],
                                 sim_env=sim_env) for k in specfile_dict.keys()}
 
         vdd = params['vdd']
         diode_mult = params['diode_mult']
         diode_params = params['diode_params']
 
-        # TODO: vstar min not hardcoded
-        vstar_min = 0.25
+        optional_params = params['optional_params']
+        vstar_min = optional_params.get('vstar_min',0.1)
+        res_vstep = optional_params.get('res_vstep', vdd/1e3)
+        error_tol = optional_params.get('error_tol', 0.05)
 
         # Get info regarding the passives outside the amplifier and constant gm
         passive_info = self.dsn_passives(**params)
+
+        # assert False, 'blep'
 
         # Spec out amplifier
         vbg = passive_info['vbg']
         idiode = passive_info['ibranch']
         vth_p = estimate_vth(db=db_dict['p'], is_nch=False, vgs=vbg-vdd, vbs=0, lch=l_dict['p'])
-        vg_min = vbg + vth_p
-        vg_max = vdd + vth_p - vstar_min
-        vg_vec = np.arange(vg_min, vg_max, 50e-3)
+        vg_min = max(0, vbg + vth_p)
+        vg_max = min(vdd, vdd + vth_p - vstar_min)
+        vg_vec = np.arange(vg_min, vg_max, res_vstep)
 
         amp_specfile_dict = dict()
         amp_th_dict = dict()
@@ -172,7 +180,7 @@ class bag2_analog__bandgap_dsn(DesignModule):
         for vg in vg_vec:
             # Match the PMOS size if possible
             print(f"\nAttempting to match nf_p at vg={vg}")
-            match_p, nf_p = self.verify_pmos(db=db_dict['p'], vg=vg, vdd=vdd, vbg=vbg, ibias=idiode)
+            match_p, nf_p = self.verify_pmos(db=db_dict['p'], vg=vg, vdd=vdd, vbg=vbg, ibias=idiode, error_tol=error_tol)
             if not match_p:
                 continue
             print(f"Matched nf_p: {nf_p}")
@@ -180,8 +188,10 @@ class bag2_analog__bandgap_dsn(DesignModule):
             # Find all possibilities for amplifiers
             p_op = db_dict['p'].query(vgs=vg-vdd, vds=vbg-vdd, vbs=0)
             amp_cload = p_op['cgg']
+            amp_optional_params = amp_dsn_params['optional_params']
+            amp_optional_params.update(dict(voutcm=vg))
             amp_dsn_params.update(dict(cload=amp_cload,
-                                       optional_params=dict(voutcm=vg)))
+                                       optional_params=amp_optional_params))
             
             print(f'Attempting to design the amplifier...')
             try:
@@ -207,7 +217,8 @@ class bag2_analog__bandgap_dsn(DesignModule):
                 try:
                     disable_print()
                     _, constgm_dsn_info = constgm_dsn_mod.design(**constgm_dsn_params)
-                except ValueError:
+                except ValueError as e:
+                    assert False, f'{e}'
                     continue
                 finally:
                     enable_print()
@@ -235,17 +246,17 @@ class bag2_analog__bandgap_dsn(DesignModule):
         return op2 if op1['ibias'] > op2['ibias'] else op1
 
     def get_sch_params(self, op):
-        p_sch_params = dict(l=self.other_params['l_dict']['p'],
-                            w=self.other_params['db_dict']['p'].width_list[0],
+        p_sch_params = dict(l=float(self.other_params['l_dict']['p']),
+                            w=float(self.other_params['db_dict']['p'].width_list[0]),
                             intent=self.other_params['th_dict']['p'],
-                            nf=op['nf_p'])
+                            nf=int(op['nf_p']))
 
         res_sch_params_dict = dict(fb=dict(w=1e-6, # TODO: real resistor
-                                           l=op['passive_dsn']['rval_fb']*1e-6/600,
+                                           l=float(op['passive_dsn']['rval_fb']*1e-6/600),
                                            num_unit=1,
                                            intent='ideal'),
                                    diff=dict(w=1e-6, # TODO: real resistor
-                                             l=op['passive_dsn']['rval_diff']*1e-6/600,
+                                             l=float(op['passive_dsn']['rval_diff']*1e-6/600),
                                              num_unit=1,
                                              intent='ideal'))
 
@@ -257,4 +268,4 @@ class bag2_analog__bandgap_dsn(DesignModule):
                     p_params=p_sch_params,
                     res_params_dict=res_sch_params_dict,
                     bulk_conn='VSS', # TODO real connection
-                    diode_mult=self.other_params['diode_mult'])
+                    diode_mult=float(self.other_params['diode_mult']))
