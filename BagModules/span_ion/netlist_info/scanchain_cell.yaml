@@ -2,78 +2,6 @@ lib_name: span_ion
 cell_name: scanchain_cell
 pins: [ "CLK_IN", "DATA_INb", "LOAD_INb", "VDD", "VSS", "LOAD_NEXTb", "DATA_NEXTb", "DATA_OUT", "CLK_NEXT" ]
 instances:
-  XDFF<0>:
-    lib_name: bag2_digital
-    cell_name: flipflop_D_inv
-    instpins:
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      Q:
-        direction: output
-        net_name: "net2"
-        num_bits: 1
-      CLK:
-        direction: input
-        net_name: "CLKb"
-        num_bits: 1
-      D:
-        direction: input
-        net_name: "DATA_INb"
-        num_bits: 1
-  XDFF<2>:
-    lib_name: bag2_digital
-    cell_name: flipflop_D_inv
-    instpins:
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      Q:
-        direction: output
-        net_name: "net03"
-        num_bits: 1
-      CLK:
-        direction: input
-        net_name: "net02"
-        num_bits: 1
-      D:
-        direction: input
-        net_name: "net1"
-        num_bits: 1
-  XDFF<1>:
-    lib_name: bag2_digital
-    cell_name: flipflop_D_inv
-    instpins:
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      Q:
-        direction: output
-        net_name: "net1"
-        num_bits: 1
-      CLK:
-        direction: input
-        net_name: "CLK_NEXT"
-        num_bits: 1
-      D:
-        direction: input
-        net_name: "net2"
-        num_bits: 1
   XBUF_LOAD:
     lib_name: bag2_digital
     cell_name: inv_chain
@@ -92,7 +20,7 @@ instances:
         num_bits: 1
       outb:
         direction: output
-        net_name: "net02"
+        net_name: "LOAD_NEXT"
         num_bits: 1
       in:
         direction: input
@@ -120,7 +48,7 @@ instances:
         num_bits: 1
       in:
         direction: input
-        net_name: "net1"
+        net_name: "Dxx"
         num_bits: 1
   XBUF_CLK:
     lib_name: bag2_digital
@@ -164,7 +92,7 @@ instances:
         num_bits: 1
       in:
         direction: input
-        net_name: "net03"
+        net_name: "Dxxx"
         num_bits: 1
   PIN2:
     lib_name: basic
@@ -202,3 +130,99 @@ instances:
     lib_name: basic
     cell_name: opin
     instpins: {}
+  XDFF<0>:
+    lib_name: bag2_digital
+    cell_name: flipflop_DICE
+    instpins:
+      D_IN:
+        direction: input
+        net_name: "DATA_INb"
+        num_bits: 1
+      Qb_OUT:
+        direction: output
+        net_name: "net08"
+        num_bits: 1
+      Q_OUT:
+        direction: output
+        net_name: "Dx"
+        num_bits: 1
+      CLKb_IN:
+        direction: input
+        net_name: "net09"
+        num_bits: 1
+      CLK_IN:
+        direction: input
+        net_name: "CLKb"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+  XDFF<2>:
+    lib_name: bag2_digital
+    cell_name: flipflop_DICE
+    instpins:
+      D_IN:
+        direction: input
+        net_name: "Dxx"
+        num_bits: 1
+      Qb_OUT:
+        direction: output
+        net_name: "net012"
+        num_bits: 1
+      Q_OUT:
+        direction: output
+        net_name: "Dxxx"
+        num_bits: 1
+      CLKb_IN:
+        direction: input
+        net_name: "net07"
+        num_bits: 1
+      CLK_IN:
+        direction: input
+        net_name: "LOAD_NEXT"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+  XDFF<1>:
+    lib_name: bag2_digital
+    cell_name: flipflop_DICE
+    instpins:
+      D_IN:
+        direction: input
+        net_name: "Dx"
+        num_bits: 1
+      Qb_OUT:
+        direction: output
+        net_name: "net010"
+        num_bits: 1
+      Q_OUT:
+        direction: output
+        net_name: "Dxx"
+        num_bits: 1
+      CLKb_IN:
+        direction: input
+        net_name: "net011"
+        num_bits: 1
+      CLK_IN:
+        direction: input
+        net_name: "CLK_NEXT"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1

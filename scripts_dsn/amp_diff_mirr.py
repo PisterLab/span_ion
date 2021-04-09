@@ -74,7 +74,7 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
         vincm = params['vincm']
         vswing_low, vswing_high = params['vswing_lim']
         cload = params['cload']
-        gain_min = params['gain']
+        gain_min, gain_max = params['gain']
         fbw_min = params['fbw']
         ugf_min = params['ugf']
         pm_min = params['pm']
@@ -182,7 +182,7 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
                                                                               nf_dict=nf_dict,
                                                                               cload=cload)
                         
-                        if gain_lti < gain_min:
+                        if gain_lti < gain_min or gain_lti > gain_max:
                             print(f'gain {gain_lti}')
                             break
 

@@ -174,6 +174,8 @@ class span_ion__comparator_fd_main_dsn(DesignModule):
                                  w_dict={k:db.width_list[0] for k,db in db_dict.items()},
                                  th_dict=th_dict)
 
+        # assert False, 'blep'
+
         return viable_op_list
 
     def op_compare(self, op1:Mapping[str,Any], op2:Mapping[str,Any]):

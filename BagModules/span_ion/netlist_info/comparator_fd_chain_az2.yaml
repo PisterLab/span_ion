@@ -1,6 +1,6 @@
 lib_name: span_ion
 cell_name: comparator_fd_chain_az2
-pins: [ "VINP", "VINN", "PHI_EARLY", "VOUTCM", "VDD", "VSS", "VOUTP", "VOUTN", "PHI", "PHIb", "VREFP", "PHI_EARLYb", "VREFN" ]
+pins: [ "VINP", "VINN", "PHI_EARLY", "VOUTCM", "VDD", "VSS", "VOUTP", "VOUTN", "PHI", "PHI_EARLYb", "VREFP", "PHIb", "VREFN" ]
 instances:
   XCHAIN_FB:
     lib_name: span_ion
@@ -58,11 +58,7 @@ instances:
     lib_name: basic
     cell_name: ipin
     instpins: {}
-  PIN13:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
-  PIN9:
+  PIN19:
     lib_name: basic
     cell_name: ipin
     instpins: {}
@@ -74,6 +70,10 @@ instances:
     lib_name: basic
     cell_name: ipin
     instpins: {}
+  PIN18:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
   PIN1:
     lib_name: basic
     cell_name: ipin
@@ -82,7 +82,7 @@ instances:
     lib_name: basic
     cell_name: ipin
     instpins: {}
-  PIN14:
+  PIN17:
     lib_name: basic
     cell_name: ipin
     instpins: {}

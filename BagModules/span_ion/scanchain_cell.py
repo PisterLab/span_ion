@@ -55,14 +55,20 @@ class span_ion__scanchain_cell(Module):
         array_instance()
         """
         buf_data_params = params['buf_data_params']
+
+        for inv in buf_data_params['inv_param_list']:
+            assert inv['stack_n'] == inv['stack_p'] == 1, f'Data buffer should have a stack of 1 for inverters'
+
         inv_params = params['inv_params']
         dff_params = params['dff_params']
+
+        inv_params.update(dict(stack_p=1, stack_n=1))
 
         buf_not_data_params = dict(dual_output=True,
                                    inv_param_list=[inv_params]*2)
 
         for i in range(3):
-            self.instances[f'XDFF<{i}>'].design(**dff_params)
+            self.instances[f'XDFF<{i}>'].design(diff_clk=False, pos_edge=True, **dff_params)
 
         self.instances['XBUF_CLK'].design(**buf_not_data_params)
         self.instances['XBUF_LOAD'].design(**buf_not_data_params)
