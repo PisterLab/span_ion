@@ -1,0 +1,80 @@
+lib_name: span_ion
+cell_name: voter_3x3
+pins: [ "in<2:0>", "VDD", "VSS", "out<2:0>" ]
+instances:
+  XVOTE<2>:
+    lib_name: span_ion
+    cell_name: voter_3
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "out<2>"
+        num_bits: 1
+      in<2:0>:
+        direction: input
+        net_name: "in<2:0>"
+        num_bits: 3
+  XVOTE<1>:
+    lib_name: span_ion
+    cell_name: voter_3
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "out<1>"
+        num_bits: 1
+      in<2:0>:
+        direction: input
+        net_name: "in<2:0>"
+        num_bits: 3
+  XVOTE<0>:
+    lib_name: span_ion
+    cell_name: voter_3
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "out<0>"
+        num_bits: 1
+      in<2:0>:
+        direction: input
+        net_name: "in<2:0>"
+        num_bits: 3
+  PIN0:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN2:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN1:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}

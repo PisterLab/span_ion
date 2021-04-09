@@ -34,7 +34,9 @@ class span_ion__scanchain_cell(Module):
         """
         return dict(
             buf_data_params = 'inv_chain data buffer parameters',
-            inv_params = 'Parameters for inverters not in the data buffer',
+            buf_load_params = 'inv_chain load buffer parameters. Must have an even number of inverters.',
+            buf_clk_params = 'inv_chain clock buffer parameters. Must have an even number of inverters.',
+            inv_data_params = 'Parameters for the inverter spitting out the data_out going outside scan',
             dff_params = 'Flip-flop parameters'
         )
 
@@ -55,22 +57,33 @@ class span_ion__scanchain_cell(Module):
         array_instance()
         """
         buf_data_params = params['buf_data_params']
+        buf_clk_params = params['buf_clk_params']
+        buf_load_params = params['buf_load_params']
+        inv_data_params = params['inv_data_params']
+        dff_params = params['dff_params']
 
+        ### Enforcing a lot of necessary relative timing conditions
+        assert len(buf_clk_params['inv_param_list']) % 2 == 0, f'Clock buffer must have an even number of inverters'
+        assert len(buf_load_params['inv_param_list']) % 2 == 0, f'Load buffer must have an even number of inverters'
+        assert len(buf_data_params['inv_param_list']) % 2 == 0, f'Data next buffer must have an even number of inverters'
+
+        ### Enforcing stack = 1 for all inverters
         for inv in buf_data_params['inv_param_list']:
             assert inv['stack_n'] == inv['stack_p'] == 1, f'Data buffer should have a stack of 1 for inverters'
 
-        inv_params = params['inv_params']
-        dff_params = params['dff_params']
+        for inv in buf_clk_params['inv_param_list']:
+            assert inv['stack_n'] == inv['stack_p'] == 1, f'Data buffer should have a stack of 1 for inverters'
 
-        inv_params.update(dict(stack_p=1, stack_n=1))
+        for inv in buf_load_params['inv_param_list']:
+            assert inv['stack_n'] == inv['stack_p'] == 1, f'Data buffer should have a stack of 1 for inverters'
 
-        buf_not_data_params = dict(dual_output=True,
-                                   inv_param_list=[inv_params]*2)
+        inv_data_params.update(dict(stack_n=1, stack_p=1))
 
+        ### Design instances
         for i in range(3):
             self.instances[f'XDFF<{i}>'].design(diff_clk=False, pos_edge=True, **dff_params)
 
-        self.instances['XBUF_CLK'].design(**buf_not_data_params)
-        self.instances['XBUF_LOAD'].design(**buf_not_data_params)
+        self.instances['XBUF_CLK'].design(dual_output=True, **buf_clk_params)
+        self.instances['XBUF_LOAD'].design(dual_output=True, **buf_load_params)
         self.instances['XBUF_DATA'].design(dual_output=False, **buf_data_params)
-        self.instances['XINV_DATA'].design(**inv_params)
+        self.instances['XINV_DATA'].design(**inv_data_params)

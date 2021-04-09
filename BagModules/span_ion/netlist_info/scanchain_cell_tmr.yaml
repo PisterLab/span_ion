@@ -1,0 +1,120 @@
+lib_name: span_ion
+cell_name: scanchain_cell_tmr
+pins: [ "VDD", "VSS", "LOAD_INb", "DATA_INb<2:0>", "CLK_IN", "LOAD_NEXTb", "DATA_NEXTb<2:0>", "CLK_NEXT", "DATA_OUT" ]
+instances:
+  XCELL<2:0>:
+    lib_name: span_ion
+    cell_name: scanchain_cell
+    instpins:
+      DATA_INb:
+        direction: input
+        net_name: "DATA_INb<2:0>"
+        num_bits: 3
+      VSS:
+        direction: inputOutput
+        net_name: "<*3>VSS"
+        num_bits: 3
+      VDD:
+        direction: inputOutput
+        net_name: "<*3>VDD"
+        num_bits: 3
+      DATA_NEXTb:
+        direction: output
+        net_name: "DATA_NEXTb_m<2:0>"
+        num_bits: 3
+      DATA_OUT:
+        direction: output
+        net_name: "DATA_OUT_m<2:0>"
+        num_bits: 3
+      LOAD_NEXTb:
+        direction: output
+        net_name: "<*3>LOAD_NEXTb"
+        num_bits: 3
+      CLK_IN:
+        direction: input
+        net_name: "<*3>CLK_IN"
+        num_bits: 3
+      CLK_NEXT:
+        direction: output
+        net_name: "<*3>CLK_NEXT"
+        num_bits: 3
+      LOAD_INb:
+        direction: input
+        net_name: "<*3>LOAD_INb"
+        num_bits: 3
+  XVOTE_DATANEXT:
+    lib_name: span_ion
+    cell_name: voter_3x3
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out<2:0>:
+        direction: output
+        net_name: "DATA_NEXTb<2:0>"
+        num_bits: 3
+      in<2:0>:
+        direction: input
+        net_name: "DATA_NEXTb_m<2:0>"
+        num_bits: 3
+  PIN1:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN0:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN4:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN2:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN8:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN7:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN6:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN5:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  XVOTE_DATAOUT:
+    lib_name: span_ion
+    cell_name: voter_3
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "DATA_OUT"
+        num_bits: 1
+      in<2:0>:
+        direction: input
+        net_name: "DATA_OUT_m<2:0>"
+        num_bits: 3
