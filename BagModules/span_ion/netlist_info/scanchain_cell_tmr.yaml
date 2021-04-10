@@ -1,6 +1,6 @@
 lib_name: span_ion
 cell_name: scanchain_cell_tmr
-pins: [ "VDD", "VSS", "LOAD_INb", "DATA_INb<2:0>", "CLK_IN", "LOAD_NEXTb", "DATA_NEXTb<2:0>", "CLK_NEXT", "DATA_OUT" ]
+pins: [ "VDD", "VSS", "LOAD_INb", "DATA_INb<2>", "DATA_INb<1>", "DATA_INb<0>", "CLK_IN", "LOAD_NEXTb", "DATA_NEXTb<2>", "DATA_NEXTb<1>", "DATA_NEXTb<0>", "CLK_NEXT", "DATA_OUT" ]
 instances:
   XCELL<2:0>:
     lib_name: span_ion
@@ -62,13 +62,21 @@ instances:
         direction: input
         net_name: "DATA_NEXTb_m<2:0>"
         num_bits: 3
+  PIN0:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
   PIN1:
     lib_name: basic
     cell_name: iopin
     instpins: {}
-  PIN0:
+  PIN10:
     lib_name: basic
-    cell_name: iopin
+    cell_name: ipin
+    instpins: {}
+  PIN9:
+    lib_name: basic
+    cell_name: ipin
     instpins: {}
   PIN4:
     lib_name: basic
@@ -81,6 +89,14 @@ instances:
   PIN2:
     lib_name: basic
     cell_name: ipin
+    instpins: {}
+  PIN12:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN11:
+    lib_name: basic
+    cell_name: opin
     instpins: {}
   PIN8:
     lib_name: basic

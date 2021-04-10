@@ -35,7 +35,6 @@ class span_ion__scanchain(Module):
         return dict(
             num_bits = 'Number of scan bits',
             scan_cell_params = 'Parameters for a singular scan chain cell',
-            voter_params = 'Parameters for the 3-way majority voter'
         )
 
     def design(self, **params):
@@ -56,28 +55,33 @@ class span_ion__scanchain(Module):
         """
         num_bits = params['num_bits']
         scan_cell_params = params['scan_cell_params']
-        voter_params = params['voter_params']
 
-        ### Design elements
-        # Singular scan chains
-        for i in range(3):
-            self.instances[f'XCHAIN<{i}>'].design(num_bits=num_bits, **scan_cell_params)
+        assert num_bits > 1, f'Currently only supports 2 or more cells'
 
-        # Data voters
-        self.array_instance('XVOTE_DATA', 
-                            [f'XVOTE_DATA<{i}>' for i in range(num_bits)],
-                            [{'in<2:0>' : f'SCAN_DATA2<{i}>,SCAN_DATA1<{i}>,SCAN_DATA0<{i}>',
-                              'out' : f'SCAN_DATA<{i}>'} for i in range(num_bits)])
-        for i in range(num_bits):
-            self.instances['XVOTE_DATA'][i].design(**voter_params)
+        ### Array TMR scan cells
+        suffix_forward_full = f'<{num_bits-1}:0>'
+        suffix_backward_full = f'<0:{num_bits - 1}>'
+        suffix_backward_short = f'<0:{num_bits - 2}>'
+        cells_conn_dict = { 'LOAD_INb'      : f'SCAN_LOADb,LOADb{suffix_backward_short}',
+                            'DATA_INb<0>'   : f'SCAN_INb,SHIFTb0{suffix_backward_short}',
+                            'DATA_INb<1>'   : f'SCAN_INb,SHIFTb1{suffix_backward_short}',
+                            'DATA_INb<2>'   : f'SCAN_INb,SHIFTb2{suffix_backward_short}',
+                            'CLK_IN'        : f'SCAN_CLKb,CLKINT{suffix_backward_short}',
+                            'LOAD_NEXTb'    : f'LOADb{suffix_backward_full}',
+                            'DATA_OUT'      : f'SCAN_DATA{suffix_forward_full}',
+                            'DATA_NEXTb<0>' : f'SHIFTb0{suffix_backward_short},SCAN_OUTb',
+                            'DATA_NEXTb<1>' : f'SHIFTb1{suffix_backward_short},SCAN_OUTb',
+                            'DATA_NEXTb<2>' : f'SHIFTb2{suffix_backward_short},SCAN_OUTb',
+                            'CLK_NEXT'      : f'CLKINT{suffix_backward_full}'}
 
-        # Scan out voter
-        self.instances['XVOTE_OUTb'].design(**voter_params)
+        self.array_instance('XCELL', [f'XCELL{suffix_backward_full}'], [cells_conn_dict])
 
-        ### Fix wiring
-        # Singular scan chains
-        for i in range(3):
-            self.reconnect_instance_terminal(f'XCHAIN<{i}>', f'SCAN_DATA<{num_bits-1}:0>', f'SCAN_DATA{i}<{num_bits-1}:0>')
+        ### Design cells
+        self.instances['XCELL'][0].design(**scan_cell_params)
 
-        ### Fix pins
-        self.rename_pin('SCAN_DATA', f'SCAN_DATA<{num_bits-1}:0>')
+        ### NoConns used for intermediate signals
+        self.reconnect_instance_terminal('XNOCONN_LOAD', 'noConn', f'LOADb<{num_bits-1}>')
+        self.reconnect_instance_terminal('XNOCONN_CLK', 'noConn', f'CLKINT<{num_bits - 1}>')
+
+        ### Rename data out pin
+        self.rename_pin('SCAN_DATA', f'SCAN_DATA{suffix_forward_full}')
