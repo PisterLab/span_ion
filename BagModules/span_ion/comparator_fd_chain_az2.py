@@ -4,6 +4,7 @@ from typing import Dict, Mapping
 
 import os
 import pkg_resources
+import warnings
 
 from bag.design.module import Module
 
@@ -38,6 +39,8 @@ class span_ion__comparator_fd_chain_az2(Module):
             fb_params='comparator_az_fb parameters',
             comp_params_list='List of compensation block parameters',
             comp_conn_list='List of where to connect two ends of compensation',
+            inv_clk_params = 'Initial clock inverter parameters',
+            buf_clk_params = 'Clock buffer parameters'
         )
 
     def design(self, **params):
@@ -61,13 +64,26 @@ class span_ion__comparator_fd_chain_az2(Module):
         fb_params = params['fb_params']
         comp_params_list = params['comp_params_list']
         comp_conn_list = params['comp_conn_list']
+        inv_clk_params = params['inv_clk_params']
+        buf_clk_params = params['buf_clk_params']
 
-        ## Design intances
+        ## Design instances
         self.instances['XSAMPLE'].design(**sample_params)
         self.instances['XCHAIN_FB'].design(stage_params_list=stage_params_list,
                                            az_params=fb_params,
                                            comp_params_list=comp_params_list,
                                            comp_conn_list=comp_conn_list)
+        self.instances['XINV'].design(stack_n=1, stack_p=1, **inv_clk_params)
+
+        buf_lst = buf_clk_params['inv_param_list']
+        assert len(buf_lst) > 1, f'Must have at least 2 inverters in clock buffer'
+        for inv in buf_lst:
+            if inv.get('stack_n', 0) != 1 or inv.get('stack_p', 0) != 1:
+                warnings.warn('(comparator_fd_chain_az2) changing all inverters to have stack 1')
+                inv.update(dict(stack_n=1, stack_p=1))
+
+        self.instances['XBUF'].design(dual_output=True, **buf_clk_params)
+
         ## Renaming pins to match indices
         num_stages = len(stage_params_list)
         if num_stages > 1:

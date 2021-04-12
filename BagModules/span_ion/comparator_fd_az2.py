@@ -86,8 +86,8 @@ class span_ion__comparator_fd_az2(Module):
                              'VREFP': 'VREFP' if i==0 else f'VMIDN<{i-1}>',
                              'VREFN': 'VREFN' if i==0 else f'VMIDP<{i-1}>',
                              f'VOUTCM{suffix_voutcm_pin}': f'VOUTCM{suffix_voutcm}',
-                             'PHI': f'PHI<{i}>',
-                             'PHIb': f'PHI<{i}>',
+                             'PHI': f'PHI',
+                             'PHIb': f'PHIb',
                              'PHI_EARLY': f'PHI_EARLY',
                              'PHI_EARLYb': f'PHI_EARLYb' }
                 conn_dict_list.append(conn_dict)

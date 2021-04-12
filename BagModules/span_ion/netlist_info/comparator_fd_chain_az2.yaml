@@ -1,6 +1,6 @@
 lib_name: span_ion
 cell_name: comparator_fd_chain_az2
-pins: [ "VINP", "VINN", "PHI_EARLY", "VOUTCM", "VDD", "VSS", "VOUTP", "VOUTN", "PHI", "PHI_EARLYb", "VREFP", "PHIb", "VREFN" ]
+pins: [ "VINP", "VINN", "VOUTCM", "VDD", "VSS", "VOUTP", "VOUTN", "PHI", "VREFP", "VREFN" ]
 instances:
   XCHAIN_FB:
     lib_name: span_ion
@@ -24,11 +24,11 @@ instances:
         num_bits: 1
       PHI:
         direction: input
-        net_name: "PHI_EARLY"
+        net_name: "PHI"
         num_bits: 1
       PHIb:
         direction: input
-        net_name: "PHI_EARLYb"
+        net_name: "PHIb"
         num_bits: 1
       VINN:
         direction: input
@@ -41,6 +41,30 @@ instances:
       VOUTCM:
         direction: input
         net_name: "VOUTCM"
+        num_bits: 1
+  XBUF:
+    lib_name: bag2_digital
+    cell_name: inv_chain
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "PHIb_LATE"
+        num_bits: 1
+      outb:
+        direction: output
+        net_name: "PHI_LATE"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "PHIb"
         num_bits: 1
   PIN5:
     lib_name: basic
@@ -62,15 +86,7 @@ instances:
     lib_name: basic
     cell_name: ipin
     instpins: {}
-  PIN8:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
   PIN3:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
-  PIN18:
     lib_name: basic
     cell_name: ipin
     instpins: {}
@@ -82,10 +98,6 @@ instances:
     lib_name: basic
     cell_name: ipin
     instpins: {}
-  PIN17:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
   PIN7:
     lib_name: basic
     cell_name: opin
@@ -94,6 +106,26 @@ instances:
     lib_name: basic
     cell_name: opin
     instpins: {}
+  XINV:
+    lib_name: bag2_digital
+    cell_name: inv
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "PHIb"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "PHI"
+        num_bits: 1
   XSAMPLE:
     lib_name: span_ion
     cell_name: comparator_az_sample
@@ -120,11 +152,11 @@ instances:
         num_bits: 1
       PHI:
         direction: input
-        net_name: "PHI"
+        net_name: "PHI_LATE"
         num_bits: 1
       PHIb:
         direction: input
-        net_name: "PHIb"
+        net_name: "PHIb_LATE"
         num_bits: 1
       VINA:
         direction: input

@@ -58,14 +58,6 @@ instances:
         direction: input
         net_name: "SCAN_LOADb"
         num_bits: 1
-  XNOCONN_LOAD:
-    lib_name: basic
-    cell_name: noConn
-    instpins:
-      noConn:
-        direction: inputOutput
-        net_name: "LOAD_NEXTb"
-        num_bits: 1
   XNOCONN_CLK:
     lib_name: basic
     cell_name: noConn
@@ -73,6 +65,14 @@ instances:
       noConn:
         direction: inputOutput
         net_name: "CLK_NEXT"
+        num_bits: 1
+  XNOCONN_LOAD:
+    lib_name: basic
+    cell_name: noConn
+    instpins:
+      noConn:
+        direction: inputOutput
+        net_name: "LOAD_NEXTb"
         num_bits: 1
   PIN2:
     lib_name: basic

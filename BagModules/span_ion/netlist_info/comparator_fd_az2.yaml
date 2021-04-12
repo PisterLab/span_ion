@@ -79,15 +79,15 @@ instances:
         net_name: "PHI"
         num_bits: 1
       PHI_EARLY:
-        direction: input
+        direction: 
         net_name: "PHI_EARLY"
         num_bits: 1
       PHI_EARLYb:
-        direction: input
+        direction: 
         net_name: "PHI_EARLYb"
         num_bits: 1
       PHIb:
-        direction: input
+        direction: 
         net_name: "PHIb"
         num_bits: 1
       VREFP:
