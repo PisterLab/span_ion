@@ -272,7 +272,8 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
         minimizing bias current.
         """
         # return op2 if op1['ibias'] > op2['ibias'] else op1
-        return op2 if op2['ugf'] > op1['ugf'] else op1
+        # return op2 if op2['ugf'] > op1['ugf'] else op1
+        return op2 if op2['fbw'] > op1['fbw'] else op1
 
     def get_sch_params(self, op):
         l_dict = self.other_params['l_dict']

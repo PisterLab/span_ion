@@ -16,8 +16,8 @@ from .comparator_fd_cmfb2 import span_ion__comparator_fd_cmfb2_dsn
 from .constant_gm import bag2_analog__constant_gm_dsn
 
 # noinspection PyPep8Naming
-class span_ion__comparator_fd_stage_dsn(DesignModule):
-    """Module for library span_ion cell comparator_fd_stage.
+class span_ion__comparator_fd_stage_cmfb_dsn(DesignModule):
+    """Module for library span_ion cell comparator_fd_stage_cmfb.
     This includes the comparator_fd_main, comparator_fd_cmfb,
     and constant_gm for biasing the common mode feedback amp.
 

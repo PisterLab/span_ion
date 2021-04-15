@@ -2,9 +2,37 @@ lib_name: span_ion
 cell_name: comparator_fd_chain
 pins: [ "VOUTCM", "VSS", "VINN", "VOUTN", "VDD", "VINP", "VOUTP" ]
 instances:
+  PIN0:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN1:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN2:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN5:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN6:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN4:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
   XSTAGE:
     lib_name: span_ion
-    cell_name: comparator_fd_stage
+    cell_name: comparator_fd_stage_cmfb
     instpins:
       VSS:
         direction: inputOutput
@@ -34,31 +62,3 @@ instances:
         direction: input
         net_name: "VOUTCM"
         num_bits: 1
-  PIN0:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
-  PIN1:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
-  PIN2:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
-  PIN5:
-    lib_name: basic
-    cell_name: iopin
-    instpins: {}
-  PIN6:
-    lib_name: basic
-    cell_name: iopin
-    instpins: {}
-  PIN3:
-    lib_name: basic
-    cell_name: opin
-    instpins: {}
-  PIN4:
-    lib_name: basic
-    cell_name: opin
-    instpins: {}

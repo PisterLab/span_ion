@@ -48,7 +48,7 @@ instances:
         num_bits: 1
   XAMP:
     lib_name: span_ion
-    cell_name: comparator_fd_stage
+    cell_name: comparator_fd_stage_cmfb
     instpins:
       VSS:
         direction: inputOutput

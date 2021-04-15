@@ -33,10 +33,9 @@ class span_ion__comparator(Module):
             dictionary from parameter names to descriptions.
         """
         return dict(
-            lch_dict = 'Dictionary of channel lengths.',
-            wch_dict = 'Dictionary of channel widths.',
-            seg_dict = 'Dictionary of number of fingers.',
-            th_dict = 'Dictionary of device flavors.'
+            stage_params_list = 'List of fully differential cmfb stage parameters',
+            single_params = 'Single-ended amplifier parameters',
+            constgm_params = ''
         )
 
     def design(self, **params):
@@ -55,40 +54,21 @@ class span_ion__comparator(Module):
         restore_instance()
         array_instance()
         """
-        lch_dict = params['lch_dict']
-        wch_dict = params['wch_dict']
-        seg_dict = params['seg_dict']
-        th_dict = params['th_dict']
+        stage_params_list = params['stage_params_list']
+        single_params = params['single_params']
+        constgm_params = params['constgm_params']
 
-        diffpair_lch = {'in' : lch_dict['diff_in'],
-                        'tail' : lch_dict['diff_tail']}
-        diffpair_wch = {'in' : wch_dict['diff_in'],
-                        'tail' : wch_dict['diff_tail']}
-        diffpair_seg = {'in' : seg_dict['diff_in'],
-                        'tail' : seg_dict['diff_tail']}
-        diffpair_th = {'in' : th_dict['diff_in'],
-                       'tail' : th_dict['diff_tail']}
+        in_single = single_params['in_type']
+        num_amps = len(stage_params_list)
 
-        diffpair_params = {'lch_dict' : diffpair_lch,
-                           'w_dict' : diffpair_wch,
-                           'seg_dict' : diffpair_seg,
-                           'th_dict' : diffpair_th}
+        self.instances['XCHAIN'].design(stage_params_list=stage_params_list)
+        self.instances['XSINGLE'].design(**single_params)
+        self.instances['XCONSTGM'].design(res_side=in_single, **constgm_params)
 
-        mirror_device_params = {'w' : wch_dict['mirror'],
-                                'l' : lch_dict['mirror'],
-                                'intent' : th_dict['mirror']}
+        pin_gtail = 'VP' if in_single == 'p' else 'VN'
+        self.reconnect_instance_terminal('XCONSTGM', pin_gtail, 'VGTAIL')
 
-        mirror_params = {'device_params' : mirror_device_params,
-                         'seg_in' : seg_dict['mirror_in'],
-                         'seg_out_list' : [seg_dict['mirror_out']]}
-
-        src_params = {'l' : lch_dict['src'],
-                      'w' : wch_dict['src'],
-                      'nf' : seg_dict['src'],
-                      'intent' : th_dict['src']}
-
-        self.instances['XDIFFPAIR'].design(**diffpair_params)
-        self.instances['XMIRR_A'].design(**mirror_params)
-        self.instances['XMIRR_B'].design(**mirror_params)
-        self.instances['XBIAS_A'].design(**src_params)
-        self.instances['XBIAS_B'].design(**src_params)
+        if num_amps > 1:
+            pin_voutcm = f'VOUTCM<{num_amps-1}:0>'
+            self.reconnect_instance_terminal('XCHAIN', pin_voutcm, pin_voutcm)
+            self.rename_pin('VOUTCM', pin_voutcm)

@@ -1,0 +1,336 @@
+lib_name: span_ion
+cell_name: comparator_az
+pins: [ "VOUT", "VDD", "VSS", "VINP", "VINN", "VAZ_MAIN", "B", "VAZ_AUX", "PHI", "PHIb", "VOUTCM_AUX", "VOUTCM_MAIN", "Bb" ]
+instances:
+  XAUX_OS:
+    lib_name: span_ion
+    cell_name: comparator_fd_stage_offset
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUTN:
+        direction: output
+        net_name: "VAUXN"
+        num_bits: 1
+      VOUTP:
+        direction: output
+        net_name: "VAUXP"
+        num_bits: 1
+      B:
+        direction: input
+        net_name: "B"
+        num_bits: 1
+      SIGNN:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+      SIGNP:
+        direction: input
+        net_name: "VDD"
+        num_bits: 1
+      VAZ:
+        direction: input
+        net_name: "VAZ_AUX"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "VINN"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VINAUXP"
+        num_bits: 1
+  XMAIN_OS:
+    lib_name: span_ion
+    cell_name: comparator_fd_stage_offset
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUTN:
+        direction: output
+        net_name: "VMAINN"
+        num_bits: 1
+      VOUTP:
+        direction: output
+        net_name: "VMAINP"
+        num_bits: 1
+      B:
+        direction: input
+        net_name: "B"
+        num_bits: 1
+      SIGNN:
+        direction: input
+        net_name: "VDD"
+        num_bits: 1
+      SIGNP:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+      VAZ:
+        direction: input
+        net_name: "VAZ_MAIN"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "VINN"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VINP"
+        num_bits: 1
+  XAUX_AMP:
+    lib_name: span_ion
+    cell_name: comparator
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      OUT:
+        direction: output
+        net_name: "VOUT_AUX"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "VAUXN"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VAUXP"
+        num_bits: 1
+      VOUTCM:
+        direction: input
+        net_name: "VOUTCM_AUX"
+        num_bits: 1
+  XMAIN_AMP:
+    lib_name: span_ion
+    cell_name: comparator
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      OUT:
+        direction: output
+        net_name: "VOUT"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "VMAINN"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VMAINP"
+        num_bits: 1
+      VOUTCM:
+        direction: input
+        net_name: "VOUTCM_MAIN"
+        num_bits: 1
+  XSW_AUX:
+    lib_name: bag2_analog
+    cell_name: switch_mos
+    instpins:
+      BN:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "PHIb"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "PHI"
+        num_bits: 1
+      BP:
+        direction: input
+        net_name: "VDD"
+        num_bits: 1
+      S:
+        direction: inputOutput
+        net_name: "VAZ_AUX"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VOUT_AUX"
+        num_bits: 1
+  XSW_MAIN:
+    lib_name: bag2_analog
+    cell_name: switch_mos
+    instpins:
+      BN:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "PHI"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "PHIb"
+        num_bits: 1
+      BP:
+        direction: input
+        net_name: "VDD"
+        num_bits: 1
+      S:
+        direction: inputOutput
+        net_name: "VAZ_MAIN"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VOUT_AUX"
+        num_bits: 1
+  XSW_B:
+    lib_name: bag2_analog
+    cell_name: switch_mos
+    instpins:
+      BN:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "PHI"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "PHIb"
+        num_bits: 1
+      BP:
+        direction: input
+        net_name: "VDD"
+        num_bits: 1
+      S:
+        direction: inputOutput
+        net_name: "VINAUXP"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VINP"
+        num_bits: 1
+  XSW_A:
+    lib_name: bag2_analog
+    cell_name: switch_mos
+    instpins:
+      BN:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "PHIb"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "PHI"
+        num_bits: 1
+      BP:
+        direction: input
+        net_name: "VDD"
+        num_bits: 1
+      S:
+        direction: inputOutput
+        net_name: "VINAUXP"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VINN"
+        num_bits: 1
+  XC_AUX:
+    lib_name: bag2_wrappers
+    cell_name: cap_ideal
+    instpins:
+      MINUS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      PLUS:
+        direction: inputOutput
+        net_name: "VAZ_AUX"
+        num_bits: 1
+  XC_MAIN:
+    lib_name: bag2_wrappers
+    cell_name: cap_ideal
+    instpins:
+      MINUS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      PLUS:
+        direction: inputOutput
+        net_name: "VAZ_MAIN"
+        num_bits: 1
+  PIN7:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN6:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN0:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN2:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN1:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN12:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN11:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN10:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN9:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN8:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN5:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN4:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}

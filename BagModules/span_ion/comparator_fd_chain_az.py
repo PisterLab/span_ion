@@ -33,7 +33,7 @@ class span_ion__comparator_fd_chain_az(Module):
             dictionary from parameter names to descriptions.
         """
         return dict(
-            stage_params_list = 'List of comparator_fd_stage parameters, in order',
+            stage_params_list = 'List of comparator_fd_stage_cmfb parameters, in order',
             az_params = 'comparator_az_fb parameters',
             comp_params_list = 'List of compensation block parameters',
             comp_conn_list = 'List of where to connect two ends of compensation',

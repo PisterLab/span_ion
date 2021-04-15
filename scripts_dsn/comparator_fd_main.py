@@ -182,7 +182,7 @@ class span_ion__comparator_fd_main_dsn(DesignModule):
         """Returns the best operating condition based on 
         minimizing bias current.
         """
-        return op2 if op1['ibias'] > op2['ibias'] else op1
+        return op2 if op1['fbw'] < op2['fbw'] else op1
 
     def get_sch_params(self, op):
         # TODO real resistor

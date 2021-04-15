@@ -1,26 +1,26 @@
 lib_name: span_ion
 cell_name: comparator
-pins: [ "VGSRC", "VGTAIL", "VINP", "VINN", "VOUTP", "VOUTN", "VDD", "VSS" ]
+pins: [ "VOUTCM", "VSS", "VINN", "VDD", "VINP", "OUT" ]
 instances:
-  XDIFFPAIR:
-    lib_name: bag2_analog
-    cell_name: diffpair_n
+  XCHAIN:
+    lib_name: span_ion
+    cell_name: comparator_fd_chain
     instpins:
       VSS:
         direction: inputOutput
         net_name: "VSS"
         num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
       VOUTN:
         direction: output
-        net_name: "VOUT1N"
+        net_name: "VOUTN"
         num_bits: 1
       VOUTP:
         direction: output
-        net_name: "VOUT1P"
-        num_bits: 1
-      VGTAIL:
-        direction: input
-        net_name: "VGTAIL"
+        net_name: "VOUTP"
         num_bits: 1
       VINN:
         direction: input
@@ -30,99 +30,59 @@ instances:
         direction: input
         net_name: "VINP"
         num_bits: 1
-  XMIRR_A:
-    lib_name: bag2_analog
-    cell_name: mirror_p
-    instpins:
-      s_out:
+      VOUTCM:
         direction: input
-        net_name: "VDD"
+        net_name: "VOUTCM"
         num_bits: 1
-      s_in:
+  XSINGLE:
+    lib_name: bag2_analog
+    cell_name: amp_gm_mirr
+    instpins:
+      VGTAIL:
         direction: input
-        net_name: "VDD"
+        net_name: "VGTAIL"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
         num_bits: 1
       VDD:
         direction: inputOutput
         net_name: "VDD"
         num_bits: 1
-      out:
+      VOUT:
         direction: output
+        net_name: "OUT"
+        num_bits: 1
+      VINN:
+        direction: input
         net_name: "VOUTN"
         num_bits: 1
-      in:
+      VINP:
         direction: input
-        net_name: "VOUT1P"
+        net_name: "VOUTP"
         num_bits: 1
-  XMIRR_B:
+  XCONSTGM:
     lib_name: bag2_analog
-    cell_name: mirror_p
+    cell_name: constant_gm
     instpins:
-      s_out:
-        direction: input
-        net_name: "VDD"
-        num_bits: 1
-      s_in:
-        direction: input
-        net_name: "VDD"
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
         num_bits: 1
       VDD:
         direction: inputOutput
         net_name: "VDD"
         num_bits: 1
-      out:
+      VN:
         direction: output
-        net_name: "VOUTP"
+        net_name: "VN"
         num_bits: 1
-      in:
-        direction: input
-        net_name: "VOUT1N"
+      VP:
+        direction: output
+        net_name: "VP"
         num_bits: 1
-  XBIAS_B:
-    lib_name: BAG_prim
-    cell_name: nmos4_svt
-    instpins:
-      S:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      D:
-        direction: inputOutput
-        net_name: "VOUTP"
-        num_bits: 1
-      B:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      G:
-        direction: inputOutput
-        net_name: "VGSRC"
-        num_bits: 1
-  XBIAS_A:
-    lib_name: BAG_prim
-    cell_name: nmos4_svt
-    instpins:
-      S:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      D:
-        direction: inputOutput
-        net_name: "VOUTN"
-        num_bits: 1
-      B:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      G:
-        direction: inputOutput
-        net_name: "VGSRC"
-        num_bits: 1
-  PIN3:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
-  PIN2:
+  PIN0:
     lib_name: basic
     cell_name: ipin
     instpins: {}
@@ -130,23 +90,19 @@ instances:
     lib_name: basic
     cell_name: ipin
     instpins: {}
-  PIN0:
+  PIN2:
     lib_name: basic
     cell_name: ipin
     instpins: {}
   PIN5:
-    lib_name: basic
-    cell_name: opin
-    instpins: {}
-  PIN4:
-    lib_name: basic
-    cell_name: opin
-    instpins: {}
-  PIN7:
     lib_name: basic
     cell_name: iopin
     instpins: {}
   PIN6:
     lib_name: basic
     cell_name: iopin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: opin
     instpins: {}

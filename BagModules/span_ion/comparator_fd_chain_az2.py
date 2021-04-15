@@ -35,7 +35,7 @@ class span_ion__comparator_fd_chain_az2(Module):
         """
         return dict(
             sample_params = 'comparator_az_sample parameters',
-            stage_params_list = 'List of comparator_fd_stage parameters, in order',
+            stage_params_list = 'List of comparator_fd_stage_cmfb parameters, in order',
             fb_params='comparator_az_fb parameters',
             comp_params_list='List of compensation block parameters',
             comp_conn_list='List of where to connect two ends of compensation',

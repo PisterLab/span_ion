@@ -33,7 +33,7 @@ class span_ion__comparator_fd_chain(Module):
             dictionary from parameter names to descriptions.
         """
         return dict(
-            stage_params_list = 'List of comparator_fd_stage parameters, in order',
+            stage_params_list = 'List of comparator_fd_stage_cmfb parameters, in order',
         )
 
     def design(self, **params):
