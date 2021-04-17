@@ -1,0 +1,404 @@
+lib_name: span_ion
+cell_name: one_shot_nand_tmr
+pins: [ "in<2:0>", "out<2:0>", "VDD", "VSS", "CTRLb" ]
+instances:
+  XINV_IN<2:0>:
+    lib_name: bag2_digital
+    cell_name: inv
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "<*3>VSS"
+        num_bits: 3
+      VDD:
+        direction: inputOutput
+        net_name: "<*3>VDD"
+        num_bits: 3
+      out:
+        direction: output
+        net_name: "inb<2:0>"
+        num_bits: 3
+      in:
+        direction: input
+        net_name: "in<2:0>"
+        num_bits: 3
+  XVOTE_NOR:
+    lib_name: span_ion
+    cell_name: voter_3x3
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out<2:0>:
+        direction: output
+        net_name: "rst_RC_vote<2:0>"
+        num_bits: 3
+      in<2:0>:
+        direction: input
+        net_name: "rst_RC<2:0>"
+        num_bits: 3
+  XVOTE_NAND:
+    lib_name: span_ion
+    cell_name: voter_3x3
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out<2:0>:
+        direction: output
+        net_name: "in_gate_vote<2:0>"
+        num_bits: 3
+      in<2:0>:
+        direction: input
+        net_name: "in_gate<2:0>"
+        num_bits: 3
+  XVOTE_IN:
+    lib_name: span_ion
+    cell_name: voter_3x3
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out<2:0>:
+        direction: output
+        net_name: "inb_vote<2:0>"
+        num_bits: 3
+      in<2:0>:
+        direction: input
+        net_name: "inb<2:0>"
+        num_bits: 3
+  XVOTE_OUTB:
+    lib_name: span_ion
+    cell_name: voter_3x3
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out<2:0>:
+        direction: output
+        net_name: "outb_vote<2:0>"
+        num_bits: 3
+      in<2:0>:
+        direction: input
+        net_name: "outb<2:0>"
+        num_bits: 3
+  XNAND<0>:
+    lib_name: bag2_digital
+    cell_name: nand
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "in_gate<0>"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "net03"
+        num_bits: 1
+  XNAND<2>:
+    lib_name: bag2_digital
+    cell_name: nand
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "in_gate<2>"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "net01"
+        num_bits: 1
+  XNAND<1>:
+    lib_name: bag2_digital
+    cell_name: nand
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "in_gate<1>"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "net02"
+        num_bits: 1
+  XCAP<2:0>:
+    lib_name: bag2_wrappers
+    cell_name: cap_ideal
+    instpins:
+      MINUS:
+        direction: inputOutput
+        net_name: "in_gate_vote<2:0>"
+        num_bits: 3
+      PLUS:
+        direction: inputOutput
+        net_name: "in_filt<2:0>"
+        num_bits: 3
+  XR<2>:
+    lib_name: bag2_analog
+    cell_name: res_trim_series
+    instpins:
+      BULK:
+        direction: inputOutput
+        net_name: "BULK"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      Z:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "net015"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "CTRLb"
+        num_bits: 1
+      A:
+        direction: inputOutput
+        net_name: "in_filt<2>"
+        num_bits: 1
+  XR<0>:
+    lib_name: bag2_analog
+    cell_name: res_trim_series
+    instpins:
+      BULK:
+        direction: inputOutput
+        net_name: "BULK"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      Z:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "net013"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "CTRLb"
+        num_bits: 1
+      A:
+        direction: inputOutput
+        net_name: "in_filt<0>"
+        num_bits: 1
+  XR<1>:
+    lib_name: bag2_analog
+    cell_name: res_trim_series
+    instpins:
+      BULK:
+        direction: inputOutput
+        net_name: "BULK"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      Z:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      CTRL:
+        direction: input
+        net_name: "net018"
+        num_bits: 1
+      CTRLb:
+        direction: input
+        net_name: "CTRLb"
+        num_bits: 1
+      A:
+        direction: inputOutput
+        net_name: "in_filt<1>"
+        num_bits: 1
+  XINV_OUT<2:0>:
+    lib_name: bag2_digital
+    cell_name: inv_chain
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "<*3>VSS"
+        num_bits: 3
+      VDD:
+        direction: inputOutput
+        net_name: "<*3>VDD"
+        num_bits: 3
+      out:
+        direction: output
+        net_name: "out<2:0>"
+        num_bits: 3
+      outb:
+        direction: output
+        net_name: "outb<2:0>"
+        num_bits: 3
+      in:
+        direction: input
+        net_name: "in_filt<2:0>"
+        num_bits: 3
+  PIN4:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN0:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN1:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN2:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  XNOR<2>:
+    lib_name: bag2_digital
+    cell_name: nor
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "rst_RC<2>"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "net016"
+        num_bits: 1
+  XNOR<1>:
+    lib_name: bag2_digital
+    cell_name: nor
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "rst_RC<1>"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "net014"
+        num_bits: 1
+  XNOR<0>:
+    lib_name: bag2_digital
+    cell_name: nor
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "rst_RC<0>"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "net05"
+        num_bits: 1
+  XRST<2:0>:
+    lib_name: bag2_analog
+    cell_name: switch_mos
+    instpins:
+      BN:
+        direction: input
+        net_name: "<*3>VSS"
+        num_bits: 3
+      CTRLb:
+        direction: input
+        net_name: "net08<0:2>"
+        num_bits: 3
+      CTRL:
+        direction: input
+        net_name: "rst_RC_vote<2:0>"
+        num_bits: 3
+      BP:
+        direction: input
+        net_name: "net011<0:2>"
+        num_bits: 3
+      S:
+        direction: inputOutput
+        net_name: "<*3>VSS"
+        num_bits: 3
+      D:
+        direction: inputOutput
+        net_name: "in_filt<2:0>"
+        num_bits: 3
