@@ -1,7 +1,43 @@
 lib_name: span_ion
 cell_name: comparator_fd_chain
-pins: [ "VOUTCM", "VSS", "VINN", "VOUTN", "VDD", "VINP", "VOUTP" ]
+pins: [ "IBP", "VSS", "VINN", "VOUTN", "VDD", "VINP", "VOUTP", "IBN" ]
 instances:
+  XSTAGE:
+    lib_name: span_ion
+    cell_name: comparator_fd_stage
+    instpins:
+      IBN:
+        direction: input
+        net_name: "IBN"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUTN:
+        direction: output
+        net_name: "VOUTN"
+        num_bits: 1
+      VOUTP:
+        direction: output
+        net_name: "VOUTP"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "VINN"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VINP"
+        num_bits: 1
+  PIN8:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
   PIN0:
     lib_name: basic
     cell_name: ipin
@@ -30,35 +66,3 @@ instances:
     lib_name: basic
     cell_name: opin
     instpins: {}
-  XSTAGE:
-    lib_name: span_ion
-    cell_name: comparator_fd_stage_cmfb
-    instpins:
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      VOUTN:
-        direction: output
-        net_name: "VOUTN"
-        num_bits: 1
-      VOUTP:
-        direction: output
-        net_name: "VOUTP"
-        num_bits: 1
-      VINN:
-        direction: input
-        net_name: "VINN"
-        num_bits: 1
-      VINP:
-        direction: input
-        net_name: "VINP"
-        num_bits: 1
-      VOUTCM:
-        direction: input
-        net_name: "VOUTCM"
-        num_bits: 1

@@ -33,7 +33,7 @@ class span_ion__comparator_fd_chain(Module):
             dictionary from parameter names to descriptions.
         """
         return dict(
-            stage_params_list = 'List of comparator_fd_stage_cmfb parameters, in order',
+            stage_params_list = 'List of comparator_fd_stage parameters, in order',
         )
 
     def design(self, **params):
@@ -57,26 +57,65 @@ class span_ion__comparator_fd_chain(Module):
         num_stages = len(stage_params_list)
         assert num_stages > 0, f'Number of stages {num_stages} should be > 0'
 
-        # Array stages and rewire as necessary
+        ### Fixing indices of biasing pins
+        in_type_list = [s['in_type'] for s in stage_params_list]
+        num_p = in_type_list.count('p')
+        num_n = in_type_list.count('n')
+
+        # Change the pin
+        if num_p < 1:
+            self.remove_pin('IBP')
+        elif num_p > 1:
+            self.rename_pin('IBP', f'IBP<{num_p - 1}:0>')
+
+        if num_n < 1:
+            self.remove_pin('IBN')
+        elif num_n > 1:
+            self.rename_pin('IBN', f'IBN<{num_n - 1}:0>')
+
+        ### Array stages and wire inputs to outputs of the chain
         if num_stages > 1:
             conn_dict_list = []
+            idx_n = 0
+            idx_p = 0
             for i in range(num_stages):
+                stage_params = stage_params_list[i]
+                suffix_p = f'<{idx_p}>' if num_p > 1 else ''
+                suffix_n = f'<{idx_n}>' if num_n > 1 else ''
                 conn_dict = dict(VINP='VINP' if i==0 else f'VMIDP<{i-1}>',
                                  VINN='VINN' if i==0 else f'VMIDN<{i-1}>',
-                                 VOUTCM=f'VOUTCM<{i}>',
                                  VOUTN='VOUTN' if i==num_stages-1 else f'VMIDN<{i}>',
                                  VOUTP='VOUTP' if i==num_stages-1 else f'VMIDP<{i}>',
                                  VDD='VDD',
-                                 VSS='VSS')
+                                 VSS='VSS',
+                                 IBP=f'IBP{suffix_p}',
+                                 IBN=f'IBN{suffix_n}')
+                if stage_params['in_type'] == 'p':
+                    idx_p = idx_p + 1
+                elif stage_params['in_type'] == 'n':
+                    idx_n = idx_n + 1
+
                 conn_dict_list.append(conn_dict)
 
             self.array_instance('XSTAGE',
                                 [f'XSTAGE<{i}>' for i in range(num_stages)],
                                 conn_dict_list)
 
-            self.rename_pin('VOUTCM', f'VOUTCM<{num_stages-1}:0>')
-
             for i in range(num_stages):
-                self.instances['XSTAGE'][i].design(**(stage_params_list[i]))
+                self.instances['XSTAGE'][i].design(**stage_params)
         else:
             self.instances['XSTAGE'].design(**(stage_params_list[0]))
+        #
+        # # Wire up biasing of components
+        # idx_n = 0
+        # idx_p = 0
+        # for i in range(num_stages):
+        #     stage_params = stage_params_list[i]
+        #     if stage_params['in_type'] == 'p':
+        #         suffix_p = f'<{idx_p}>' if num_p > 1 else ''
+        #         self.reconnect_instance_terminal(f'XSTAGE<{i}>', 'IBP', f'IBP{suffix_p}')
+        #         idx_p = idx_p + 1
+        #     else:
+        #         suffix_n = f'<{idx_n}>' if num_n > 1 else ''
+        #         self.reconnect_instance_terminal(f'XSTAGE<{i}>', 'IBN', f'IBN{suffix_n}')
+        #         idx_n = idx_n + 1

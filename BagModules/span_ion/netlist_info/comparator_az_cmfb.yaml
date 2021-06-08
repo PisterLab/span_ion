@@ -1,5 +1,5 @@
 lib_name: span_ion
-cell_name: comparator_az
+cell_name: comparator_az_cmfb
 pins: [ "VOUT", "VDD", "VSS", "VINP", "VINN", "VAZ_MAIN", "B", "VAZ_AUX", "PHI", "PHIb", "VOUTCM_AUX", "VOUTCM_MAIN", "Bb" ]
 instances:
   XAUX_OS:

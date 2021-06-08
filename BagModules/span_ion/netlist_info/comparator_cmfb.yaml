@@ -1,43 +1,7 @@
 lib_name: span_ion
-cell_name: comparator
-pins: [ "VSS", "VINN", "VDD", "VINP", "OUT", "IBN", "IBP" ]
+cell_name: comparator_cmfb
+pins: [ "VOUTCM", "VSS", "VINN", "VDD", "VINP", "OUT" ]
 instances:
-  XCHAIN:
-    lib_name: span_ion
-    cell_name: comparator_fd_chain
-    instpins:
-      IBN:
-        direction: input
-        net_name: "IBN"
-        num_bits: 1
-      IBP:
-        direction: input
-        net_name: "IBP"
-        num_bits: 1
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      VOUTN:
-        direction: output
-        net_name: "VOUTN"
-        num_bits: 1
-      VOUTP:
-        direction: output
-        net_name: "VOUTP"
-        num_bits: 1
-      VINN:
-        direction: input
-        net_name: "VINN"
-        num_bits: 1
-      VINP:
-        direction: input
-        net_name: "VINP"
-        num_bits: 1
   XSINGLE:
     lib_name: bag2_analog
     cell_name: amp_gm_mirr
@@ -86,10 +50,6 @@ instances:
         direction: output
         net_name: "VP"
         num_bits: 1
-  PIN4:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
   PIN0:
     lib_name: basic
     cell_name: ipin
@@ -114,3 +74,35 @@ instances:
     lib_name: basic
     cell_name: opin
     instpins: {}
+  XCHAIN:
+    lib_name: span_ion
+    cell_name: comparator_fd_chain_cmfb
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUTN:
+        direction: output
+        net_name: "VOUTN"
+        num_bits: 1
+      VOUTP:
+        direction: output
+        net_name: "VOUTP"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "VINN"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VINP"
+        num_bits: 1
+      VOUTCM:
+        direction: input
+        net_name: "VOUTCM"
+        num_bits: 1

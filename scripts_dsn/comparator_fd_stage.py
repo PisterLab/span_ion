@@ -161,27 +161,39 @@ class span_ion__comparator_fd_stage_dsn(DesignModule):
 
                         # Ensure that it's an appropriate duplicate of the baseline current
                         itail = tail_op['ibias'] * nf_tail
-                        ref_success, mult_ref = verify_ratio(itail,
-                                                      iref_min,
-                                                      1, error_tol)
-                        if not ref_success:
-                            print('reference match')
-                            continue
+                        ref_op = db_dict['tail'].query(vgs=vgtail-vb,
+                                                       vds=vgtail-vb,
+                                                       vbs=0)
+                        iref_max = ibias_max - itail
+                        nf_ref_max = int(round(iref_max / ref_op['ibias']))
+                        nf_ref_vec = np.arange(1, nf_ref_max, 1)
+                        for nf_ref in nf_ref_vec:
+                            iref = ref_op['ibias'] * nf_ref
+                            ref_success, mult_ref = verify_ratio(ref_op['ibias'],
+                                                                 iref_min,
+                                                                 nf_ref, error_tol)
 
-                        viable_op = dict(nf_in=int(nf_in),
-                                         nf_tail=int(nf_tail),
-                                         res_val=float(res_val),
-                                         voutcm=float(voutcm),
-                                         vgtail=float(vgtail),
-                                         gain=float(gain),
-                                         fbw=float(fbw),
-                                         vtail=float(vtail),
-                                         itail=float(itail),
-                                         mult_ref=int(mult_ref),
-                                         cin=float(tail_op['cgg'] * nf_tail))
-                        viable_op_list.append(viable_op)
-                        print("\n(SUCCESS)")
-                        print(viable_op)
+                            if not ref_success:
+                                print('reference match')
+                                continue
+
+                            viable_op = dict(nf_in=int(nf_in),
+                                             nf_tail=int(nf_tail),
+                                             nf_ref=int(nf_ref),
+                                             res_val=float(res_val),
+                                             voutcm=float(voutcm),
+                                             vgtail=float(vgtail),
+                                             gain=float(gain),
+                                             fbw=float(fbw),
+                                             vtail=float(vtail),
+                                             itail=float(itail),
+                                             iref=float(iref),
+                                             ibias=float(itail + iref),
+                                             mult_ref=int(mult_ref),
+                                             cin=float(in_op['cgg'] * nf_in))
+                            viable_op_list.append(viable_op)
+                            print("\n(SUCCESS)")
+                            print(viable_op)
 
         self.other_params = dict(in_type=in_type,
                                  l_dict=l_dict,
@@ -195,7 +207,12 @@ class span_ion__comparator_fd_stage_dsn(DesignModule):
         """Returns the best operating condition based on
         minimizing bias current.
         """
-        return op2 if op1['fbw'] < op2['fbw'] else op1
+        if op1['fbw'] < op2['fbw']:
+            return op2
+        elif op2['fbw'] < op1['fbw']:
+            return op1
+        else:
+            return op2 if op2['ibias'] < op1['ibias'] else op1
 
     def get_sch_params(self, op):
         # TODO real resistor
@@ -205,6 +222,7 @@ class span_ion__comparator_fd_stage_dsn(DesignModule):
         w_dict.update(dict(res=1e-6))
         seg_dict = {'in': op['nf_in'],
                     'tail': op['nf_tail'],
+                    'bias' : op['nf_ref'],
                     'res': 1}  # TODO real resistor
 
         # Cleaning up data types
@@ -218,7 +236,6 @@ class span_ion__comparator_fd_stage_dsn(DesignModule):
             seg_dict[k] = int(v)
 
         return dict(in_type=self.other_params['in_type'],
-                    bulk_conn='VSS',  # TODO real resistor
                     l_dict=l_dict,
                     w_dict=w_dict,
                     th_dict=self.other_params['th_dict'],
