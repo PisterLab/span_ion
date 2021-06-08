@@ -40,11 +40,12 @@ class bag2_analog__amp_gm_mirr_dsn(DesignModule):
             vswing_lim = 'Tuple of lower and upper swing from the bias',
             gain = '(Min, max) small signal gain target in V/V',
             fbw = 'Minimum bandwidth in Hz',
-            ugf = '',
-            pm = '',
+            ugf = 'Minimum unity gain frequency',
+            pm = 'Minimum phase margin in degrees',
             vdd = 'Supply voltage in volts.',
             vincm = 'Input common mode voltage.',
             ibias = 'Maximum bias current, in amperes.',
+            iref = 'Reference current in amperes for biasing',
             cload = 'Output load capacitance in farads.',
             optional_params = 'Optional parameters. voutcm=output bias voltage, error_tol, \
                 res_vstep, vstar_min'
@@ -81,6 +82,7 @@ class bag2_analog__amp_gm_mirr_dsn(DesignModule):
         ugf_min = params['ugf']
         pm_min = params['pm']
         ibias_max = params['ibias']
+        iref_unit = params['iref']
 
         vstar_min = optional_params.get('vstar_min', 0.2)
         vstar_in_min = optional_params.get('vstar_in_min', 0.0)
@@ -164,6 +166,9 @@ class bag2_analog__amp_gm_mirr_dsn(DesignModule):
                             tail_op = db_dict['tail'].query(vgs=vgtail-vb_tail,
                                                             vds=vtail-vb_tail,
                                                             vbs=0)
+                            bias_op = db_dict['tail'].query(vgs=vgtail-vb_tail,
+                                                            vds=vgtail-vb_tail,
+                                                            vbs=0)
                             tail_success, nf_tail = verify_ratio(in_op['ibias']*2,
                                                                  tail_op['ibias'],
                                                                  nf_in, error_tol)
@@ -184,17 +189,32 @@ class bag2_analog__amp_gm_mirr_dsn(DesignModule):
                                     # print('load copy match')
                                     continue
 
+                                ### 7. Design bias source/sink
+                                iref_mult_max = (ibias_max - itail - nf_flip*2*flip_op['ibias']) // iref_unit
+                                iref_mult_vec = np.arange(1, iref_mult_max, 1)
+                                for iref_mult in iref_mult_vec:
+                                    bias_success, nf_bias = verify_ratio(iref_unit,
+                                                                         bias_op['ibias'],
+                                                                         iref_mult,
+                                                                         error_tol)
+                                    if bias_success:
+                                        break
+                                if not bias_success:
+                                    continue
+
                                 op_dict = {'in' : in_op,
                                            'tail' : tail_op,
                                            'load' : load_op,
                                            'load_copy': load_copy_op,
-                                           'flip' : flip_op}
+                                           'flip' : flip_op,
+                                           'bias' : bias_op}
 
                                 nf_dict = {'in' : nf_in,
                                            'tail' : nf_tail,
                                            'load' : nf_load,
                                            'load_copy': nf_load_copy,
-                                           'flip' : nf_flip}
+                                           'flip' : nf_flip,
+                                           'bias' : nf_bias}
 
                                 # Calculate figures of merit
                                 gain_lti, fbw_lti, ugf_lti, pm_lti = self._get_ss_lti(op_dict=op_dict,
@@ -231,6 +251,7 @@ class bag2_analog__amp_gm_mirr_dsn(DesignModule):
                                                  itail=tail_op['ibias']*nf_tail,
                                                  iflip=flip_op['ibias']*nf_flip*2,
                                                  ibias=tail_op['ibias']*nf_tail + 2*nf_flip*flip_op['ibias'],
+                                                 iref=iref_mult*iref_unit,
                                                  cin=in_op['cgg']*nf_in)
 
                                 viable_op_list.append(viable_op)

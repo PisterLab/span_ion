@@ -45,6 +45,7 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
             vincm = 'Input common mode voltage.',
             ibias = 'Maximum bias current, in amperes.',
             cload = 'Output load capacitance in farads.',
+            iref = 'Minimum quantization of the tail current',
             optional_params = 'Optional parameters. voutcm=output bias voltage. res_vstep, vstar_min, error_tol, vstar_in_min'
         ))
         return ans
@@ -145,7 +146,6 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
                     ibias = ibias_min * nf_in
 
                     # Match device sizing for input and load
-                    # raise ValueError("Pause")
                     match_load, nf_load = verify_ratio(in_op['ibias'],
                                                       load_op['ibias'],
                                                       nf_in,
@@ -162,6 +162,9 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
                         tail_op = db_dict['tail'].query(vgs=vgtail-vb_tail,
                                                         vds=vtail-vb_tail,
                                                         vbs=0)
+                        bias_op = db_dict['tail'].query(vgs=vgtail-vb_tail,
+                                                        vds=vgtail-vb_tail,
+                                                        vbs=0)
                         tail_success, nf_tail = verify_ratio(in_op['ibias']*2,
                                                              tail_op['ibias'],
                                                              nf_in,
@@ -170,13 +173,29 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
                             # print('Tail match')
                             continue
 
+                        ibias = tail_op['ibias'] * nf_tail
+                        iref_mult_max = (ibias_max - ibias) // params['iref']
+                        iref_mult_vec = np.arange(1, iref_mult_max, 1)
+                        for iref_mult in iref_mult_vec:
+                            bias_success, nf_bias = verify_ratio(params['iref'],
+                                                                 bias_op['ibias'],
+                                                                 iref_mult,
+                                                                 error_tol)
+                            if bias_success:
+                                break
+
+                        if not bias_success:
+                            continue
+
                         # Check against spec again, now with full circuit
                         op_dict = {'in' : in_op,
                                    'tail' : tail_op,
-                                   'load' : load_op}
+                                   'load' : load_op,
+                                   'bias' : bias_op}
                         nf_dict = {'in' : nf_in,
                                    'tail' : nf_tail,
-                                   'load' : nf_load}
+                                   'load' : nf_load,
+                                   'bias' : nf_bias}
 
                         gain_lti, fbw_lti, ugf_lti, pm_lti = self._get_ss_lti(op_dict=op_dict,
                                                                               nf_dict=nf_dict,
@@ -201,6 +220,7 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
                         viable_op = dict(nf_in=nf_in,
                                          nf_tail=nf_tail,
                                          nf_load=nf_load,
+                                         nf_bias=nf_bias,
                                          voutcm=voutcm,
                                          vgtail=vgtail,
                                          gain=gain_lti,
@@ -209,6 +229,7 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
                                          pm=pm_lti,
                                          vtail=vtail,
                                          ibias=tail_op['ibias']*nf_tail,
+                                         iref=params['iref'] * iref_mult,
                                          op_in=in_op,
                                          op_tail=tail_op,
                                          op_load=load_op)
@@ -279,8 +300,9 @@ class bag2_analog__amp_diff_mirr_dsn(DesignModule):
         l_dict = self.other_params['l_dict']
         w_dict = self.other_params['w_dict'] 
         seg_dict = {'in' : op['nf_in'],
-                  'tail' : op['nf_tail'],
-                  'load' : op['nf_load']}
+                    'tail' : op['nf_tail'],
+                    'load' : op['nf_load'],
+                    'bias' : op['nf_bias']}
 
         for k, v in l_dict.items():
             l_dict[k] = float(v)
