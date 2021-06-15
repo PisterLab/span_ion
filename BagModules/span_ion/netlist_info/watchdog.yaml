@@ -1,0 +1,160 @@
+lib_name: span_ion
+cell_name: watchdog
+pins: [ "CFD_IN", "LED_IN", "VDD", "VSS", "CTRLb_LED", "CTRLb_STUCK", "STUCK_OUT<2:0>" ]
+instances:
+  XINV<2:0>:
+    lib_name: bag2_digital
+    cell_name: inv
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "<*3>VSS"
+        num_bits: 3
+      VDD:
+        direction: inputOutput
+        net_name: "<*3>VDD"
+        num_bits: 3
+      out:
+        direction: output
+        net_name: "CFDb<2:0>"
+        num_bits: 3
+      in:
+        direction: input
+        net_name: "<*3>CFD_IN"
+        num_bits: 3
+  XNAND<2>:
+    lib_name: bag2_digital
+    cell_name: nand
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "is_stuck<2>"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "net05"
+        num_bits: 1
+  XNAND<1>:
+    lib_name: bag2_digital
+    cell_name: nand
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "is_stuck<1>"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "net06"
+        num_bits: 1
+  XNAND<0>:
+    lib_name: bag2_digital
+    cell_name: nand
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "is_stuck<0>"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "net02"
+        num_bits: 1
+  PIN5:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN4:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN1:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN0:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN2:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN6:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  XONESHOT_STUCK:
+    lib_name: span_ion
+    cell_name: one_shot_nand_tmr
+    instpins:
+      CTRLb:
+        direction: input
+        net_name: "CTRLb_STUCK"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out<2:0>:
+        direction: output
+        net_name: "STUCK_OUT<2:0>"
+        num_bits: 3
+      in<2:0>:
+        direction: input
+        net_name: "is_stuck<2:0>"
+        num_bits: 3
+  XONESHOT_LED:
+    lib_name: span_ion
+    cell_name: one_shot_nand_tmr
+    instpins:
+      CTRLb:
+        direction: input
+        net_name: "CTRLb_LED"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out<2:0>:
+        direction: output
+        net_name: "LED_1shot<2:0>"
+        num_bits: 3
+      in<2:0>:
+        direction: input
+        net_name: "<*3>LED_IN"
+        num_bits: 3

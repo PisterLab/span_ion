@@ -34,6 +34,7 @@ class span_ion__one_shot_nand_tmr(Module):
         """
         return dict(
             num_bits='Number of tuning bits for the resistor',
+            has_rst='True/False to include a reset switch with associated logic',
             inv_in_params='Input inverter parameters',
             vote_inv_in_params = '',
             nand_params='NAND parameters',
@@ -65,6 +66,7 @@ class span_ion__one_shot_nand_tmr(Module):
         array_instance()
         """
         num_bits = params['num_bits']
+        has_rst = params['has_rst']
         inv_in_params = params['inv_in_params']
         vote_inv_in_params = params['vote_inv_in_params']
         nand_params = params['nand_params']
@@ -94,23 +96,30 @@ class span_ion__one_shot_nand_tmr(Module):
         self.instances['XR<1>'].design(res_groupings=res_groupings, **res_params_copy)
         self.instances['XR<2>'].design(res_groupings=res_groupings, **res_params_copy)
 
+        # Removing instances which aren't necessary
+        if not has_rst:
+            for inst in ['XVOTE_NOR', 'XRST<2:0>'] + [f'XNOR<{i}>' for i in range(3)]:
+                self.delete_instance(inst)
+
         # Most gates
         self.instances['XINV_IN<2:0>'].design(**inv_in_params)
         self.instances['XNAND<0>'].design(num_in=2, **nand_params)
         self.instances['XNAND<1>'].design(num_in=2, **nand_params)
         self.instances['XNAND<2>'].design(num_in=2, **nand_params)
         self.instances['XINV_OUT<2:0>'].design(dual_output=True, **inv_chain_params)
-        self.instances['XNOR<0>'].design(num_in=3, **nor_params)
-        self.instances['XNOR<1>'].design(num_in=3, **nor_params)
-        self.instances['XNOR<2>'].design(num_in=3, **nor_params)
-        self.instances['XRST<2:0>'].design(mos_type='n', **rst_params)
+        if has_rst:
+            self.instances['XNOR<0>'].design(num_in=3, **nor_params)
+            self.instances['XNOR<1>'].design(num_in=3, **nor_params)
+            self.instances['XNOR<2>'].design(num_in=3, **nor_params)
+            self.instances['XRST<2:0>'].design(mos_type='n', **rst_params)
 
         # Voters
         self.instances['XVOTE_IN'].design(**vote_inv_in_params)
         self.instances['XVOTE_NAND'].design(**vote_nand_params)
         # self.instances['XVOTE_FILT'].design(**vote_filt_params)
         self.instances['XVOTE_OUTB'].design(**vote_outb_params)
-        self.instances['XVOTE_NOR'].design(**vote_nor_params)
+        if has_rst:
+            self.instances['XVOTE_NOR'].design(**vote_nor_params)
 
         # Capacitors
         warnings.warn('(one_shot_nand) check cap values generated correctly')
@@ -119,7 +128,8 @@ class span_ion__one_shot_nand_tmr(Module):
         ### Reconnect gates as necessary
         for i in range(3):
             self.reconnect_instance_terminal(f'XNAND<{i}>', 'in<1:0>', f'inb_vote<{i}>,outb_vote<{i}>')
-            self.reconnect_instance_terminal(f'XNOR<{i}>', 'in<2:0>', f'in<{i}>,in_gate_vote<{i}>,out<{i}>')
+            if has_rst:
+                self.reconnect_instance_terminal(f'XNOR<{i}>', 'in<2:0>', f'in<{i}>,in_gate_vote<{i}>,out<{i}>')
 
         ### Adjusting control pins
         if num_bits < 1:

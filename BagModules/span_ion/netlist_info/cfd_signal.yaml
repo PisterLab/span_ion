@@ -334,6 +334,14 @@ instances:
     lib_name: span_ion
     cell_name: peak_detector_basic1
     instpins:
+      IBP:
+        direction: input
+        net_name: "net04"
+        num_bits: 1
+      IBN:
+        direction: input
+        net_name: "net05"
+        num_bits: 1
       RST:
         direction: input
         net_name: "RST_PEAK"

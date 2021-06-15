@@ -19,7 +19,7 @@ instances:
         net_name: "VOUTP"
         num_bits: 1
       VGTAIL:
-        direction: input
+        direction: 
         net_name: "VGTAIL"
         num_bits: 1
       VINN:

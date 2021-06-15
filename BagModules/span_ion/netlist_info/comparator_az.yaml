@@ -280,8 +280,16 @@ instances:
     instpins: {}
   XAUX_AMP:
     lib_name: span_ion
-    cell_name: comparator_cmfb
+    cell_name: comparator
     instpins:
+      IBP:
+        direction: 
+        net_name: "net1"
+        num_bits: 1
+      IBN:
+        direction: 
+        net_name: "net2"
+        num_bits: 1
       VSS:
         direction: inputOutput
         net_name: "VSS"
@@ -302,21 +310,13 @@ instances:
         direction: input
         net_name: "VAUXP"
         num_bits: 1
-      VOUTCM:
-        direction: input
-        net_name: "VOUTCM_AUX"
-        num_bits: 1
   XMAIN_AMP:
     lib_name: span_ion
-    cell_name: comparator_cmfb
+    cell_name: comparator
     instpins:
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
+      IBP:
+        direction: 
+        net_name: "net3"
         num_bits: 1
       OUT:
         direction: output
@@ -330,7 +330,15 @@ instances:
         direction: input
         net_name: "VMAINP"
         num_bits: 1
-      VOUTCM:
-        direction: input
-        net_name: "VOUTCM_MAIN"
+      IBN:
+        direction: 
+        net_name: "net4"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
         num_bits: 1

@@ -54,7 +54,7 @@ instances:
     lib_name: bag2_analog
     cell_name: amp_gm_mirr
     instpins:
-      VGTAIL:
+      IBN:
         direction: input
         net_name: "VGTAIL"
         num_bits: 1

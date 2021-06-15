@@ -7,7 +7,7 @@ instances:
     cell_name: amp_diff_mirr
     instpins:
       VGTAIL:
-        direction: input
+        direction: 
         net_name: "VP<0>"
         num_bits: 1
       VSS:
@@ -35,7 +35,7 @@ instances:
     cell_name: amp_diff_mirr
     instpins:
       VGTAIL:
-        direction: input
+        direction: 
         net_name: "VP<1>"
         num_bits: 1
       VSS:
@@ -63,7 +63,7 @@ instances:
     cell_name: amp_diff_mirr
     instpins:
       VGTAIL:
-        direction: input
+        direction: 
         net_name: "VP<2>"
         num_bits: 1
       VSS:

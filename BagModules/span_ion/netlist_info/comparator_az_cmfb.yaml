@@ -90,6 +90,70 @@ instances:
         direction: input
         net_name: "VINP"
         num_bits: 1
+  XAUX_AMP:
+    lib_name: span_ion
+    cell_name: comparator
+    instpins:
+      IBP:
+        direction: 
+        net_name: "net1"
+        num_bits: 1
+      IBN:
+        direction: 
+        net_name: "net2"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      OUT:
+        direction: output
+        net_name: "VOUT_AUX"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "VAUXN"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VAUXP"
+        num_bits: 1
+  XMAIN_AMP:
+    lib_name: span_ion
+    cell_name: comparator
+    instpins:
+      IBP:
+        direction: 
+        net_name: "net3"
+        num_bits: 1
+      IBN:
+        direction: 
+        net_name: "net4"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      OUT:
+        direction: output
+        net_name: "VOUT"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "VMAINN"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VMAINP"
+        num_bits: 1
   XSW_AUX:
     lib_name: bag2_analog
     cell_name: switch_mos
@@ -278,59 +342,3 @@ instances:
     lib_name: basic
     cell_name: ipin
     instpins: {}
-  XAUX_AMP:
-    lib_name: span_ion
-    cell_name: comparator_cmfb
-    instpins:
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      OUT:
-        direction: output
-        net_name: "VOUT_AUX"
-        num_bits: 1
-      VINN:
-        direction: input
-        net_name: "VAUXN"
-        num_bits: 1
-      VINP:
-        direction: input
-        net_name: "VAUXP"
-        num_bits: 1
-      VOUTCM:
-        direction: input
-        net_name: "VOUTCM_AUX"
-        num_bits: 1
-  XMAIN_AMP:
-    lib_name: span_ion
-    cell_name: comparator_cmfb
-    instpins:
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      OUT:
-        direction: output
-        net_name: "VOUT"
-        num_bits: 1
-      VINN:
-        direction: input
-        net_name: "VMAINN"
-        num_bits: 1
-      VINP:
-        direction: input
-        net_name: "VMAINP"
-        num_bits: 1
-      VOUTCM:
-        direction: input
-        net_name: "VOUTCM_MAIN"
-        num_bits: 1

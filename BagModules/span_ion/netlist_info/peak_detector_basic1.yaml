@@ -1,6 +1,6 @@
 lib_name: span_ion
 cell_name: peak_detector_basic1
-pins: [ "VOUT", "VIN", "VDD", "VSS", "RST" ]
+pins: [ "VOUT", "VIN", "VDD", "VSS", "RST", "IBN", "IBP" ]
 instances:
   XRST_OUT:
     lib_name: bag2_analog
@@ -78,6 +78,14 @@ instances:
     lib_name: basic
     cell_name: ipin
     instpins: {}
+  PIN5:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN6:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
   PIN1:
     lib_name: basic
     cell_name: ipin
@@ -90,54 +98,38 @@ instances:
     lib_name: basic
     cell_name: iopin
     instpins: {}
-  XCONSTGM<0>:
-    lib_name: bag2_analog
-    cell_name: constant_gm
-    instpins:
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      VN:
-        direction: output
-        net_name: "VN<0>"
-        num_bits: 1
-      VP:
-        direction: output
-        net_name: "VP<0>"
-        num_bits: 1
-  XCONSTGM<1>:
-    lib_name: bag2_analog
-    cell_name: constant_gm
-    instpins:
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      VN:
-        direction: output
-        net_name: "VN<1>"
-        num_bits: 1
-      VP:
-        direction: output
-        net_name: "VP<1>"
-        num_bits: 1
-  XAMP<0>:
+  XAMP1:
     lib_name: bag2_analog
     cell_name: amp_gm_mirr
     instpins:
-      VGTAIL:
-        direction: input
-        net_name: "VN<0>"
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
         num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUT:
+        direction: output
+        net_name: "VOUT"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "VOUT"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VIN1"
+        num_bits: 1
+      IBN:
+        direction: input
+        net_name: "IBP"
+        num_bits: 1
+  XAMP0:
+    lib_name: bag2_analog
+    cell_name: amp_gm_mirr
+    instpins:
       VSS:
         direction: inputOutput
         net_name: "VSS"
@@ -158,31 +150,7 @@ instances:
         direction: input
         net_name: "VIN"
         num_bits: 1
-  XAMP<1>:
-    lib_name: bag2_analog
-    cell_name: amp_gm_mirr
-    instpins:
-      VGTAIL:
+      IBN:
         direction: input
-        net_name: "VN<1>"
-        num_bits: 1
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      VOUT:
-        direction: output
-        net_name: "VOUT"
-        num_bits: 1
-      VINN:
-        direction: input
-        net_name: "VOUT"
-        num_bits: 1
-      VINP:
-        direction: input
-        net_name: "VIN1"
+        net_name: "IBN"
         num_bits: 1

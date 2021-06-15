@@ -1,6 +1,6 @@
 lib_name: span_ion
 cell_name: comparator
-pins: [ "VSS", "VINN", "VDD", "VINP", "OUT", "IBN", "IBP" ]
+pins: [ "VSS", "VINN", "VDD", "VINP", "OUT", "IBN<1:0>", "IBP<1:0>" ]
 instances:
   XCHAIN:
     lib_name: span_ion
@@ -8,11 +8,11 @@ instances:
     instpins:
       IBN:
         direction: input
-        net_name: "IBN"
+        net_name: "IBN<0>"
         num_bits: 1
       IBP:
         direction: input
-        net_name: "IBP"
+        net_name: "IBP<0>"
         num_bits: 1
       VSS:
         direction: inputOutput
@@ -42,9 +42,9 @@ instances:
     lib_name: bag2_analog
     cell_name: amp_gm_mirr
     instpins:
-      VGTAIL:
+      IBN:
         direction: input
-        net_name: "VGTAIL"
+        net_name: "IBN<1>"
         num_bits: 1
       VSS:
         direction: inputOutput
@@ -65,26 +65,6 @@ instances:
       VINP:
         direction: input
         net_name: "VOUTP"
-        num_bits: 1
-  XCONSTGM:
-    lib_name: bag2_analog
-    cell_name: constant_gm
-    instpins:
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      VN:
-        direction: output
-        net_name: "VN"
-        num_bits: 1
-      VP:
-        direction: output
-        net_name: "VP"
         num_bits: 1
   PIN4:
     lib_name: basic
