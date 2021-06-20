@@ -1,10 +1,10 @@
 lib_name: span_ion
 cell_name: comparator_fd_stage_offset
-pins: [ "VDD", "VSS", "VINP", "VINN", "VAZ", "SIGNP", "VOUTP", "B", "SIGNN", "VOUTN" ]
+pins: [ "VDD", "VSS", "VINP", "VINN", "IBN", "VAZ", "SIGNP", "VOUTP", "B", "SIGNN", "VOUTN", "Bb" ]
 instances:
-  XMAIN:
+  XOFFSET_UP:
     lib_name: span_ion
-    cell_name: comparator_fd_main
+    cell_name: comparator_fd_offset
     instpins:
       VSS:
         direction: inputOutput
@@ -22,19 +22,23 @@ instances:
         direction: output
         net_name: "VOUTP"
         num_bits: 1
-      VGTAIL:
+      B:
         direction: input
-        net_name: "VGTAIL"
+        net_name: "Bb"
         num_bits: 1
-      VINN:
+      SIGNN:
         direction: input
-        net_name: "VINN"
+        net_name: "SIGNP"
         num_bits: 1
-      VINP:
+      SIGNP:
         direction: input
-        net_name: "VINP"
+        net_name: "SIGNN"
         num_bits: 1
-  XOFFSET:
+      VAZ:
+        direction: input
+        net_name: "VAZ"
+        num_bits: 1
+  XOFFSET_DOWN:
     lib_name: span_ion
     cell_name: comparator_fd_offset
     instpins:
@@ -94,11 +98,19 @@ instances:
     lib_name: basic
     cell_name: ipin
     instpins: {}
+  PIN11:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
   PIN3:
     lib_name: basic
     cell_name: ipin
     instpins: {}
   PIN2:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN13:
     lib_name: basic
     cell_name: ipin
     instpins: {}
@@ -110,10 +122,14 @@ instances:
     lib_name: basic
     cell_name: opin
     instpins: {}
-  XCONSTGM:
-    lib_name: bag2_analog
-    cell_name: constant_gm
+  XMAIN:
+    lib_name: span_ion
+    cell_name: comparator_fd_stage
     instpins:
+      IBN:
+        direction: input
+        net_name: "IBN"
+        num_bits: 1
       VSS:
         direction: inputOutput
         net_name: "VSS"
@@ -122,11 +138,19 @@ instances:
         direction: inputOutput
         net_name: "VDD"
         num_bits: 1
-      VN:
+      VOUTN:
         direction: output
-        net_name: "VN"
+        net_name: "VOUTN"
         num_bits: 1
-      VP:
+      VOUTP:
         direction: output
-        net_name: "VP"
+        net_name: "VOUTP"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "VINN"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VINP"
         num_bits: 1

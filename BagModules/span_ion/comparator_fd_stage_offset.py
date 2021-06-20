@@ -36,8 +36,8 @@ class span_ion__comparator_fd_stage_offset(Module):
             in_type = 'n or p for NMOS or PMOS input pair',
             num_bits = 'Number of bits for offset gain control',
             main_params = 'primary amplifier parameters',
-            offset_params = 'offset cancellation parameters',
-            constgm_params = 'constant gm biasing parameters'
+            offset_up_params = 'offset cancellation parameters for pull-up',
+            offset_down_params = 'offset cancellation parameters for pull-down',
         )
 
     def design(self, **params):
@@ -59,22 +59,28 @@ class span_ion__comparator_fd_stage_offset(Module):
         in_type = params['in_type']
         num_bits = params['num_bits']
         main_params = params['main_params']
-        offset_params = params['offset_params']
-        constgm_params = params['constgm_params']
+        offset_up_params = params['offset_up_params']
+        offset_down_params = params['offset_down_params']
 
         # Design instances
         self.instances['XMAIN'].design(in_type=in_type, **main_params)
-        self.instances['XOFFSET'].design(num_bits=num_bits, in_type=in_type, **offset_params)
-        self.instances['XCONSTGM'].design(res_side=in_type, **constgm_params)
-
-        # Reconnect constant gm
-        reconn_pin = 'VP' if in_type=='p' else 'VN'
-        self.reconnect_instance_terminal('XCONSTGM', reconn_pin, 'VGTAIL')
+        self.instances['XOFFSET_UP'].design(num_bits=num_bits, in_type='p', **offset_up_params)
+        self.instances['XOFFSET_DOWN'].design(num_bits=num_bits, in_type='n', **offset_down_params)
 
         # Rename control pin and rewire if necessary
         ctrl_base = 'Bb' if in_type == 'p' else 'B'
         ctrl_suffix = f'<{num_bits-1}:0>' if num_bits > 1 else ''
-        if num_bits > 1 or in_type != 'n':
-            net_ctrl = f'{ctrl_base}{ctrl_suffix}'
-            self.rename_pin('B', net_ctrl)
-            self.reconnect_instance_terminal('XOFFSET', net_ctrl, net_ctrl)
+        if num_bits > 1:
+            self.rename_pin('B', f'B{ctrl_suffix}')
+            self.rename_pin('Bb', f'Bb{ctrl_suffix}')
+            self.reconnect_instance_terminal('XOFFSET_UP', f'Bb{ctrl_suffix}', f'Bb{ctrl_suffix}')
+            self.reconnect_instance_terminal('XOFFSET_DOWN', f'B{ctrl_suffix}', f'B{ctrl_suffix}')
+        # if num_bits > 1 or in_type != 'n':
+        #     net_ctrl = f'{ctrl_base}{ctrl_suffix}'
+        #     self.rename_pin('B', net_ctrl)
+        #     self.reconnect_instance_terminal('XOFFSET', net_ctrl, net_ctrl)
+
+        # Wiring up biasing
+        if in_type == 'p':
+            self.rename_pin('IBN', 'IBP')
+            self.reconnect_instance_terminal('XMAIN', 'IBP', 'IBP')

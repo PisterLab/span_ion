@@ -42,26 +42,6 @@ instances:
         direction: input
         net_name: "net05"
         num_bits: 1
-  XNAND<1>:
-    lib_name: bag2_digital
-    cell_name: nand
-    instpins:
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      out:
-        direction: output
-        net_name: "is_stuck<1>"
-        num_bits: 1
-      in:
-        direction: input
-        net_name: "net06"
-        num_bits: 1
   XNAND<0>:
     lib_name: bag2_digital
     cell_name: nand
@@ -81,6 +61,26 @@ instances:
       in:
         direction: input
         net_name: "net02"
+        num_bits: 1
+  XNAND<1>:
+    lib_name: bag2_digital
+    cell_name: nand
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "is_stuck<1>"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "net06"
         num_bits: 1
   PIN5:
     lib_name: basic
@@ -110,30 +110,6 @@ instances:
     lib_name: basic
     cell_name: opin
     instpins: {}
-  XONESHOT_STUCK:
-    lib_name: span_ion
-    cell_name: one_shot_nand_tmr
-    instpins:
-      CTRLb:
-        direction: input
-        net_name: "CTRLb_STUCK"
-        num_bits: 1
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      out<2:0>:
-        direction: output
-        net_name: "STUCK_OUT<2:0>"
-        num_bits: 3
-      in<2:0>:
-        direction: input
-        net_name: "is_stuck<2:0>"
-        num_bits: 3
   XONESHOT_LED:
     lib_name: span_ion
     cell_name: one_shot_nand_tmr
@@ -157,4 +133,28 @@ instances:
       in<2:0>:
         direction: input
         net_name: "<*3>LED_IN"
+        num_bits: 3
+  XONESHOT_STUCK:
+    lib_name: span_ion
+    cell_name: one_shot_nand_tmr
+    instpins:
+      CTRLb:
+        direction: input
+        net_name: "CTRLb_STUCK"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      out<2:0>:
+        direction: output
+        net_name: "STUCK_OUT<2:0>"
+        num_bits: 3
+      in<2:0>:
+        direction: input
+        net_name: "is_stuck<2:0>"
         num_bits: 3

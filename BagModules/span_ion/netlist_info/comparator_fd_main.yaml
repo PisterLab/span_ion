@@ -6,6 +6,10 @@ instances:
     lib_name: bag2_analog
     cell_name: diffpair_n
     instpins:
+      VTAIL:
+        direction: inputOutput
+        net_name: "VTAIL"
+        num_bits: 1
       VSS:
         direction: inputOutput
         net_name: "VSS"
@@ -17,10 +21,6 @@ instances:
       VOUTP:
         direction: output
         net_name: "VOUTP"
-        num_bits: 1
-      VGTAIL:
-        direction: 
-        net_name: "VGTAIL"
         num_bits: 1
       VINN:
         direction: input
