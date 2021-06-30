@@ -67,8 +67,8 @@ class span_ion__watchdog(Module):
         self.instances['XINV<2:0>'].design(stack_n=1, stack_p=1, **inv_params)
         for i in range(3):
             self.instances[f'XNAND<{i}>'].design(num_in=2, **nand_params)
-        self.instances['XONESHOT_LED'].design(has_rst=False, **oneshot_led_params)
-        self.instances['XONESHOT_STUCK'].design(has_rst=False, **oneshot_stuck_params)
+        self.instances['XONESHOT_LED'].design(**oneshot_led_params)
+        self.instances['XONESHOT_STUCK'].design(**oneshot_stuck_params)
 
         ### Wiring up control pins
         if num_led_bits > 1:

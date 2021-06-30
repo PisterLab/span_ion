@@ -35,9 +35,7 @@ class span_ion__preamp(Module):
         """
         return dict(
             amp_params = 'Amplifier schematic generator parameters',
-            bias_params = 'Bias circuit schematic generator parameters',
             res_params = 'Feedback resistor parameters. Empty dictionary if not necessary.',
-            res_bulk = 'Bulk connection for the resistor',
             cap_params = 'Feedback capacitor parameters. Empty dictionary if not necessary.',
             sw_params = 'Reset switch parameters. Empty dictionary if not necessary.'
         )
@@ -59,9 +57,7 @@ class span_ion__preamp(Module):
         array_instance()
         """
         amp_params = params['amp_params']
-        bias_params = params['bias_params']
         res_params = params['res_params']
-        res_bulk = params['res_bulk']
         cap_params = params['cap_params']
         sw_params = params['sw_params']
 
@@ -76,7 +72,7 @@ class span_ion__preamp(Module):
         if has_cap and not (has_res or has_sw):
             warnings.warn('Feedbcak has no DC path')
 
-        ### Design elements
+        ### Design elements and pin fixes
         # Feedback switch
         if not has_sw:
             self.delete_instance('XSW')
@@ -84,7 +80,6 @@ class span_ion__preamp(Module):
             self.remove_pin('RST')
         else:
             self.instances['XSW'].design(**sw_params)
-            # Delete unnecessary pins
             if sw_params['mos_type'] == 'n':
                 self.remove_pin('RSTb')
             elif sw_params['mos_type'] == 'p':
@@ -95,17 +90,37 @@ class span_ion__preamp(Module):
             self.delete_instance('XR')
         else:
             self.instances['XR'].design(**res_params)
-            self.reconnect_instance_terminal('XR', 'BULK', res_bulk)
+            num_bits = len(res_params['res_groupings'])
+            if num_bits < 1:
+                self.remove_pin('CTRLb')
+                self.remove_pin('CTRL')
+            else:
+                res_sw = res_params['sw_params']['mos_type']
+                suffix_ctrl = f'<{num_bits-1}:0>' if num_bits > 1 else ''
+                # Rename, remove, and/or reconnect tuning pins
+                if res_sw == 'p':
+                    self.remove_pin('CTRL')
+                    self.rename_pin('CTRLb', f'CTRLb{suffix_ctrl}')
+                    self.reconnect_instance_terminal('XR', f'CTRLb{suffix_ctrl}', f'CTRLb{suffix_ctrl}')
+                elif res_sw == 'n':
+                    self.remove_pin('CTRLb')
+                    self.rename_pin('CTRL', f'CTRL{suffix_ctrl}')
+                    self.reconnect_instance_terminal('XR', f'CTRL{suffix_ctrl}', f'CTRL{suffix_ctrl}')
+                else:
+                    self.rename_pin('CTRLb', f'CTRLb{suffix_ctrl}')
+                    self.rename_pin('CTRL', f'CTRL{suffix_ctrl}')
+                    self.reconnect_instance_terminal('XR', f'CTRLb{suffix_ctrl}', f'CTRLb{suffix_ctrl}')
+                    self.reconnect_instance_terminal('XR', f'CTRL{suffix_ctrl}', f'CTRL{suffix_ctrl}')
 
         # Feedback cap
         if not has_cap:
-            self.delete_instance['XC']
+            self.delete_instance('XC')
         else:
             warnings.warn('Confirm cap value in generated schematic')
             self.instances['XC'].parameters = cap_params
 
         # Amp
         self.instances['XAMP'].design(**amp_params)
-
-        # Biasing
-        # self.instances['XBIAS'].design(**bias_params)
+        if amp_params['in_type'] == 'p':
+            self.rename_pin('IBN', 'IBP')
+            self.reconnect_instance_terminal('XAMP', 'IBP', 'IBP')

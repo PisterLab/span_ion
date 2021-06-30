@@ -1,14 +1,38 @@
 lib_name: span_ion
 cell_name: comparator_az
-pins: [ "VOUT", "VDD", "VSS", "VINP", "VINN", "VAZ_MAIN", "B", "VAZ_AUX", "PHIAb", "PHIB", "IBP_AUX_AMP<1:0>", "IBN_MAIN_AMP<1:0>", "Bb", "IBN_AUX_AMP<1:0>", "PHIA", "IBN_AUX_OS", "PHIBb", "IBN_MAIN_OS", "IBP_MAIN_AMP<1:0>" ]
+pins: [ "VOUT", "VDD", "VSS", "VINP", "VINN", "VOSN_AUX", "B", "PHIAb", "PHIB", "IBP_AUX_AMP", "IBN_MAIN_AMP<1:0>", "Bb", "IBN_AUX_AMP", "VOSN_MAIN", "VOSP_AUX", "PHIA", "IBN_AUX_OS_AMP", "PHIBb", "IBN_MAIN_OS_CANCEL", "IBP_MAIN_AMP<1:0>", "IBP_MAIN_OS_AMP", "IBP_MAIN_OS_CANCEL", "IBN_MAIN_OS_AMP", "IBN_AUX_OS_CANCEL", "IBP_AUX_OS_CANCEL", "IBP_AUX_OS_AMP", "VOSP_MAIN" ]
 instances:
   XAUX_OS:
     lib_name: span_ion
     cell_name: comparator_fd_stage_offset
     instpins:
-      IBN:
+      VOSP:
         direction: input
-        net_name: "IBN_AUX_OS"
+        net_name: "VOSN_AUX"
+        num_bits: 1
+      IBP_OS:
+        direction: input
+        net_name: "IBP_AUX_OS_CANCEL"
+        num_bits: 1
+      IBN_MAIN:
+        direction: input
+        net_name: "IBN_AUX_OS_AMP"
+        num_bits: 1
+      VOSN:
+        direction: input
+        net_name: "VOSP_AUX"
+        num_bits: 1
+      IBP_MAIN:
+        direction: input
+        net_name: "IBP_AUX_OS_AMP"
+        num_bits: 1
+      IBN_OS:
+        direction: input
+        net_name: "IBN_AUX_OS_CANCEL"
+        num_bits: 1
+      Bb:
+        direction: input
+        net_name: "Bb"
         num_bits: 1
       VSS:
         direction: inputOutput
@@ -30,18 +54,6 @@ instances:
         direction: input
         net_name: "B"
         num_bits: 1
-      SIGNN:
-        direction: input
-        net_name: "VSS"
-        num_bits: 1
-      SIGNP:
-        direction: input
-        net_name: "VDD"
-        num_bits: 1
-      VAZ:
-        direction: input
-        net_name: "VAZ_AUX"
-        num_bits: 1
       VINN:
         direction: input
         net_name: "VINN"
@@ -54,9 +66,33 @@ instances:
     lib_name: span_ion
     cell_name: comparator_fd_stage_offset
     instpins:
-      IBN:
+      VOSP:
         direction: input
-        net_name: "IBN_MAIN_OS"
+        net_name: "VOSP_MAIN"
+        num_bits: 1
+      IBP_OS:
+        direction: input
+        net_name: "IBP_MAIN_OS_CANCEL"
+        num_bits: 1
+      IBN_MAIN:
+        direction: input
+        net_name: "IBN_MAIN_OS_AMP"
+        num_bits: 1
+      VOSN:
+        direction: input
+        net_name: "VOSN_MAIN"
+        num_bits: 1
+      IBP_MAIN:
+        direction: input
+        net_name: "IBP_MAIN_OS_AMP"
+        num_bits: 1
+      IBN_OS:
+        direction: input
+        net_name: "IBN_MAIN_OS_CANCEL"
+        num_bits: 1
+      Bb:
+        direction: input
+        net_name: "Bb"
         num_bits: 1
       VSS:
         direction: inputOutput
@@ -78,18 +114,6 @@ instances:
         direction: input
         net_name: "B"
         num_bits: 1
-      SIGNN:
-        direction: input
-        net_name: "VDD"
-        num_bits: 1
-      SIGNP:
-        direction: input
-        net_name: "VSS"
-        num_bits: 1
-      VAZ:
-        direction: input
-        net_name: "VAZ_MAIN"
-        num_bits: 1
       VINN:
         direction: input
         net_name: "VINN"
@@ -98,62 +122,78 @@ instances:
         direction: input
         net_name: "VINP"
         num_bits: 1
-  XSW_AUX:
+  X11:
+    lib_name: basic
+    cell_name: noConn
+    instpins:
+      noConn:
+        direction: inputOutput
+        net_name: "VOUTN_MAIN"
+        num_bits: 1
+  X10:
+    lib_name: basic
+    cell_name: noConn
+    instpins:
+      noConn:
+        direction: inputOutput
+        net_name: "VOUTP_MAIN"
+        num_bits: 1
+  XSW_AUX<1:0>:
     lib_name: bag2_analog
     cell_name: switch_mos
     instpins:
       BN:
         direction: input
-        net_name: "VSS"
-        num_bits: 1
+        net_name: "<*2>VSS"
+        num_bits: 2
       CTRLb:
         direction: input
-        net_name: "PHIAb"
-        num_bits: 1
+        net_name: "<*2>PHIAb"
+        num_bits: 2
       CTRL:
         direction: input
-        net_name: "PHIA"
-        num_bits: 1
+        net_name: "<*2>PHIA"
+        num_bits: 2
       BP:
         direction: input
-        net_name: "VDD"
-        num_bits: 1
+        net_name: "<*2>VDD"
+        num_bits: 2
       S:
         direction: inputOutput
-        net_name: "VAZ_AUX"
-        num_bits: 1
+        net_name: "VOSP_AUX,VOSN_AUX"
+        num_bits: 2
       D:
         direction: inputOutput
-        net_name: "VOUT_AUX"
-        num_bits: 1
-  XSW_MAIN:
+        net_name: "VOUTP_AUX,VOUTN_AUX"
+        num_bits: 2
+  XSW_MAIN<1:0>:
     lib_name: bag2_analog
     cell_name: switch_mos
     instpins:
       BN:
         direction: input
-        net_name: "VSS"
-        num_bits: 1
+        net_name: "<*2>VSS"
+        num_bits: 2
       CTRLb:
         direction: input
-        net_name: "PHIBb"
-        num_bits: 1
+        net_name: "<*2>PHIBb"
+        num_bits: 2
       CTRL:
         direction: input
-        net_name: "PHIB"
-        num_bits: 1
+        net_name: "<*2>PHIB"
+        num_bits: 2
       BP:
         direction: input
-        net_name: "VDD"
-        num_bits: 1
+        net_name: "<*2>VDD"
+        num_bits: 2
       S:
         direction: inputOutput
-        net_name: "VAZ_MAIN"
-        num_bits: 1
+        net_name: "VOSP_MAIN,VOSN_MAIN"
+        num_bits: 2
       D:
         direction: inputOutput
-        net_name: "VOUT_AUX"
-        num_bits: 1
+        net_name: "VOUTP_AUX,VOUTN_AUX"
+        num_bits: 2
   XSW_B:
     lib_name: bag2_analog
     cell_name: switch_mos
@@ -210,30 +250,38 @@ instances:
         direction: inputOutput
         net_name: "VINN"
         num_bits: 1
-  XC_AUX:
+  XC_AUX<1:0>:
     lib_name: bag2_wrappers
     cell_name: cap_ideal
     instpins:
       MINUS:
         direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
+        net_name: "<*2>VSS"
+        num_bits: 2
       PLUS:
         direction: inputOutput
-        net_name: "VAZ_AUX"
-        num_bits: 1
-  XC_MAIN:
+        net_name: "VOSP_AUX,VOSN_AUX"
+        num_bits: 2
+  XC_MAIN<1:0>:
     lib_name: bag2_wrappers
     cell_name: cap_ideal
     instpins:
       MINUS:
         direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
+        net_name: "<*2>VSS"
+        num_bits: 2
       PLUS:
         direction: inputOutput
-        net_name: "VAZ_MAIN"
-        num_bits: 1
+        net_name: "VOSP_MAIN,VOSN_MAIN"
+        num_bits: 2
+  PIN26:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN25:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
   PIN7:
     lib_name: basic
     cell_name: opin
@@ -253,6 +301,30 @@ instances:
   PIN1:
     lib_name: basic
     cell_name: iopin
+    instpins: {}
+  PIN24:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN23:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN22:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN21:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN20:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN19:
+    lib_name: basic
+    cell_name: ipin
     instpins: {}
   PIN18:
     lib_name: basic
@@ -312,16 +384,12 @@ instances:
     instpins: {}
   XAUX_AMP:
     lib_name: span_ion
-    cell_name: comparator
+    cell_name: comparator_fd_chain
     instpins:
-      IBP<1:0>:
+      IBN:
         direction: input
-        net_name: "IBP_AUX_AMP<1:0>"
-        num_bits: 2
-      IBN<1:0>:
-        direction: input
-        net_name: "IBN_AUX_AMP<1:0>"
-        num_bits: 2
+        net_name: "IBN_AUX_AMP"
+        num_bits: 1
       VSS:
         direction: inputOutput
         net_name: "VSS"
@@ -330,9 +398,13 @@ instances:
         direction: inputOutput
         net_name: "VDD"
         num_bits: 1
-      OUT:
+      VOUTN:
         direction: output
-        net_name: "VOUT_AUX"
+        net_name: "VOUTN_AUX"
+        num_bits: 1
+      VOUTP:
+        direction: output
+        net_name: "VOUTP_AUX"
         num_bits: 1
       VINN:
         direction: input
@@ -342,10 +414,22 @@ instances:
         direction: input
         net_name: "VAUXP"
         num_bits: 1
+      IBP:
+        direction: input
+        net_name: "IBP_AUX_AMP"
+        num_bits: 1
   XMAIN_AMP:
     lib_name: span_ion
     cell_name: comparator
     instpins:
+      VOUTP:
+        direction: output
+        net_name: "VOUTP_MAIN"
+        num_bits: 1
+      VOUTN:
+        direction: output
+        net_name: "VOUTN_MAIN"
+        num_bits: 1
       IBP<1:0>:
         direction: input
         net_name: "IBP_MAIN_AMP<1:0>"

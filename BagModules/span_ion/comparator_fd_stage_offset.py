@@ -34,10 +34,9 @@ class span_ion__comparator_fd_stage_offset(Module):
         """
         return dict(
             in_type = 'n or p for NMOS or PMOS input pair',
-            num_bits = 'Number of bits for offset gain control',
+            num_bits = 'Thermometer; number of bits for offset gain control',
             main_params = 'primary amplifier parameters',
-            offset_up_params = 'offset cancellation parameters for pull-up',
-            offset_down_params = 'offset cancellation parameters for pull-down',
+            offset_params = 'offset cancellation parameters for offset removal',
         )
 
     def design(self, **params):
@@ -59,28 +58,37 @@ class span_ion__comparator_fd_stage_offset(Module):
         in_type = params['in_type']
         num_bits = params['num_bits']
         main_params = params['main_params']
-        offset_up_params = params['offset_up_params']
-        offset_down_params = params['offset_down_params']
+        offset_params = params['offset_params']
 
-        # Design instances
+        ### Design instances
         self.instances['XMAIN'].design(in_type=in_type, **main_params)
-        self.instances['XOFFSET_UP'].design(num_bits=num_bits, in_type='p', **offset_up_params)
-        self.instances['XOFFSET_DOWN'].design(num_bits=num_bits, in_type='n', **offset_down_params)
+        self.instances['XOFFSET'].design(in_type=in_type, **offset_params)
 
-        # Rename control pin and rewire if necessary
-        ctrl_base = 'Bb' if in_type == 'p' else 'B'
-        ctrl_suffix = f'<{num_bits-1}:0>' if num_bits > 1 else ''
+        ### DAC control
         if num_bits > 1:
-            self.rename_pin('B', f'B{ctrl_suffix}')
-            self.rename_pin('Bb', f'Bb{ctrl_suffix}')
-            self.reconnect_instance_terminal('XOFFSET_UP', f'Bb{ctrl_suffix}', f'Bb{ctrl_suffix}')
-            self.reconnect_instance_terminal('XOFFSET_DOWN', f'B{ctrl_suffix}', f'B{ctrl_suffix}')
-        # if num_bits > 1 or in_type != 'n':
-        #     net_ctrl = f'{ctrl_base}{ctrl_suffix}'
-        #     self.rename_pin('B', net_ctrl)
-        #     self.reconnect_instance_terminal('XOFFSET', net_ctrl, net_ctrl)
+            suffix_dac = f'<{num_bits-1}:0>'
+            # Array and wire up offset cancellation amp
+            self.array_instance('XOFFSET', [f'XOFFSET{suffix_dac}'], [dict(VDD='VDD',
+                                                                           VSS='VSS',
+                                                                           VOUTP='VOUTP',
+                                                                           VOUTN='VOUTN',
+                                                                           IBP='IBP_OS',
+                                                                           IBN='IBN_OS',
+                                                                           VINP='VOSP',
+                                                                           VINN='VOSN',
+                                                                           B=f'B{suffix_dac}',
+                                                                           Bb=f'Bb{suffix_dac}')])
+            # Rename control pin
+            rm_ctrl = 'Bb' if in_type == 'n' else 'B'
+            kp_ctrl = 'B' if in_type == 'n' else 'Bb'
+            self.remove_pin(rm_ctrl)
+            self.rename_pin(kp_ctrl, f'{kp_ctrl}{suffix_dac}')
 
-        # Wiring up biasing
+        ### Wiring up biasing for main amp and removing unnecessary biasing pins
         if in_type == 'p':
-            self.rename_pin('IBN', 'IBP')
-            self.reconnect_instance_terminal('XMAIN', 'IBP', 'IBP')
+            self.remove_pin('IBN_MAIN')
+            self.remove_pin('IBN_OS')
+            self.reconnect_instance_terminal('XMAIN', 'IBP', 'IBP_MAIN')
+        else:
+            self.remove_pin('IBP_MAIN')
+            self.remove_pin('IBP_OS')

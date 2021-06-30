@@ -1,18 +1,18 @@
 lib_name: span_ion
 cell_name: comparator_fd_offset
-pins: [ "VDD", "VSS", "SIGNN", "SIGNP", "VAZ", "VOUTP", "VOUTN", "B" ]
+pins: [ "VDD", "VSS", "IBP", "VINP", "IBN", "VINN", "VOUTP", "VOUTN", "B" ]
 instances:
-  XEN:
+  XEN_BIAS:
     lib_name: BAG_prim
     cell_name: nmos4_standard
     instpins:
       S:
         direction: inputOutput
-        net_name: "VTAIL_EN"
+        net_name: "VBIAS_EN"
         num_bits: 1
       D:
         direction: inputOutput
-        net_name: "VTAIL"
+        net_name: "IBN"
         num_bits: 1
       B:
         direction: inputOutput
@@ -21,6 +21,26 @@ instances:
       G:
         direction: inputOutput
         net_name: "B"
+        num_bits: 1
+  XBIAS:
+    lib_name: BAG_prim
+    cell_name: nmos4_standard
+    instpins:
+      S:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VBIAS_EN"
+        num_bits: 1
+      B:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      G:
+        direction: inputOutput
+        net_name: "IBN"
         num_bits: 1
   XTAIL:
     lib_name: BAG_prim
@@ -40,19 +60,19 @@ instances:
         num_bits: 1
       G:
         direction: inputOutput
-        net_name: "VAZ"
+        net_name: "IBN"
         num_bits: 1
-  XINA:
+  XEN_TAIL:
     lib_name: BAG_prim
     cell_name: nmos4_standard
     instpins:
       S:
         direction: inputOutput
-        net_name: "VTAIL"
+        net_name: "VTAIL_EN"
         num_bits: 1
       D:
         direction: inputOutput
-        net_name: "VOUTP"
+        net_name: "VTAIL"
         num_bits: 1
       B:
         direction: inputOutput
@@ -60,27 +80,35 @@ instances:
         num_bits: 1
       G:
         direction: inputOutput
-        net_name: "SIGNN"
+        net_name: "B"
         num_bits: 1
-  XINB:
-    lib_name: BAG_prim
-    cell_name: nmos4_standard
+  XDIFFPAIR:
+    lib_name: bag2_analog
+    cell_name: diffpair_n
     instpins:
-      S:
+      VTAIL:
         direction: inputOutput
         net_name: "VTAIL"
         num_bits: 1
-      D:
+      VSS:
         direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VOUTN:
+        direction: output
         net_name: "VOUTN"
         num_bits: 1
-      B:
-        direction: inputOutput
-        net_name: "VSS"
+      VOUTP:
+        direction: output
+        net_name: "VOUTP"
         num_bits: 1
-      G:
-        direction: inputOutput
-        net_name: "SIGNP"
+      VINN:
+        direction: input
+        net_name: "VINN"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VINP"
         num_bits: 1
   PIN1:
     lib_name: basic
@@ -94,15 +122,19 @@ instances:
     lib_name: basic
     cell_name: ipin
     instpins: {}
-  PIN7:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
   PIN5:
     lib_name: basic
     cell_name: ipin
     instpins: {}
   PIN4:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN11:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN12:
     lib_name: basic
     cell_name: ipin
     instpins: {}
@@ -114,3 +146,27 @@ instances:
     lib_name: basic
     cell_name: opin
     instpins: {}
+  XRB:
+    lib_name: BAG_prim
+    cell_name: res_standard
+    instpins:
+      MINUS:
+        direction: inputOutput
+        net_name: "VOUTN"
+        num_bits: 1
+      PLUS:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+  XRA:
+    lib_name: BAG_prim
+    cell_name: res_standard
+    instpins:
+      MINUS:
+        direction: inputOutput
+        net_name: "VOUTP"
+        num_bits: 1
+      PLUS:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1

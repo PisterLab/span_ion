@@ -1,0 +1,72 @@
+lib_name: span_ion
+cell_name: attenuator3
+pins: [ "VSIGNAL", "VREF", "VOUT", "VDD", "VSS", "S" ]
+instances:
+  XLADDER:
+    lib_name: bag2_analog
+    cell_name: rladder_core
+    instpins:
+      out<0>:
+        direction: output
+        net_name: "mid<0>"
+        num_bits: 1
+      BULK:
+        direction: inputOutput
+        net_name: "net2"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VREF"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VSIGNAL"
+        num_bits: 1
+  XMUX:
+    lib_name: bag2_analog
+    cell_name: mux_bin
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUT:
+        direction: output
+        net_name: "VOUT"
+        num_bits: 1
+      S:
+        direction: input
+        net_name: "S"
+        num_bits: 1
+      VIN<1:0>:
+        direction: input
+        net_name: "mid<1:0>"
+        num_bits: 2
+  PIN5:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN1:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN0:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN2:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN4:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}

@@ -238,21 +238,21 @@ class bag2_analog__amp_gm_mirr_dsn(DesignModule):
                                         print(f'pm {pm_lti}')
                                     continue
 
-                                viable_op = dict(nf_dict=nf_dict,
-                                                 vout=vout,
-                                                 vout1=vout1,
-                                                 vincm=vincm,
-                                                 gain=gain_lti,
-                                                 fbw=fbw_lti,
-                                                 ugf=ugf_lti,
-                                                 pm=pm_lti,
-                                                 vtail=vtail,
-                                                 vgtail=vgtail,
-                                                 itail=tail_op['ibias']*nf_tail,
-                                                 iflip=flip_op['ibias']*nf_flip*2,
-                                                 ibias=tail_op['ibias']*nf_tail + 2*nf_flip*flip_op['ibias'],
-                                                 iref=iref_mult*iref_unit,
-                                                 cin=in_op['cgg']*nf_in)
+                                viable_op = dict(nf_dict=int(nf_dict),
+                                                 vout=float(vout),
+                                                 vout1=float(vout1),
+                                                 vincm=float(vincm),
+                                                 gain=float(gain_lti),
+                                                 fbw=float(fbw_lti),
+                                                 ugf=float(ugf_lti),
+                                                 pm=float(pm_lti),
+                                                 vtail=float(vtail),
+                                                 vgtail=float(vgtail),
+                                                 itail=float(tail_op['ibias']*nf_tail),
+                                                 iflip=float(flip_op['ibias']*nf_flip*2),
+                                                 ibias=float(tail_op['ibias']*nf_tail + 2*nf_flip*flip_op['ibias']),
+                                                 iref=float(iref_mult*iref_unit),
+                                                 cin=float(in_op['cgg']*nf_in))
 
                                 viable_op_list.append(viable_op)
                                 print("\n(SUCCESS)")
@@ -269,7 +269,8 @@ class bag2_analog__amp_gm_mirr_dsn(DesignModule):
         """Returns the best operating condition based on 
         minimizing bias current.
         """
-        return op2 if op1['ibias'] > op2['ibias'] else op1
+        # return op2 if op1['ibias'] > op2['ibias'] else op1
+        return op2 if op2['fbw'] > op1['fbw'] else op1
 
     def _get_ss_lti(self, op_dict:Mapping[str,Any], 
                     nf_dict:Mapping[str,int], 

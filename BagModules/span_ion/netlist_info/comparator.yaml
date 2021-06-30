@@ -1,6 +1,6 @@
 lib_name: span_ion
 cell_name: comparator
-pins: [ "VSS", "VINN", "VDD", "VINP", "OUT", "IBN<1:0>", "IBP<1:0>" ]
+pins: [ "VOUTN", "VSS", "VINN", "VDD", "VINP", "OUT", "IBN<1:0>", "IBP<1:0>", "VOUTP" ]
 instances:
   XCHAIN:
     lib_name: span_ion
@@ -89,6 +89,14 @@ instances:
   PIN6:
     lib_name: basic
     cell_name: iopin
+    instpins: {}
+  PIN8:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN7:
+    lib_name: basic
+    cell_name: opin
     instpins: {}
   PIN3:
     lib_name: basic

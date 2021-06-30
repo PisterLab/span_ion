@@ -34,11 +34,10 @@ class span_ion__comparator_fd_offset(Module):
         """
         return dict(
             in_type='"p" or "n" for NMOS or PMOS input pair',
-            num_bits = 'Number of binary bits for tuning',
-            l_dict='Channel and resistor lengths (in, tail, enable)',
+            l_dict='Channel and resistor lengths (in, tail, en, res)',
             w_dict='Channel and resistor widths',
             th_dict='Device and resistor flavors',
-            seg_dict='Device and resistor number of devices',
+            seg_dict='Device and resistor number of devices (in, tail, bias, en_tail, en_bias, res)',
         )
 
     def design(self, **params):
@@ -58,62 +57,94 @@ class span_ion__comparator_fd_offset(Module):
         array_instance()
         """
         in_type = params['in_type']
-        num_bits = params['num_bits']
         l_dict = params['l_dict']
         w_dict = params['w_dict']
         th_dict = params['th_dict']
         seg_dict = params['seg_dict']
 
-        # Replace instances with PMOS if necessary
+        ### Replace instances with PMOS if necessary
         if in_type == 'p':
-            fet_insts = ['INA', 'INB', 'EN', 'TAIL']
-            for inst in fet_insts:
-                self.replace_instance_master(inst_name=f'X{inst}',
+            self.replace_instance_master(inst_name='XDIFFPAIR',
+                                         lib_name='bag2_analog',
+                                         cell_name='diffpair_p')
+            change_insts = ['XEN_TAIL', 'XEN_BIAS', 'XBIAS', 'XTAIL']
+            for inst in change_insts:
+                self.replace_instance_master(inst_name=inst,
                                              lib_name='BAG_prim',
                                              cell_name='pmos4_standard')
 
-        # Design instances
-        key_map = dict(XEN='en',
-                       XTAIL='tail',
-                       XINA='in',
-                       XINB='in')
-        for name, dict_key in key_map.items():
-            self.instances[name].design(l=l_dict[dict_key],
-                                        w=w_dict[dict_key],
-                                        nf=seg_dict[dict_key],
-                                        intent=th_dict[dict_key])
+        ### Design instances
+        inst_key_gen = dict(XEN_TAIL='en',
+                            XEN_BIAS='en',
+                            XTAIL='tail',
+                            XBIAS='tail')
+        inst_key_spec = dict(XEN_TAIL='en_tail',
+                             XEN_BIAS='en_bias',
+                             XTAIL='tail',
+                             XBIAS='bias')
+        diffpair_params = dict(lch=l_dict['in'],
+                               wch=w_dict['in'],
+                               nf=seg_dict['in'],
+                               intent=th_dict['in'])
+        res_params = dict(l=l_dict['res'],
+                          w=w_dict['res'],
+                          intent=th_dict['res'])
 
-        # Array DAC components for tuning and adjust wiring
-        ctrl_base = 'Bb' if in_type == 'p' else 'B'
-        conn_body = 'VDD' if in_type == 'p' else 'VSS'
-        if num_bits > 1:
-            num_dac_elems = 2**num_bits-1
-            ctrl_gate_lst = [] # Construct the gate connection
-            for i in range(num_bits)[::-1]:
-                prefix = f'<*{2**i}>' if i > 0 else ''
-                suffix = f'<{i}>'
-                ctrl_gate_lst = ctrl_gate_lst + [f'{prefix}{ctrl_base}{suffix}']
-            ctrl_gate = ','.join(ctrl_gate_lst)
-            self.array_instance('XEN', [f'XEN<{num_dac_elems-1}:0>'], [dict(D='VTAIL',
-                                                                            G=ctrl_gate,
-                                                                            S=f'VTAIL_EN<{num_dac_elems-1}:0>',
-                                                                            B=conn_body)])
-            self.array_instance('XTAIL', [f'XTAIL<{num_dac_elems-1}:0>'], [dict(D=f'VTAIL_EN<{num_dac_elems-1}:0>',
-                                                                                G='VAZ',
-                                                                                S=conn_body,
-                                                                                B=conn_body)])
-        else:
-            self.reconnect_instance_terminal('XEN', 'G', ctrl_base)
-    
-        self.reconnect_instance_terminal('XINA', 'B', conn_body)
-        self.reconnect_instance_terminal('XINB', 'B', conn_body)
-        
-        # Remove any unnecessary supply pin
+        for inst in inst_key_gen.keys():
+            gen_key = inst_key_gen[inst]
+            spec_key = inst_key_spec[inst]
+            self.instances[inst].design(l=l_dict[gen_key],
+                                        w=w_dict[gen_key],
+                                        intent=th_dict[gen_key],
+                                        nf=seg_dict[spec_key])
+
+        self.instances['XDIFFPAIR'].design(**diffpair_params)
+        self.instances['XRA'].design(**res_params)
+        self.instances['XRB'].design(**res_params)
+
+        ### Reconnect if PMOS
         if in_type == 'p':
-            self.remove_pin('VSS')
-        else:
-            self.remove_pin('VDD')
+            diffpair_conn = dict(VINP='VINP',
+                                 VINN='VINN',
+                                 VOUTP='VOUTP',
+                                 VOUTN='VOUTN',
+                                 VDD='VDD')
+            tail_conn = dict(D='VTAIL_EN',
+                             G='IBP',
+                             S='VDD',
+                             B='VDD')
+            bias_conn = dict(D='VBIAS_EN',
+                             G='IBP',
+                             S='VDD',
+                             B='VDD')
+            en_tail_conn = dict(D='VTAIL',
+                                G='Bb',
+                                S='VTAIL_EN',
+                                B='VDD')
+            en_bias_conn = dict(D='IBP',
+                                G='Bb',
+                                S='VBIAS_EN',
+                                B='VDD')
 
-        # Rename gate pin as necessary
-        if num_bits > 1:
-            self.rename_pin('B', f'{ctrl_base}<{num_bits-1}:0>')
+            conn_map = dict(XDIFFPAIR=diffpair_conn,
+                            XTAIL=tail_conn,
+                            XBIAS=bias_conn,
+                            XEN_TAIL=en_tail_conn,
+                            XEN_BIAS=en_bias_conn)
+
+            for inst, conn_dict in conn_map.items():
+                for pin, net in conn_dict.items():
+                    self.reconnect_instance_terminal(inst, pin, net)
+
+            self.reconnect_instance_terminal('XRA', 'PLUS', 'VOUTP')
+            self.reconnect_instance_terminal('XRB', 'PLUS', 'VOUTN')
+            self.reconnect_instance_terminal('XRA', 'MINUS', 'VSS')
+            self.reconnect_instance_terminal('XRB', 'MINUS', 'VSS')
+
+        ### Remove unused bias pin
+        rm_bias = 'IBN' if in_type == 'p' else 'IBP'
+        self.remove_pin(rm_bias)
+
+        ### Rename control pin as necessary
+        if in_type == 'p':
+            self.rename_pin('B', 'Bb')

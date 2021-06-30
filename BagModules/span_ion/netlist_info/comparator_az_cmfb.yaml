@@ -27,15 +27,15 @@ instances:
         net_name: "B"
         num_bits: 1
       SIGNN:
-        direction: input
+        direction: 
         net_name: "VSS"
         num_bits: 1
       SIGNP:
-        direction: input
+        direction: 
         net_name: "VDD"
         num_bits: 1
       VAZ:
-        direction: input
+        direction: 
         net_name: "VAZ_AUX"
         num_bits: 1
       VINN:
@@ -71,15 +71,15 @@ instances:
         net_name: "B"
         num_bits: 1
       SIGNN:
-        direction: input
+        direction: 
         net_name: "VDD"
         num_bits: 1
       SIGNP:
-        direction: input
+        direction: 
         net_name: "VSS"
         num_bits: 1
       VAZ:
-        direction: input
+        direction: 
         net_name: "VAZ_MAIN"
         num_bits: 1
       VINN:

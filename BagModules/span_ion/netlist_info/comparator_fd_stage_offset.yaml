@@ -1,47 +1,27 @@
 lib_name: span_ion
 cell_name: comparator_fd_stage_offset
-pins: [ "VDD", "VSS", "VINP", "VINN", "IBN", "VAZ", "SIGNP", "VOUTP", "B", "SIGNN", "VOUTN", "Bb" ]
+pins: [ "VDD", "VSS", "VINP", "VINN", "IBP_OS", "VOSP", "VOSN", "VOUTP", "B", "IBN_OS", "VOUTN", "Bb", "IBN_MAIN", "IBP_MAIN" ]
 instances:
-  XOFFSET_UP:
+  XOFFSET:
     lib_name: span_ion
     cell_name: comparator_fd_offset
     instpins:
-      VSS:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      VDD:
-        direction: inputOutput
-        net_name: "VDD"
-        num_bits: 1
-      VOUTN:
-        direction: output
-        net_name: "VOUTN"
-        num_bits: 1
-      VOUTP:
-        direction: output
-        net_name: "VOUTP"
-        num_bits: 1
-      B:
+      IBN:
         direction: input
-        net_name: "Bb"
+        net_name: "IBN_OS"
         num_bits: 1
-      SIGNN:
+      VINN:
         direction: input
-        net_name: "SIGNP"
+        net_name: "VOSN"
         num_bits: 1
-      SIGNP:
+      IBP:
         direction: input
-        net_name: "SIGNN"
+        net_name: "IBP_OS"
         num_bits: 1
-      VAZ:
+      VINP:
         direction: input
-        net_name: "VAZ"
+        net_name: "VOSP"
         num_bits: 1
-  XOFFSET_DOWN:
-    lib_name: span_ion
-    cell_name: comparator_fd_offset
-    instpins:
       VSS:
         direction: inputOutput
         net_name: "VSS"
@@ -62,18 +42,6 @@ instances:
         direction: input
         net_name: "B"
         num_bits: 1
-      SIGNN:
-        direction: input
-        net_name: "SIGNN"
-        num_bits: 1
-      SIGNP:
-        direction: input
-        net_name: "SIGNP"
-        num_bits: 1
-      VAZ:
-        direction: input
-        net_name: "VAZ"
-        num_bits: 1
   PIN1:
     lib_name: basic
     cell_name: iopin
@@ -81,6 +49,18 @@ instances:
   PIN0:
     lib_name: basic
     cell_name: iopin
+    instpins: {}
+  PIN16:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN15:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN14:
+    lib_name: basic
+    cell_name: ipin
     instpins: {}
   PIN8:
     lib_name: basic
@@ -91,10 +71,6 @@ instances:
     cell_name: ipin
     instpins: {}
   PIN6:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
-  PIN5:
     lib_name: basic
     cell_name: ipin
     instpins: {}
@@ -128,7 +104,7 @@ instances:
     instpins:
       IBN:
         direction: input
-        net_name: "IBN"
+        net_name: "IBN_MAIN"
         num_bits: 1
       VSS:
         direction: inputOutput
