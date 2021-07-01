@@ -1,6 +1,6 @@
 lib_name: span_ion
 cell_name: comparator_fd_offset
-pins: [ "VDD", "VSS", "IBP", "VINP", "IBN", "VINN", "VOUTP", "VOUTN", "B" ]
+pins: [ "VDD", "VSS", "IBP", "VINP", "IBN", "VINN", "Bb", "VOUTP", "VOUTN", "B" ]
 instances:
   XEN_BIAS:
     lib_name: BAG_prim
@@ -118,6 +118,10 @@ instances:
     lib_name: basic
     cell_name: iopin
     instpins: {}
+  PIN13:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
   PIN10:
     lib_name: basic
     cell_name: ipin
@@ -146,13 +150,53 @@ instances:
     lib_name: basic
     cell_name: opin
     instpins: {}
+  XEN_RESA:
+    lib_name: BAG_prim
+    cell_name: pmos4_standard
+    instpins:
+      S:
+        direction: inputOutput
+        net_name: "VOUTN_EN"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VOUTN"
+        num_bits: 1
+      B:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      G:
+        direction: inputOutput
+        net_name: "Bb"
+        num_bits: 1
+  XEN_RESB:
+    lib_name: BAG_prim
+    cell_name: pmos4_standard
+    instpins:
+      S:
+        direction: inputOutput
+        net_name: "VOUTP_EN"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VOUTP"
+        num_bits: 1
+      B:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      G:
+        direction: inputOutput
+        net_name: "Bb"
+        num_bits: 1
   XRB:
     lib_name: BAG_prim
     cell_name: res_standard
     instpins:
       MINUS:
         direction: inputOutput
-        net_name: "VOUTN"
+        net_name: "VOUTN_EN"
         num_bits: 1
       PLUS:
         direction: inputOutput
@@ -164,7 +208,7 @@ instances:
     instpins:
       MINUS:
         direction: inputOutput
-        net_name: "VOUTP"
+        net_name: "VOUTP_EN"
         num_bits: 1
       PLUS:
         direction: inputOutput

@@ -132,29 +132,10 @@ class span_ion__comparator_az(Module):
             self.reconnect_instance_terminal('XAUX_AMP', f'IBN{suffix_aux_amp_n}', f'IBN_AUX_AMP{suffix_aux_amp_n}')
 
         ### Wiring up tuning bits
-        main_in_type = main_os_params['in_type']
-        aux_in_type = aux_os_params['in_type']
-        rm_bb = 'p' not in (main_in_type, aux_in_type)
-        rm_b = 'n' not in (main_in_type, aux_in_type)
-        keep_bb = not rm_bb
-        keep_b = not rm_b
-
-        if rm_bb:
-            self.remove_pin('Bb')
-        if rm_b:
-            self.remove_pin('B')
-
         if num_bits > 1:
             suffix_bits = f'<{num_bits-1}:0>'
-            if keep_bb:
-                self.rename_pin('Bb', f'Bb{suffix_bits}')
-                if main_in_type == 'p':
-                    self.reconnect_instance_terminal('XMAIN_OS', f'Bb{suffix_bits}', f'Bb{suffix_bits}')
-                if aux_in_type == 'p':
-                    self.reconnect_instance_terminal('XAUX_OS', f'Bb{suffix_bits}', f'Bb{suffix_bits}')
-            if keep_b:
-                self.rename_pin('B', f'B{suffix_bits}')
-                if main_in_type == 'n':
-                    self.reconnect_instance_terminal('XMAIN_OS', f'B{suffix_bits}', f'B{suffix_bits}')
-                if aux_in_type == 'n':
-                    self.reconnect_instance_terminal('XAUX_OS', f'B{suffix_bits}', f'B{suffix_bits}')
+            self.rename_pin('Bb', f'Bb{suffix_bits}')
+            self.rename_pin('B', f'B{suffix_bits}')
+            for inst_name in ('XMAIN_OS', 'XAUX_OS'):
+                for pin_name in ('Bb', 'B'):
+                    self.reconnect_instance_terminal(inst_name, f'{pin_name}{suffix_bits}', f'{pin_name}{suffix_bits}')

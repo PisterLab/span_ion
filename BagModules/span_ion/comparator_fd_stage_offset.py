@@ -79,10 +79,8 @@ class span_ion__comparator_fd_stage_offset(Module):
                                                                            B=f'B{suffix_dac}',
                                                                            Bb=f'Bb{suffix_dac}')])
             # Rename control pin
-            rm_ctrl = 'Bb' if in_type == 'n' else 'B'
-            kp_ctrl = 'B' if in_type == 'n' else 'Bb'
-            self.remove_pin(rm_ctrl)
-            self.rename_pin(kp_ctrl, f'{kp_ctrl}{suffix_dac}')
+            self.rename_pin('B', f'B{suffix_dac}')
+            self.rename_pin('Bb', f'Bb{suffix_dac}')
 
         ### Wiring up biasing for main amp and removing unnecessary biasing pins
         if in_type == 'p':

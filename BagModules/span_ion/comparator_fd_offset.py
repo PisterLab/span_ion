@@ -72,16 +72,24 @@ class span_ion__comparator_fd_offset(Module):
                 self.replace_instance_master(inst_name=inst,
                                              lib_name='BAG_prim',
                                              cell_name='pmos4_standard')
+            for inst in ('XEN_RESA', 'XEN_RESB'):
+                self.replace_instance_master(inst_name=inst,
+                                             lib_name='BAG_prim',
+                                             cell_name='nmos4_standard')
 
         ### Design instances
-        inst_key_gen = dict(XEN_TAIL='en',
-                            XEN_BIAS='en',
+        inst_key_gen = dict(XEN_TAIL='en_tail',
+                            XEN_BIAS='en_tail',
                             XTAIL='tail',
-                            XBIAS='tail')
+                            XBIAS='tail',
+                            XEN_RESA='en_res',
+                            XEN_RESB='en_res')
         inst_key_spec = dict(XEN_TAIL='en_tail',
                              XEN_BIAS='en_bias',
                              XTAIL='tail',
-                             XBIAS='bias')
+                             XBIAS='bias',
+                             XEN_RESA='en_res',
+                             XEN_RESB='en_res')
         diffpair_params = dict(lch=l_dict['in'],
                                wch=w_dict['in'],
                                nf=seg_dict['in'],
@@ -125,26 +133,29 @@ class span_ion__comparator_fd_offset(Module):
                                 G='Bb',
                                 S='VBIAS_EN',
                                 B='VDD')
+            en_res_conn = dict(G='B',
+                               B='VSS',
+                               S='VSS')
 
             conn_map = dict(XDIFFPAIR=diffpair_conn,
                             XTAIL=tail_conn,
                             XBIAS=bias_conn,
                             XEN_TAIL=en_tail_conn,
-                            XEN_BIAS=en_bias_conn)
+                            XEN_BIAS=en_bias_conn,
+                            XEN_RESA=en_res_conn,
+                            XEN_RESB=en_res_conn,)
 
             for inst, conn_dict in conn_map.items():
                 for pin, net in conn_dict.items():
                     self.reconnect_instance_terminal(inst, pin, net)
 
-            self.reconnect_instance_terminal('XRA', 'PLUS', 'VOUTP')
-            self.reconnect_instance_terminal('XRB', 'PLUS', 'VOUTN')
-            self.reconnect_instance_terminal('XRA', 'MINUS', 'VSS')
-            self.reconnect_instance_terminal('XRB', 'MINUS', 'VSS')
+            self.reconnect_instance_terminal('XRA', 'PLUS', 'VOUTP_EN')
+            self.reconnect_instance_terminal('XRB', 'PLUS', 'VOUTN_EN')
+            self.reconnect_instance_terminal('XRA', 'MINUS', 'VOUTP')
+            self.reconnect_instance_terminal('XRB', 'MINUS', 'VOUTN')
+            self.reconnect_instance_terminal('XEN_RESA', 'D', 'VOUTP_EN')
+            self.reconnect_instance_terminal('XEN_RESB', 'D', 'VOUTN_EN')
 
         ### Remove unused bias pin
         rm_bias = 'IBN' if in_type == 'p' else 'IBP'
         self.remove_pin(rm_bias)
-
-        ### Rename control pin as necessary
-        if in_type == 'p':
-            self.rename_pin('B', 'Bb')
