@@ -138,34 +138,6 @@ instances:
         direction: inputOutput
         net_name: "VOUTP_MAIN"
         num_bits: 1
-  XSW_AUX<1:0>:
-    lib_name: bag2_analog
-    cell_name: switch_mos
-    instpins:
-      BN:
-        direction: input
-        net_name: "<*2>VSS"
-        num_bits: 2
-      CTRLb:
-        direction: input
-        net_name: "<*2>PHIAb"
-        num_bits: 2
-      CTRL:
-        direction: input
-        net_name: "<*2>PHIA"
-        num_bits: 2
-      BP:
-        direction: input
-        net_name: "<*2>VDD"
-        num_bits: 2
-      S:
-        direction: inputOutput
-        net_name: "VOSP_AUX,VOSN_AUX"
-        num_bits: 2
-      D:
-        direction: inputOutput
-        net_name: "VOUTP_AUX,VOUTN_AUX"
-        num_bits: 2
   XSW_MAIN<1:0>:
     lib_name: bag2_analog
     cell_name: switch_mos
@@ -189,6 +161,34 @@ instances:
       S:
         direction: inputOutput
         net_name: "VOSP_MAIN,VOSN_MAIN"
+        num_bits: 2
+      D:
+        direction: inputOutput
+        net_name: "VOUTP_AUX,VOUTN_AUX"
+        num_bits: 2
+  XSW_AUX<1:0>:
+    lib_name: bag2_analog
+    cell_name: switch_mos
+    instpins:
+      BN:
+        direction: input
+        net_name: "<*2>VSS"
+        num_bits: 2
+      CTRLb:
+        direction: input
+        net_name: "<*2>PHIAb"
+        num_bits: 2
+      CTRL:
+        direction: input
+        net_name: "<*2>PHIA"
+        num_bits: 2
+      BP:
+        direction: input
+        net_name: "<*2>VDD"
+        num_bits: 2
+      S:
+        direction: inputOutput
+        net_name: "VOSP_AUX,VOSN_AUX"
         num_bits: 2
       D:
         direction: inputOutput
@@ -250,18 +250,6 @@ instances:
         direction: inputOutput
         net_name: "VINN"
         num_bits: 1
-  XC_AUX<1:0>:
-    lib_name: bag2_wrappers
-    cell_name: cap_ideal
-    instpins:
-      MINUS:
-        direction: inputOutput
-        net_name: "<*2>VSS"
-        num_bits: 2
-      PLUS:
-        direction: inputOutput
-        net_name: "VOSP_AUX,VOSN_AUX"
-        num_bits: 2
   XC_MAIN<1:0>:
     lib_name: bag2_wrappers
     cell_name: cap_ideal
@@ -274,11 +262,19 @@ instances:
         direction: inputOutput
         net_name: "VOSP_MAIN,VOSN_MAIN"
         num_bits: 2
+  XC_AUX<1:0>:
+    lib_name: bag2_wrappers
+    cell_name: cap_ideal
+    instpins:
+      MINUS:
+        direction: inputOutput
+        net_name: "<*2>VSS"
+        num_bits: 2
+      PLUS:
+        direction: inputOutput
+        net_name: "VOSP_AUX,VOSN_AUX"
+        num_bits: 2
   PIN26:
-    lib_name: basic
-    cell_name: opin
-    instpins: {}
-  PIN25:
     lib_name: basic
     cell_name: opin
     instpins: {}
@@ -291,6 +287,10 @@ instances:
     cell_name: opin
     instpins: {}
   PIN0:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN25:
     lib_name: basic
     cell_name: opin
     instpins: {}

@@ -9,7 +9,7 @@ import numpy as np
 from bag.design.module import Module
 from . import DesignModule, get_mos_db, estimate_vth, parallel, verify_ratio, num_den_add, enable_print, disable_print
 from bag.data.lti import LTICircuit, get_w_3db, get_stability_margins
-from .amp_diff_mirr import bag2_analog__amp_diff_mirr_dsn
+from .amp_diff_mirr_bias import bag2_analog__amp_diff_mirr_bias_dsn
 from .constant_gm import bag2_analog__constant_gm_dsn
 
 # noinspection PyPep8Naming
@@ -36,7 +36,7 @@ class bag2_analog__bandgap_dsn(DesignModule):
             th_dict = 'Transistor flavor dictionary.',
             l_dict = 'Transistor channel length dictionary',
             sim_env = 'Simulation environment',
-            diode_params = 'tempco=temperature coefficient of 1 device (+V/K), isat=300K saturation current, ion=300K on-current, swing=V/decade of current',
+            diode_params = 'tempco=temperature coefficient of 1 device (+V/K), von=300K voltage for single diode, ion=300K on-current for single diode, swing=V/decade of current',
             vdd = 'Supply voltage in volts.',
             diode_mult = 'Multiplier for diodes',
             amp_dsn_params = 'Amplifier parameters excepting physical device parameters and input/output biasing',
@@ -59,7 +59,7 @@ class bag2_analog__bandgap_dsn(DesignModule):
         # TODO ideally there would be some diode characterization, but we calculate things for now
         diode_params = params['diode_params']
         tempco_1x = diode_params['tempco']
-        isat_1x = diode_params['isat']
+        vdio_1x = diode_params['von']
         ion = diode_params['ion']
         swing = diode_params['swing']
 
@@ -71,7 +71,7 @@ class bag2_analog__bandgap_dsn(DesignModule):
 
         ### Calculate resistor values ###
         # Calculate room temperature voltages of the diodes
-        vdio_1x = np.log10(ion/isat_1x) * swing
+        isat_1x = ion / 10**(vdio_1x/swing)
         vdio_Nx = np.log10((ion/diode_mult)/isat_1x) * swing
         tempco_diff = (vdio_1x-vdio_Nx)/300
 
@@ -127,8 +127,6 @@ class bag2_analog__bandgap_dsn(DesignModule):
         # Get info regarding the passives outside the amplifier and constant gm
         passive_info = self.dsn_passives(**params)
 
-        # assert False, 'blep'
-
         # Spec out amplifier
         vbg = passive_info['vbg']
         idiode = passive_info['ibranch']
@@ -140,6 +138,8 @@ class bag2_analog__bandgap_dsn(DesignModule):
         amp_specfile_dict = dict()
         amp_th_dict = dict()
         amp_l_dict = dict()
+
+        assert False, 'blep'
 
         for k in ('in', 'tail', 'load'):
             amp_specfile_dict[k] = specfile_dict[f'amp_{k}']
@@ -173,7 +173,7 @@ class bag2_analog__bandgap_dsn(DesignModule):
         # Keep track of viable ops
         viable_op_list = []
 
-        amp_dsn_mod = bag2_analog__amp_diff_mirr_dsn()
+        amp_dsn_mod = bag2_analog__amp_diff_mirr_bias_dsn()
         constgm_dsn_mod = bag2_analog__constant_gm_dsn()
 
         # Design active components

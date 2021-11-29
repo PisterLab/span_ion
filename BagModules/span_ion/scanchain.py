@@ -62,11 +62,12 @@ class span_ion__scanchain(Module):
         suffix_forward_full = f'<{num_bits-1}:0>'
         suffix_backward_full = f'<0:{num_bits - 1}>'
         suffix_backward_short = f'<0:{num_bits - 2}>'
+        suffix_backward_jump = f'<1:{num_bits - 1}>'
         cells_conn_dict = { 'LOAD_INb'      : f'SCAN_LOADb,LOADb{suffix_backward_short}',
                             'DATA_INb<0>'   : f'SCAN_INb,SHIFTb0{suffix_backward_short}',
                             'DATA_INb<1>'   : f'SCAN_INb,SHIFTb1{suffix_backward_short}',
                             'DATA_INb<2>'   : f'SCAN_INb,SHIFTb2{suffix_backward_short}',
-                            'CLK_IN'        : f'SCAN_CLKb,CLKINT{suffix_backward_short}',
+                            'CLK_IN'        : f'CLKINT{suffix_backward_jump},SCAN_CLK',
                             'LOAD_NEXTb'    : f'LOADb{suffix_backward_full}',
                             'DATA_OUT'      : f'SCAN_DATA{suffix_forward_full}',
                             'DATA_NEXTb<0>' : f'SHIFTb0{suffix_backward_short},SCAN_OUTb',
@@ -81,7 +82,7 @@ class span_ion__scanchain(Module):
 
         ### NoConns used for intermediate signals
         self.reconnect_instance_terminal('XNOCONN_LOAD', 'noConn', f'LOADb<{num_bits-1}>')
-        self.reconnect_instance_terminal('XNOCONN_CLK', 'noConn', f'CLKINT<{num_bits - 1}>')
+        self.reconnect_instance_terminal('XNOCONN_CLK', 'noConn', f'CLKINT<0>')
 
         ### Rename data out pin
         self.rename_pin('SCAN_DATA', f'SCAN_DATA{suffix_forward_full}')

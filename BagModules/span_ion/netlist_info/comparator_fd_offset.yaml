@@ -42,26 +42,6 @@ instances:
         direction: inputOutput
         net_name: "IBN"
         num_bits: 1
-  XTAIL:
-    lib_name: BAG_prim
-    cell_name: nmos4_standard
-    instpins:
-      S:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      D:
-        direction: inputOutput
-        net_name: "VTAIL_EN"
-        num_bits: 1
-      B:
-        direction: inputOutput
-        net_name: "VSS"
-        num_bits: 1
-      G:
-        direction: inputOutput
-        net_name: "IBN"
-        num_bits: 1
   XEN_TAIL:
     lib_name: BAG_prim
     cell_name: nmos4_standard
@@ -81,6 +61,26 @@ instances:
       G:
         direction: inputOutput
         net_name: "B"
+        num_bits: 1
+  XTAIL:
+    lib_name: BAG_prim
+    cell_name: nmos4_standard
+    instpins:
+      S:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VTAIL_EN"
+        num_bits: 1
+      B:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      G:
+        direction: inputOutput
+        net_name: "IBN"
         num_bits: 1
   XDIFFPAIR:
     lib_name: bag2_analog
@@ -118,10 +118,6 @@ instances:
     lib_name: basic
     cell_name: iopin
     instpins: {}
-  PIN13:
-    lib_name: basic
-    cell_name: ipin
-    instpins: {}
   PIN10:
     lib_name: basic
     cell_name: ipin
@@ -142,6 +138,10 @@ instances:
     lib_name: basic
     cell_name: ipin
     instpins: {}
+  PIN13:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
   PIN9:
     lib_name: basic
     cell_name: opin
@@ -150,17 +150,17 @@ instances:
     lib_name: basic
     cell_name: opin
     instpins: {}
-  XEN_RESA:
+  XEN_RESB:
     lib_name: BAG_prim
     cell_name: pmos4_standard
     instpins:
       S:
         direction: inputOutput
-        net_name: "VOUTN_EN"
+        net_name: "VDD"
         num_bits: 1
       D:
         direction: inputOutput
-        net_name: "VOUTN"
+        net_name: "VOUTP_EN"
         num_bits: 1
       B:
         direction: inputOutput
@@ -170,17 +170,17 @@ instances:
         direction: inputOutput
         net_name: "Bb"
         num_bits: 1
-  XEN_RESB:
+  XEN_RESA:
     lib_name: BAG_prim
     cell_name: pmos4_standard
     instpins:
       S:
         direction: inputOutput
-        net_name: "VOUTP_EN"
+        net_name: "VDD"
         num_bits: 1
       D:
         direction: inputOutput
-        net_name: "VOUTP"
+        net_name: "VOUTN_EN"
         num_bits: 1
       B:
         direction: inputOutput
@@ -196,11 +196,11 @@ instances:
     instpins:
       MINUS:
         direction: inputOutput
-        net_name: "VOUTN_EN"
+        net_name: "VOUTN"
         num_bits: 1
       PLUS:
         direction: inputOutput
-        net_name: "VDD"
+        net_name: "VOUTN_EN"
         num_bits: 1
   XRA:
     lib_name: BAG_prim
@@ -208,9 +208,9 @@ instances:
     instpins:
       MINUS:
         direction: inputOutput
-        net_name: "VOUTP_EN"
+        net_name: "VOUTP"
         num_bits: 1
       PLUS:
         direction: inputOutput
-        net_name: "VDD"
+        net_name: "VOUTP_EN"
         num_bits: 1

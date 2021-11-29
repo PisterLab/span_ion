@@ -94,11 +94,11 @@ instances:
     lib_name: basic
     cell_name: opin
     instpins: {}
-  PIN7:
+  PIN3:
     lib_name: basic
     cell_name: opin
     instpins: {}
-  PIN3:
+  PIN7:
     lib_name: basic
     cell_name: opin
     instpins: {}

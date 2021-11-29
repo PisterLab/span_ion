@@ -1,6 +1,6 @@
 lib_name: span_ion
 cell_name: scanchain
-pins: [ "SCAN_CLKb", "SCAN_INb", "SCAN_LOADb", "VDD", "VSS", "SCAN_DATA", "SCAN_OUTb" ]
+pins: [ "SCAN_INb", "SCAN_LOADb", "VDD", "VSS", "SCAN_DATA", "SCAN_OUTb", "SCAN_CLK" ]
 instances:
   XCELL:
     lib_name: span_ion
@@ -52,7 +52,7 @@ instances:
         num_bits: 1
       CLK_IN:
         direction: input
-        net_name: "SCAN_CLKb"
+        net_name: "SCAN_CLK"
         num_bits: 1
       LOAD_INb:
         direction: input

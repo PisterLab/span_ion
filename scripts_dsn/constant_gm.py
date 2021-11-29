@@ -143,19 +143,19 @@ class bag2_analog__constant_gm_dsn(DesignModule):
                                 print(f"ibias {imain+iside}")
                                 break
 
-                            viable_op = dict(nf_diode_p=nf_main_diode if not res_n else nf_side_diode,
-                                             nf_diode_n=nf_main_diode if res_n else nf_side_diode,
-                                             nf_nondiode_p=nf_main_nondiode if res_n else nf_side_nondiode,
-                                             nf_nondiode_n=nf_main_nondiode if not res_n else nf_side_nondiode,
-                                             vgn=vg_n,
-                                             vgp=vg_p,
-                                             vsn=vs_n,
-                                             vsp=vs_p,
-                                             imain=imain,
-                                             iside=iside,
-                                             ibias=imain+iside,
-                                             res_val=res_val,
-                                             nf_side_nondiode=nf_side_nondiode)
+                            viable_op = dict(nf_diode_p=int(nf_main_diode if not res_n else nf_side_diode),
+                                             nf_diode_n=int(nf_main_diode if res_n else nf_side_diode),
+                                             nf_nondiode_p=int(nf_main_nondiode if res_n else nf_side_nondiode),
+                                             nf_nondiode_n=int(nf_main_nondiode if not res_n else nf_side_nondiode),
+                                             vgn=float(vg_n),
+                                             vgp=float(vg_p),
+                                             vsn=float(vs_n),
+                                             vsp=float(vs_p),
+                                             imain=float(imain),
+                                             iside=float(iside),
+                                             ibias=float(imain+iside),
+                                             res_val=float(res_val),
+                                             nf_side_nondiode=int(nf_side_nondiode))
                             viable_op_list.append(viable_op)
                             print('\n(SUCCESS)')
                             print(viable_op)
