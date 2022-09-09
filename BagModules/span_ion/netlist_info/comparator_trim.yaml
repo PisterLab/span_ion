@@ -1,6 +1,6 @@
 lib_name: span_ion
 cell_name: comparator_trim
-pins: [ "IBN<1:0>", "VINP", "VINN", "IREFP", "VDD", "VSS", "VOUTP", "OUT", "VOUTN", "PULLUPb_N", "PULLUPb_P", "PULLDOWN_N", "PULLDOWN_P", "IBP<1:0>", "BP", "IREFN", "BN" ]
+pins: [ "IBN<1:0>", "VINP", "VINN", "IREFP", "VDD", "VSS", "VOUTP", "OUT", "VOUTN", "PULLUPb_N", "PULLUPb_P", "PULLDOWN_N", "PULLDOWN_P", "IBP<1:0>", "IREFN", "BN", "BPb" ]
 instances:
   XSINGLE:
     lib_name: bag2_analog
@@ -104,7 +104,7 @@ instances:
     instpins:
       B:
         direction: input
-        net_name: "BP"
+        net_name: "BPb"
         num_bits: 1
       IREF:
         direction: input
