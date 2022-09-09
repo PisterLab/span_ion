@@ -1,0 +1,108 @@
+lib_name: span_ion
+cell_name: dac_offset
+pins: [ "VDD", "VSS", "VOUTA", "VOUTB", "PULLB", "PULLA", "IREF", "B" ]
+instances:
+  XDIFFPAIR:
+    lib_name: bag2_analog
+    cell_name: diffpair_n
+    instpins:
+      VTAIL:
+        direction: inputOutput
+        net_name: "VTAIL"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VOUTN:
+        direction: output
+        net_name: "VOUTB"
+        num_bits: 1
+      VOUTP:
+        direction: output
+        net_name: "VOUTA"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "PULLA"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "PULLB"
+        num_bits: 1
+  PIN1:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN0:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN6:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN5:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN4:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN9:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  XMIRR:
+    lib_name: bag2_analog
+    cell_name: mirror_n
+    instpins:
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      out:
+        direction: output
+        net_name: "VDAC"
+        num_bits: 1
+      s_out:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+      in:
+        direction: input
+        net_name: "IREF"
+        num_bits: 1
+      s_in:
+        direction: input
+        net_name: "VSS"
+        num_bits: 1
+  PIN8:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN2:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  XEN:
+    lib_name: BAG_prim
+    cell_name: nmos4_standard
+    instpins:
+      S:
+        direction: inputOutput
+        net_name: "VDAC"
+        num_bits: 1
+      D:
+        direction: inputOutput
+        net_name: "VTAIL"
+        num_bits: 1
+      B:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      G:
+        direction: inputOutput
+        net_name: "B"
+        num_bits: 1
