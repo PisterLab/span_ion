@@ -83,8 +83,8 @@ class span_ion__dac_offset(Module):
             # Connect them as necessary
             diffpair_conn = dict(VINP='PULLAb',
                                  VINN='PULLBb',
-                                 VOUTP='VOUTA',
-                                 VOUTN='VOUTB',
+                                 VOUTP='VOUTB',
+                                 VOUTN='VOUTA',
                                  VTAIL='VTAIL',
                                  VDD='VDD')
 

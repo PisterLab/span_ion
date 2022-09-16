@@ -1,0 +1,132 @@
+lib_name: span_ion
+cell_name: comparator_fd_chain_trim
+pins: [ "PULLUPb_P", "PULLUPb_N", "Bb_UP", "B_DOWN", "PULLDOWN_N", "PULLDOWN_P", "IBN_TRIM", "IBP_TRIM", "IBN_AMP", "VSS", "VINN", "VOUTN", "VDD", "VINP", "VOUTP", "IBP_AMP" ]
+instances:
+  XSTAGE:
+    lib_name: span_ion
+    cell_name: comparator_fd_stage_trim
+    instpins:
+      Bb_UP:
+        direction: input
+        net_name: "Bb_UP"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUTN:
+        direction: output
+        net_name: "VOUTN"
+        num_bits: 1
+      VOUTP:
+        direction: output
+        net_name: "VOUTP"
+        num_bits: 1
+      B_DOWN:
+        direction: input
+        net_name: "B_DOWN"
+        num_bits: 1
+      IBN_AMP:
+        direction: input
+        net_name: "IBN_AMP"
+        num_bits: 1
+      IBN_TRIM:
+        direction: input
+        net_name: "IBN_TRIM"
+        num_bits: 1
+      IBP_TRIM:
+        direction: input
+        net_name: "IBP_TRIM"
+        num_bits: 1
+      PULLDOWN_N:
+        direction: input
+        net_name: "PULLDOWN_N"
+        num_bits: 1
+      PULLDOWN_P:
+        direction: input
+        net_name: "PULLDOWN_P"
+        num_bits: 1
+      PULLUPb_N:
+        direction: input
+        net_name: "PULLUPb_N"
+        num_bits: 1
+      PULLUPb_P:
+        direction: input
+        net_name: "PULLUPb_P"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "VINN"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VINP"
+        num_bits: 1
+  PIN17:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN15:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN4:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN5:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN6:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN9:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN10:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN11:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN12:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN13:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN14:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN7:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN2:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN16:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN8:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}

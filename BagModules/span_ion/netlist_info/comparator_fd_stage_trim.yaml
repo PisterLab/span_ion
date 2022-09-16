@@ -1,0 +1,168 @@
+lib_name: span_ion
+cell_name: comparator_fd_stage_trim
+pins: [ "VDD", "VSS", "VINP", "VINN", "IBN_AMP", "IBP_TRIM", "IBN_TRIM", "VOUTP", "VOUTN", "PULLUPb_P", "PULLUPb_N", "PULLDOWN_P", "PULLDOWN_N", "Bb_UP", "B_DOWN" ]
+instances:
+  XAMP:
+    lib_name: span_ion
+    cell_name: comparator_fd_stage
+    instpins:
+      IBN:
+        direction: input
+        net_name: "IBN_AMP"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUTN:
+        direction: output
+        net_name: "VOUTN"
+        num_bits: 1
+      VOUTP:
+        direction: output
+        net_name: "VOUTP"
+        num_bits: 1
+      VINN:
+        direction: input
+        net_name: "VINN"
+        num_bits: 1
+      VINP:
+        direction: input
+        net_name: "VINP"
+        num_bits: 1
+  XTRIMP:
+    lib_name: span_ion
+    cell_name: dac_offset
+    instpins:
+      B:
+        direction: input
+        net_name: "Bb_UP"
+        num_bits: 1
+      IREF:
+        direction: input
+        net_name: "IBP_TRIM"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUTA:
+        direction: output
+        net_name: "VOUTP"
+        num_bits: 1
+      VOUTB:
+        direction: output
+        net_name: "VOUTN"
+        num_bits: 1
+      PULLA:
+        direction: input
+        net_name: "PULLUPb_P"
+        num_bits: 1
+      PULLB:
+        direction: input
+        net_name: "PULLUPb_N"
+        num_bits: 1
+  XTRIMN:
+    lib_name: span_ion
+    cell_name: dac_offset
+    instpins:
+      B:
+        direction: input
+        net_name: "B_DOWN"
+        num_bits: 1
+      IREF:
+        direction: input
+        net_name: "IBN_TRIM"
+        num_bits: 1
+      VSS:
+        direction: inputOutput
+        net_name: "VSS"
+        num_bits: 1
+      VDD:
+        direction: inputOutput
+        net_name: "VDD"
+        num_bits: 1
+      VOUTA:
+        direction: output
+        net_name: "VOUTP"
+        num_bits: 1
+      VOUTB:
+        direction: output
+        net_name: "VOUTN"
+        num_bits: 1
+      PULLA:
+        direction: input
+        net_name: "PULLDOWN_P"
+        num_bits: 1
+      PULLB:
+        direction: input
+        net_name: "PULLDOWN_N"
+        num_bits: 1
+  PIN1:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN0:
+    lib_name: basic
+    cell_name: iopin
+    instpins: {}
+  PIN14:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN13:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN12:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN11:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN10:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN9:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN6:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN5:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN4:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN3:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN2:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN8:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
+  PIN7:
+    lib_name: basic
+    cell_name: opin
+    instpins: {}
