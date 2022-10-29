@@ -37,7 +37,8 @@ class span_ion__comparator_fd_stage(Module):
             l_dict = 'Dictionary of channel and resistor lengths, keys (res, in, tail)',
             w_dict = 'Dictionary of channel and resistor widhts, keys (res, in, tail)',
             th_dict = 'Dictionary of channel and resistor flavors, keys (res, in, tail)',
-            seg_dict = 'Dictionary of number of segments of devices (in, tail, bias)'
+            seg_dict = 'Dictionary of number of segments of devices (in, tail, bias)',
+            has_diode = 'True to include diode-connecting biasing device, False to just have the gate connection.'
         )
 
     def design(self, **params):
@@ -61,6 +62,7 @@ class span_ion__comparator_fd_stage(Module):
         w_dict = params['w_dict']
         th_dict = params['th_dict']
         seg_dict = params['seg_dict']
+        has_diode = params['has_diode']
 
         ### Replace instances if necessary
         if in_type == 'p':
@@ -69,9 +71,18 @@ class span_ion__comparator_fd_stage(Module):
                                              lib_name='BAG_prim',
                                              cell_name='pmos4_standard')
 
+            if has_diode:
+                self.replace_instance_master(inst_name='XIBIAS',
+                                             lib_name='bag2_analog',
+                                             cell_name='mirror_p')
+            else:
+                self.replace_instance_master(inst_name='XIBIAS',
+                                             lib_name='BAG_prim',
+                                             cell_name='pmos4_standard')
+        elif not has_diode:
             self.replace_instance_master(inst_name='XIBIAS',
-                                         lib_name='bag2_analog',
-                                         cell_name='mirror_p')
+                                         lib_name='BAG_prim',
+                                         cell_name='nmos4_standard')
 
         ### Design instances
         # Input
@@ -84,11 +95,18 @@ class span_ion__comparator_fd_stage(Module):
                                       nf=seg_dict['in'],
                                       intent=th_dict['in'])
         # Tail
-        self.instances['XIBIAS'].design(device_params=dict(l=l_dict['tail'],
-                                                           w=w_dict['tail'],
-                                                           intent=th_dict['tail']),
-                                        seg_in=seg_dict['bias'],
-                                        seg_out_list=[seg_dict['tail']])
+        if has_diode:
+            self.instances['XIBIAS'].design(device_params=dict(l=l_dict['tail'],
+                                                               w=w_dict['tail'],
+                                                               intent=th_dict['tail']),
+                                            seg_in=seg_dict['bias'],
+                                            seg_out_list=[seg_dict['tail']])
+        else:
+            self.instances['XIBIAS'].design(l=l_dict['tail'],
+                                            w=w_dict['tail'],
+                                            intent=th_dict['tail'],
+                                            nf=seg_dict['tail'])
+
         # Resistors
         self.instances['XRA'].design(w=w_dict['res'],
                                      l=l_dict['res'],
@@ -98,6 +116,8 @@ class span_ion__comparator_fd_stage(Module):
                                      intent=th_dict['res'])
 
         ### Reconnect instances if necessary
+        ibias_reconn_dict = dict()
+
         if in_type == 'p':
             # Resistors
             self.reconnect_instance_terminal('XRA', 'MINUS', 'VOUTN')
@@ -110,12 +130,31 @@ class span_ion__comparator_fd_stage(Module):
             self.reconnect_instance_terminal('XINB', 'B', 'VDD')
 
             # Biasing
-            self.reconnect_instance_terminal('XIBIAS', 'VDD', 'VDD')
-            self.reconnect_instance_terminal('XIBIAS', 's_in', 'VDD')
-            self.reconnect_instance_terminal('XIBIAS', 's_out', 'VDD')
-            self.reconnect_instance_terminal('XIBIAS', 'in', 'IBP')
-            self.reconnect_instance_terminal('XIBIAS', 'out', 'VTAIL')
+            if has_diode:
+                ibias_reconn_dict.update({'VDD' : 'VDD',
+                                          's_in' : 'VDD',
+                                          's_out' : 'VDD',
+                                          'in' : 'IBP',
+                                          'out' : 'VTAIL'})
+            else:
+                ibias_reconn_dict.update({'G' : 'VBP',
+                                          'S' : 'VDD',
+                                          'D' : 'VTAIL',
+                                          'B' : 'VDD'})
+        elif not has_diode:
+            ibias_reconn_dict.update({'G' : 'VBN',
+                                      'S' : 'VSS',
+                                      'D' : 'VTAIL',
+                                      'B' : 'VSS'})
+
+        for port, net in ibias_reconn_dict.items():
+            self.reconnect_instance_terminal('XIBIAS', port, net)
 
         ### Change pins as necessary
         if in_type == 'p':
-            self.rename_pin('IBN', 'IBP')
+            if has_diode:
+                self.rename_pin('IBN', 'IBP')
+            else:
+                self.rename_pin('IBN', 'VBP')
+        elif not has_diode:
+            self.rename_pin('IBN', 'VBN')

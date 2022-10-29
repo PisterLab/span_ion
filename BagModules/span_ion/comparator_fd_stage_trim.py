@@ -65,8 +65,15 @@ class span_ion__comparator_fd_stage_trim(Module):
 
         # Change pins as necessary
         if amp_params['in_type'] == 'p':
-            self.rename_pin('IBN_AMP', 'IBP_AMP')
-            self.reconnect_instance_terminal('XAMP', 'IBP', 'IBP_AMP')
+            if amp_params['has_diode']:
+                self.rename_pin('IBN_AMP', 'IBP_AMP')
+                self.reconnect_instance_terminal('XAMP', 'IBP', 'IBP_AMP')
+            else:
+                self.rename_pin('IBN_AMP', 'VBP_AMP')
+                self.reconnect_instance_terminal('XAMP', 'VBP', 'VBP_AMP')
+        elif not amp_params['has_diode']:
+            self.rename_pin('IBN_AMP', 'VBN_AMP')
+            self.reconnect_instance_terminal('XAMP', 'VBN', 'VBN_AMP')
 
         ### N-side trim
         if trim_n_params:

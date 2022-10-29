@@ -1,6 +1,6 @@
 lib_name: span_ion
 cell_name: comparator_fd_chain_trim
-pins: [ "PULLUPb_P", "PULLUPb_N", "Bb_UP", "B_DOWN", "PULLDOWN_N", "PULLDOWN_P", "IBN_TRIM", "IBP_TRIM", "IBN_AMP", "VSS", "VINN", "VOUTN", "VDD", "VINP", "VOUTP", "IBP_AMP" ]
+pins: [ "PULLUPb_P", "PULLUPb_N", "Bb_UP", "B_DOWN", "PULLDOWN_N", "PULLDOWN_P", "IBN_TRIM", "IBP_TRIM", "IBN_AMP", "VSS", "VINN", "VOUTN", "VDD", "VINP", "VOUTP", "IBP_AMP", "VBP_AMP", "VBN_AMP" ]
 instances:
   XSTAGE:
     lib_name: span_ion
@@ -66,7 +66,7 @@ instances:
         direction: input
         net_name: "VINP"
         num_bits: 1
-  PIN17:
+  PIN19:
     lib_name: basic
     cell_name: ipin
     instpins: {}
@@ -111,6 +111,14 @@ instances:
     cell_name: ipin
     instpins: {}
   PIN14:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN18:
+    lib_name: basic
+    cell_name: ipin
+    instpins: {}
+  PIN17:
     lib_name: basic
     cell_name: ipin
     instpins: {}

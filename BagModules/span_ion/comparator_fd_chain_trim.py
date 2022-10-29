@@ -62,8 +62,15 @@ class span_ion__comparator_fd_chain_trim(Module):
         idx_ibp_trim = 0
         idx_ibn_amp = 0
         idx_ibp_amp = 0
+        idx_vbn_amp = 0
+        idx_vbp_amp = 0
         idx_bb_up = 0
         idx_b_down = 0
+
+        num_ibn = sum([s['amp_params']['in_type']=='n' and s['amp_params']['has_diode'] for s in stage_params_list])
+        num_ibp = sum([s['amp_params']['in_type']=='p' and s['amp_params']['has_diode'] for s in stage_params_list])
+        num_vbn = sum([s['amp_params']['in_type']=='n' and not s['amp_params']['has_diode'] for s in stage_params_list])
+        num_vbp = sum([s['amp_params']['in_type']=='p' and not s['amp_params']['has_diode'] for s in stage_params_list])
 
         num_bb_up = sum([len(s['trim_p_params']['mirr_params']['seg_out_list']) for s in stage_params_list])
         num_b_down = sum([len(s['trim_n_params']['mirr_params']['seg_out_list']) for s in stage_params_list])
@@ -88,18 +95,40 @@ class span_ion__comparator_fd_chain_trim(Module):
                 has_trim_n = bool(stage_params['trim_n_params'])
                 has_trim_p = bool(stage_params['trim_p_params'])
                 amp_type = stage_params['amp_params']['in_type']
+                has_diode = stage_params['amp_params']['has_diode']
 
                 # Amp biasing current
                 if amp_type == 'n':
-                    pin_ib_amp = 'IBN_AMP'
-                    idx_ib_amp = idx_ibn_amp
-                    idx_ibn_amp = idx_ibn_amp + 1
+                    if has_diode:
+                        pin_ib_amp = 'IBN_AMP'
+                        idx_ib_amp = idx_ibn_amp
+                        idx_ibn_amp = idx_ibn_amp + 1
+                        num_check = num_ibn
+                    else:
+                        pin_vb_amp = 'VBN_AMP'
+                        idx_vb_amp = idx_vbn_amp
+                        idx_vbn_amp = idx_vbn_amp + 1
+                        num_check = num_vbn
                 else:
-                    pin_ib_amp = 'IBP_AMP'
-                    idx_ib_amp = idx_ibp_amp
-                    idx_ibp_amp = idx_ibp_amp + 1
-                conn_ib_amp = f'{pin_ib_amp}<{idx_ib_amp}>'
-                conn_dict[pin_ib_amp] = conn_ib_amp
+                    if has_diode:
+                        pin_ib_amp = 'IBP_AMP'
+                        idx_ib_amp = idx_ibp_amp
+                        idx_ibp_amp = idx_ibp_amp + 1
+                        num_check = num_ibp
+                    else:
+                        pin_vb_amp = 'VBP_AMP'
+                        idx_vb_amp = idx_vbp_amp
+                        idx_vbp_amp = idx_vbp_amp + 1
+                        num_check = num_vbp
+
+                if has_diode:
+                    suffix_ib_amp = f'{idx_ib_amp}' if num_check > 1 else ''
+                    conn_ib_amp = f'{pin_ib_amp}{suffix_ib_amp}'
+                    conn_dict[pin_ib_amp] = conn_ib_amp
+                else:
+                    suffix_vb_amp = f'<{idx_vb_amp}>' if num_check > 1 else ''
+                    conn_vb_amp = f'{pin_vb_amp}{suffix_vb_amp}'
+                    conn_dict[pin_vb_amp] = conn_vb_amp
 
                 # N-side trim
                 if has_trim_n:
@@ -132,7 +161,7 @@ class span_ion__comparator_fd_chain_trim(Module):
             self.array_instance('XSTAGE',
                                 [f'XSTAGE<{i}>' for i in range(num_stages)],
                                 conn_dict_list)
-            for i in range(num_stages):
+            for i, stage_params in enumerate(stage_params_list):
                 self.instances['XSTAGE'][i].design(**stage_params)
         else:
             stage_params = stage_params_list[0]
@@ -140,12 +169,20 @@ class span_ion__comparator_fd_chain_trim(Module):
             has_trim_n = bool(stage_params['trim_n_params'])
             has_trim_p = bool(stage_params['trim_p_params'])
             amp_type = stage_params['amp_params']['in_type']
+            has_diode = stage_params['amp_params']['has_diode']
 
             if amp_type == 'p':
-                self.reconnect_instance_terminal('XSTAGE', 'IBP_AMP', 'IBP_AMP')
-                idx_ibp_amp = idx_ibp_amp + 1
+                if has_diode:
+                    self.reconnect_instance_terminal('XSTAGE', 'IBP_AMP', 'IBP_AMP')
+                    idx_ibp_amp = idx_ibp_amp + 1
+                else:
+                    self.reconnect_instance_terminal('XSTAGE', 'VBP_AMP', 'VBP_AMP')
+                    idx_vbp_amp = idx_vbp_amp + 1
             else:
-                idx_ibn_amp = idx_ibn_amp + 1
+                if has_diode:
+                    idx_ibn_amp = idx_ibn_amp + 1
+                else:
+                    idx_vbn_amp = idx_vbn_amp + 1
 
             if has_trim_n:
                 idx_ibn_trim = idx_ibn_trim + 1
@@ -156,6 +193,8 @@ class span_ion__comparator_fd_chain_trim(Module):
         ### Renaming and removing pins as necessary
         pin_idx_map = dict(IBP_AMP=idx_ibp_amp,
                            IBN_AMP=idx_ibn_amp,
+                           VBP_AMP=idx_vbp_amp,
+                           VBN_AMP=idx_vbn_amp,
                            IBP_TRIM=idx_ibp_trim,
                            IBN_TRIM=idx_ibn_trim,
                            PULLUPb_P=idx_ibp_trim,
